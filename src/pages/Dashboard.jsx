@@ -7,7 +7,7 @@ const TARGET_MODEL = "llama-3.3-70b-versatile";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-export default function Dashboard() {
+export function Dashboard() {
     const [currentTheme, setCurTheme] = useState('dark');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('hub');
