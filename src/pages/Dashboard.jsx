@@ -1,668 +1,331 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { 
+  Search, 
+  Bell, 
+  ArrowRight, 
+  Activity, 
+  Brain, 
+  MessageSquare, 
+  Target, 
+  Calendar, 
+  Clock, 
+  Trophy, 
+  User, 
+  Newspaper,
+  Mouse
+} from 'lucide-react';
 
-const SUPABASE_URL = "https://dfcgbwfralikyqxzxlbd.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2did2ZyYWxpa3lxeHp4bGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1NTQwNDUsImV4cCI6MjA5OTEzMDA0NX0.EJM4uRCquMoWRj9VQI-fvfqLhnGM32WbZmipSjLdGA4";
-const GROQ_API_KEY = "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";
-const TARGET_MODEL = "llama-3.3-70b-versatile";
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-export function Dashboard() {
-    const [currentTheme, setCurTheme] = useState('dark');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState('hub');
-    const [queryText, setQueryText] = useState('');
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [cachedRecords, setCachedRecords] = useState([]);
-    const [selectedCardModal, setSelectedCardModal] = useState(null);
-    const [toastMessage, setToastMessage] = useState(null);
-
-    const currentDateLabel = "Current date: August 18, 2026";
-
-    const PERSONALITY_IDENTITY_PROMPT = `
-You are the AI engine for MTL Football Fans Hub. Analyze the user request and return a JSON object covering professional match statistics, odds, insights, and analysis. Append "${currentDateLabel}" where applicable.
-{
-  "hub_data": {
-    "title": "Matchup or Topic Title",
-    "category": "Live / AI Football / Chat / Predictions / Fixtures / Past Fixtures / Clubs / Players / Football IQ",
-    "metrics_summary": "Key performance data or stats summary (Text)",
-    "insight_details": "Comprehensive analytical breakdown of the requested topic, including tactical evaluation and current form trends. (One comprehensive paragraph)"
-  }
-}
-Return ONLY valid raw JSON without markdown formatting.
-`;
-
-    useEffect(() => {
-        checkAuthAndInit();
-    }, []);
-
-    const checkAuthAndInit = async () => {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error || !session) {
-            // Uncomment if auth is strictly enforced: window.location.href = "auth.html";
-        }
-        loadCache();
-    };
-
-    const loadCache = () => {
-        try {
-            const localData = localStorage.getItem("mtl_hub_records");
-            if (localData) {
-                setCachedRecords(JSON.parse(localData));
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
-    const triggerToast = (msg) => {
-        setToastMessage(msg);
-        setTimeout(() => setToastMessage(null), 2500);
-    };
-
-    const handleCardClick = (title, category) => {
-        setSelectedCardModal({ title, category, details: `Loading live intelligence vectors for ${title} as at ${currentDateLabel}...` });
-    };
-
-    const runAiQuery = async () => {
-        if (!queryText.trim()) {
-            triggerToast("PLEASE ENTER A QUERY.");
-            return;
-        }
-
-        setIsProcessing(true);
-        triggerToast("CONSULTING MTL AI NEURAL NETWORK...");
-
-        try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: TARGET_MODEL,
-                    messages: [
-                        { role: "system", content: PERSONALITY_IDENTITY_PROMPT },
-                        { role: "user", content: queryText }
-                    ],
-                    temperature: 0.2,
-                    response_format: { type: "json_object" }
-                })
-            });
-
-            if (!response.ok) throw new Error("API Fault");
-            const resData = await response.json();
-            const parsed = JSON.parse(resData.choices[0].message.content);
-
-            const updated = [parsed.hub_data, ...cachedRecords];
-            setCachedRecords(updated);
-            localStorage.setItem("mtl_hub_records", JSON.stringify(updated));
-            setSelectedCardModal(parsed.hub_data);
-            triggerToast("AI INSIGHT GENERATED SUCCESSFULLY.");
-            setQueryText('');
-        } catch (err) {
-            console.error(err);
-            triggerToast("GENERATION FAILED. TRY AGAIN.");
-        } finally {
-            setIsProcessing(false);
-        }
-    };
-
-    return (
-        <div className="hub-container">
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap');
-
-                * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-                body, html { background: #030712; color: #f3f4f6; overflow-x: hidden; width: 100vw; }
-
-                .hub-container {
-                    min-height: 100vh;
-                    background: radial-gradient(circle at 50% 15%, #0d1f14 0%, #030712 65%);
-                    position: relative;
-                    padding-bottom: 60px;
-                }
-
-                /* Header / Navigation Bar */
-                .hub-header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 20px 5%;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                    background: rgba(3, 7, 18, 0.85);
-                    backdrop-filter: blur(12px);
-                    position: sticky;
-                    top: 0;
-                    z-index: 1000;
-                }
-
-                .brand-logo {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    font-family: 'Orbitron', sans-serif;
-                    font-weight: 900;
-                    font-size: 15px;
-                    letter-spacing: 0.05em;
-                    color: #fff;
-                    cursor: pointer;
-                }
-                .brand-logo span { color: #22c55e; }
-                .brand-logo img { width: 34px; height: 34px; object-fit: contain; }
-
-                .nav-links {
-                    display: flex;
-                    gap: 32px;
-                    list-style: none;
-                }
-                .nav-links a {
-                    color: #9ca3af;
-                    text-decoration: none;
-                    font-size: 13px;
-                    font-weight: 600;
-                    letter-spacing: 0.08em;
-                    transition: color 0.2s ease;
-                }
-                .nav-links a:hover, .nav-links a.active { color: #22c55e; }
-
-                .nav-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 20px;
-                }
-                .icon-btn {
-                    background: none;
-                    border: none;
-                    color: #9ca3af;
-                    font-size: 16px;
-                    cursor: pointer;
-                    position: relative;
-                }
-                .icon-btn:hover { color: #fff; }
-                .notification-dot {
-                    position: absolute;
-                    top: -2px;
-                    right: -2px;
-                    width: 7px;
-                    height: 7px;
-                    background: #22c55e;
-                    border-radius: 50%;
-                }
-
-                .user-avatar-badge {
-                    width: 34px;
-                    height: 34px;
-                    border-radius: 50%;
-                    background: linear-gradient(135deg, #22c55e, #3b82f6);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 700;
-                    font-size: 12px;
-                    color: #fff;
-                    cursor: pointer;
-                }
-
-                /* Hero Section */
-                .hero-section {
-                    text-align: center;
-                    padding: 50px 20px 30px;
-                    position: relative;
-                }
-                .welcome-sub {
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 11px;
-                    letter-spacing: 0.3em;
-                    color: #22c55e;
-                    font-weight: 700;
-                    margin-bottom: 12px;
-                    text-transform: uppercase;
-                }
-                .hero-title {
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: clamp(32px, 6vw, 64px);
-                    font-weight: 900;
-                    line-height: 1.1;
-                    letter-spacing: -0.02em;
-                    color: #ffffff;
-                    text-transform: uppercase;
-                }
-                .hero-title span {
-                    display: block;
-                    background: linear-gradient(180deg, #ffffff 20%, #22c55e 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-                .hero-tagline {
-                    font-size: 13px;
-                    letter-spacing: 0.15em;
-                    color: #9ca3af;
-                    margin-top: 14px;
-                    text-transform: uppercase;
-                }
-
-                /* Stadium Arena Graphic Banner */
-                .stadium-graphic-wrapper {
-                    max-width: 1100px;
-                    margin: 20px auto 40px;
-                    padding: 0 20px;
-                    position: relative;
-                    text-align: center;
-                }
-                .central-ball {
-                    width: 90px;
-                    height: 90px;
-                    margin: 0 auto;
-                    filter: drop-shadow(0 0 25px rgba(34, 197, 94, 0.6));
-                    animation: floatBall 4s ease-in-out infinite;
-                }
-                @keyframes floatBall {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-8px); }
-                }
-
-                /* AI Search Quick Bar */
-                .ai-search-bar-container {
-                    max-width: 680px;
-                    margin: 0 auto 40px;
-                    padding: 0 20px;
-                }
-                .ai-search-inner {
-                    display: flex;
-                    background: rgba(15, 23, 42, 0.9);
-                    border: 1px solid rgba(34, 197, 94, 0.3);
-                    border-radius: 12px;
-                    padding: 6px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-                }
-                .ai-search-input {
-                    flex: 1;
-                    background: transparent;
-                    border: none;
-                    padding: 12px 16px;
-                    color: #fff;
-                    font-size: 13px;
-                    outline: none;
-                }
-                .ai-search-btn {
-                    background: #22c55e;
-                    color: #030712;
-                    border: none;
-                    font-family: 'Orbitron', sans-serif;
-                    font-weight: 700;
-                    font-size: 11px;
-                    padding: 0 20px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    letter-spacing: 0.05em;
-                    transition: background 0.2s;
-                }
-                .ai-search-btn:hover { background: #16a34a; }
-
-                /* 3x3 Cards Grid */
-                .cards-grid-container {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    padding: 0 20px;
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 24px;
-                }
-                @media(max-width: 960px) {
-                    .cards-grid-container { grid-template-columns: repeat(2, 1fr); }
-                    .hub-header .nav-links { display: none; }
-                }
-                @media(max-width: 640px) {
-                    .cards-grid-container { grid-template-columns: 1fr; }
-                }
-
-                .hub-card {
-                    background: linear-gradient(145deg, rgba(15, 23, 42, 0.75) 0%, rgba(10, 15, 28, 0.9) 100%);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 16px;
-                    padding: 28px 24px;
-                    position: relative;
-                    cursor: pointer;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    text-align: center;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                .hub-card:hover {
-                    border-color: rgba(34, 197, 94, 0.5);
-                    transform: translateY(-4px);
-                    box-shadow: 0 12px 40px rgba(34, 197, 94, 0.15);
-                }
-
-                .card-index-label {
-                    position: absolute;
-                    top: 18px;
-                    left: 20px;
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 11px;
-                    color: #6b7280;
-                    font-weight: 700;
-                    letter-spacing: 0.1em;
-                }
-
-                .card-badge-live {
-                    position: absolute;
-                    top: 18px;
-                    right: 20px;
-                    background: rgba(220, 38, 38, 0.2);
-                    border: 1px solid rgba(220, 38, 38, 0.4);
-                    color: #f87171;
-                    font-size: 9px;
-                    font-family: 'Orbitron', sans-serif;
-                    font-weight: 700;
-                    padding: 3px 8px;
-                    border-radius: 6px;
-                    letter-spacing: 0.08em;
-                }
-
-                .card-icon-frame {
-                    width: 72px;
-                    height: 72px;
-                    margin: 18px 0 16px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.25));
-                }
-                .card-icon-frame svg { width: 56px; height: 56px; }
-
-                .card-title {
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 16px;
-                    font-weight: 800;
-                    color: #ffffff;
-                    letter-spacing: 0.08em;
-                    margin-bottom: 8px;
-                    text-transform: uppercase;
-                }
-
-                .card-description {
-                    font-size: 12px;
-                    color: #9ca3af;
-                    line-height: 1.5;
-                    margin-bottom: 16px;
-                    max-width: 240px;
-                }
-
-                .card-footer-metric {
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 11px;
-                    font-weight: 700;
-                    letter-spacing: 0.08em;
-                    color: #22c55e;
-                    margin-top: auto;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                }
-
-                /* Modal Overlay */
-                .modal-overlay {
-                    position: fixed;
-                    inset: 0;
-                    background: rgba(3, 7, 18, 0.85);
-                    backdrop-filter: blur(8px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 20000;
-                    padding: 20px;
-                }
-                .modal-content-box {
-                    background: #0f172a;
-                    border: 1px solid rgba(34, 197, 94, 0.4);
-                    border-radius: 16px;
-                    width: 100%;
-                    max-width: 500px;
-                    padding: 30px;
-                    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-                    position: relative;
-                }
-                .modal-close-btn {
-                    position: absolute;
-                    top: 20px;
-                    right: 20px;
-                    background: none;
-                    border: none;
-                    color: #9ca3af;
-                    font-size: 16px;
-                    cursor: pointer;
-                }
-                .modal-close-btn:hover { color: #fff; }
-
-                /* Toast Notification */
-                .toast-notification {
-                    position: fixed;
-                    bottom: 30px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: #0f172a;
-                    border: 1px solid #22c55e;
-                    color: #22c55e;
-                    padding: 12px 24px;
-                    border-radius: 10px;
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 11px;
-                    font-weight: 700;
-                    letter-spacing: 0.08em;
-                    z-index: 99999;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-                }
-
-                /* Footer bottom text */
-                .hub-footer-bottom {
-                    text-align: center;
-                    margin-top: 50px;
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 10px;
-                    letter-spacing: 0.3em;
-                    color: #4b5563;
-                    text-transform: uppercase;
-                }
-            `}</style>
-
-            {/* HEADER NAVIGATION */}
-            <header className="hub-header">
-                <div className="brand-logo" onClick={() => setActiveSection('hub')}>
-                    <img src="https://api.iconify.icon/fluent-emoji-flat:soccer-ball.svg" alt="Logo" />
-                    MTL <span>FOOTBALL FANS HUB</span>
-                </div>
-                <ul className="nav-links">
-                    <li><a href="#home" className="active">HOME</a></li>
-                    <li><a href="#live">LIVE</a></li>
-                    <li><a href="#fixtures">FIXTURES</a></li>
-                    <li><a href="#predictions">PREDICTIONS</a></li>
-                    <li><a href="#community">COMMUNITY</a></li>
-                </ul>
-                <div className="nav-actions">
-                    <button className="icon-btn">🔍</button>
-                    <button className="icon-btn">
-                        🔔
-                        <span className="notification-dot"></span>
-                    </button>
-                    <div className="user-avatar-badge">MT</div>
-                </div>
-            </header>
-
-            {/* HERO SECTION */}
-            <section className="hero-section">
-                <div className="welcome-sub">W E L C O M E &nbsp; T O</div>
-                <h1 className="hero-title">
-                    FOOTBALL
-                    <span>FANS HUB</span>
-                </h1>
-                <p className="hero-tagline">— LIVE IT. PREDICT IT. OWN IT. —</p>
-            </section>
-
-            {/* STADIUM GRAPHIC BANNER */}
-            <div className="stadium-graphic-wrapper">
-                <img 
-                    src="https://api.iconify.icon/fluent-emoji:soccer-ball.svg" 
-                    alt="Soccer Ball" 
-                    className="central-ball"
-                />
+export default function FootballFansHub() {
+  return (
+    <div className="min-h-screen bg-[#05080c] text-white font-sans selection:bg-green-500 selection:text-black relative overflow-x-hidden">
+      
+      {/* Background Lighting & Glow Effects */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-gradient-to-b from-green-500/10 via-emerald-500/5 to-transparent pointer-events-none blur-3xl" />
+      
+      {/* ---------------- NAVIGATION BAR ---------------- */}
+      <header className="relative z-50 border-b border-white/10 bg-black/40 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full border border-green-500/50 bg-green-950/30 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+              {/* Shield/Soccer Ball Logo */}
+              <div className="w-6 h-6 border-2 border-green-400 rounded-lg flex items-center justify-center rotate-45">
+                <div className="w-2 h-2 bg-green-400 rounded-full" />
+              </div>
             </div>
-
-            {/* AI QUICK QUERY SEARCH BAR */}
-            <div className="ai-search-bar-container">
-                <div className="ai-search-inner">
-                    <input 
-                        type="text" 
-                        value={queryText}
-                        onChange={(e) => setQueryText(e.target.value)}
-                        placeholder="Ask MTL AI (e.g. Analyze Premier League title race as at August 18, 2026)..." 
-                        className="ai-search-input"
-                    />
-                    <button className="ai-search-btn" onClick={runAiQuery} disabled={isProcessing}>
-                        {isProcessing ? "PROCESSING..." : "ASK AI"}
-                    </button>
-                </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-[10px] tracking-widest text-gray-400 font-semibold">MTL</span>
+              <span className="text-lg font-black tracking-wider text-white">FOOTBALL</span>
+              <span className="text-[9px] tracking-[0.2em] text-green-400 font-bold -mt-1">FANS HUB</span>
             </div>
+          </div>
 
-            {/* 3x3 INTERACTIVE CARDS GRID EXACTLY MATCHING THE PROVIDED UI */}
-            <div className="cards-grid-container">
-                
-                {/* 01 LIVE */}
-                <div className="hub-card" onClick={() => handleCardClick("Live Matches & Real Time Action", "LIVE")}>
-                    <div className="card-index-label">01</div>
-                    <div className="card-badge-live">LIVE</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
-                    </div>
-                    <h2 className="card-title">LIVE</h2>
-                    <p className="card-description">Live Matches & Real Time Action</p>
-                    <div className="card-footer-metric">24 MATCHES LIVE →</div>
-                </div>
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-wider">
+            <a href="#home" className="text-green-400 border-b-2 border-green-400 pb-1 font-bold">HOME</a>
+            <a href="#live" className="text-gray-300 hover:text-white transition-colors">LIVE</a>
+            <a href="#fixtures" className="text-gray-300 hover:text-white transition-colors">FIXTURES</a>
+            <a href="#predictions" className="text-gray-300 hover:text-white transition-colors">PREDICTIONS</a>
+            <a href="#community" className="text-gray-300 hover:text-white transition-colors">COMMUNITY</a>
+          </nav>
 
-                {/* 02 AI FOOTBALL */}
-                <div className="hub-card" onClick={() => handleCardClick("AI Insights, Analysis & Smart Briefs", "AI FOOTBALL")}>
-                    <div className="card-index-label">02</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="1.5"><path d="M12 2a10 10 0 0 1 7.54 16.54L12 22l-7.54-3.46A10 10 0 0 1 12 2z"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#38bdf8' }}>AI FOOTBALL</h2>
-                    <p className="card-description">AI Insights, Analysis & Smart Briefs</p>
-                    <div className="card-footer-metric" style={{ color: '#38bdf8' }}>POWERED BY MTL AI →</div>
-                </div>
-
-                {/* 03 CHAT */}
-                <div className="hub-card" onClick={() => handleCardClick("Connect. Discuss. Celebrate.", "CHAT")}>
-                    <div className="card-index-label">03</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#a855f7' }}>CHAT</h2>
-                    <p className="card-description">Connect. Discuss. Celebrate.</p>
-                    <div className="card-footer-metric" style={{ color: '#a855f7' }}>8.4K FANS ONLINE →</div>
-                </div>
-
-                {/* 04 PREDICTIONS */}
-                <div className="hub-card" onClick={() => handleCardClick("Predict Matches. Earn Points. Climb the Ranks.", "PREDICTIONS")}>
-                    <div className="card-index-label">04</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#f97316' }}>PREDICTIONS</h2>
-                    <p className="card-description">Predict Matches. Earn Points. Climb the Ranks.</p>
-                    <div className="card-footer-metric" style={{ color: '#f97316' }}>12.7K PREDICTIONS TODAY →</div>
-                </div>
-
-                {/* 05 FIXTURES */}
-                <div className="hub-card" onClick={() => handleCardClick("Upcoming Matches & Schedules", "FIXTURES")}>
-                    <div className="card-index-label">05</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#22d3ee' }}>FIXTURES</h2>
-                    <p className="card-description">Upcoming Matches & Schedules</p>
-                    <div className="card-footer-metric" style={{ color: '#22d3ee' }}>128 MATCHES THIS WEEK →</div>
-                </div>
-
-                {/* 06 PAST FIXTURES */}
-                <div className="hub-card" onClick={() => handleCardClick("Results, History & Legendary Matches", "PAST FIXTURES")}>
-                    <div className="card-index-label">06</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#fbbf24' }}>PAST FIXTURES</h2>
-                    <p className="card-description">Results, History & Legendary Matches</p>
-                    <div className="card-footer-metric" style={{ color: '#fbbf24' }}>1900 → 3099 →</div>
-                </div>
-
-                {/* 07 CLUBS */}
-                <div className="hub-card" onClick={() => handleCardClick("Explore Clubs, Stats, Squads & History", "CLUBS")}>
-                    <div className="card-index-label">07</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="1.5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17h4v-2.34M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#4ade80' }}>CLUBS</h2>
-                    <p className="card-description">Explore Clubs, Stats, Squads & History</p>
-                    <div className="card-footer-metric" style={{ color: '#4ade80' }}>650+ CLUBS →</div>
-                </div>
-
-                {/* 08 PLAYERS */}
-                <div className="hub-card" onClick={() => handleCardClick("Profiles, Stats, Rankings & Comparisons", "PLAYERS")}>
-                    <div className="card-index-label">08</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#60a5fa' }}>PLAYERS</h2>
-                    <p className="card-description">Profiles, Stats, Rankings & Comparisons</p>
-                    <div className="card-footer-metric" style={{ color: '#60a5fa' }}>50K+ PLAYERS →</div>
-                </div>
-
-                {/* 09 FOOTBALL IQ */}
-                <div className="hub-card" onClick={() => handleCardClick("News, Opinions, Transfers & Tactical Insights", "FOOTBALL IQ")}>
-                    <div className="card-index-label">09</div>
-                    <div className="card-icon-frame">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="1.5"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2M18 14h-8M18 10h-8M14 18h-4"/></svg>
-                    </div>
-                    <h2 className="card-title" style={{ color: '#f43f5e' }}>FOOTBALL IQ</h2>
-                    <p className="card-description">News, Opinions, Transfers & Tactical Insights</p>
-                    <div className="card-footer-metric" style={{ color: '#f43f5e' }}>TRENDING NOW →</div>
-                </div>
-
+          {/* Header Action Icons */}
+          <div className="flex items-center gap-5">
+            <button className="text-gray-300 hover:text-white transition-colors">
+              <Search className="w-5 h-5" />
+            </button>
+            <button className="text-gray-300 hover:text-white transition-colors relative">
+              <Bell className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#05080c]" />
+            </button>
+            <div className="w-9 h-9 rounded-full overflow-hidden border border-white/20">
+              <img 
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" 
+                alt="User Profile" 
+                className="w-full h-full object-cover"
+              />
             </div>
-
-            <div className="hub-footer-bottom">
-                E X P L O R E &nbsp; T H E &nbsp; F O O T B A L L &nbsp; U N I V E R S E
-            </div>
-
-            {/* MODAL WINDOW */}
-            {selectedCardModal && (
-                <div className="modal-overlay" onClick={() => setSelectedCardModal(null)}>
-                    <div className="modal-content-box" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close-btn" onClick={() => setSelectedCardModal(null)}>✕</button>
-                        <span style={{ fontSize: '10px', fontFamily: 'Orbitron', color: '#22c55e', fontWeight: 700, letterSpacing: '0.1em' }}>
-                            {selectedCardModal.category || "MODULE INTEL"}
-                        </span>
-                        <h3 style={{ fontFamily: 'Orbitron', fontSize: '18px', fontWeight: 800, margin: '8px 0 12px', color: '#fff' }}>
-                            {selectedCardModal.title}
-                        </h3>
-                        {selectedCardModal.metrics_summary && (
-                            <div style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.2)', padding: '10px 14px', borderRadius: '8px', fontSize: '12px', color: '#22c55e', fontWeight: 600, marginBottom: '14px' }}>
-                                {selectedCardModal.metrics_summary}
-                            </div>
-                        )}
-                        <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#9ca3af' }}>
-                            {selectedCardModal.insight_details || selectedCardModal.details}
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {/* TOAST */}
-            {toastMessage && (
-                <div className="toast-notification">
-                    {toastMessage}
-                </div>
-            )}
+          </div>
         </div>
-    );
-}
+      </header>
+
+      {/* ---------------- HERO SECTION ---------------- */}
+      <section className="relative pt-12 pb-16 text-center px-4">
+        {/* Welcome Tag */}
+        <p className="text-xs font-bold tracking-[0.4em] text-green-400 uppercase mb-3">
+          W E L C O M E &nbsp; T O
+        </p>
+
+        {/* Hero Title */}
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-wider uppercase leading-none">
+          FOOTBALL
+        </h1>
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-wider uppercase text-green-400 leading-tight drop-shadow-[0_0_35px_rgba(34,197,94,0.4)]">
+          FANS HUB
+        </h1>
+
+        {/* Tagline */}
+        <div className="flex items-center justify-center gap-4 mt-2 text-xs md:text-sm font-semibold tracking-[0.25em] text-gray-300">
+          <span className="w-8 h-[1px] bg-gradient-to-r from-transparent to-green-500/50" />
+          <span>LIVE IT. PREDICT IT. OWN IT.</span>
+          <span className="w-8 h-[1px] bg-gradient-to-l from-transparent to-green-500/50" />
+        </div>
+
+        {/* Central glowing soccer ball artwork */}
+        <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto mt-6 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full bg-green-500/20 blur-2xl animate-pulse" />
+          <div className="relative w-full h-full rounded-full border border-green-500/30 flex items-center justify-center bg-gradient-to-b from-green-500/10 to-transparent">
+            {/* Holographic Glowing Ball */}
+            <div className="w-36 h-36 md:w-48 md:h-48 rounded-full border-2 border-green-400/60 shadow-[0_0_50px_rgba(34,197,94,0.5)] flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-400/30 via-green-950/80 to-black">
+              <Activity className="w-20 h-20 text-green-400 opacity-80" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- 3x3 DASHBOARD GRID ---------------- */}
+      <main className="max-w-6xl mx-auto px-4 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          {/* CARD 01: LIVE */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-green-500/20 hover:border-green-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] flex flex-col justify-between min-h-[320px]">
+            <div className="flex justify-between items-start">
+              <span className="text-xs font-mono text-gray-400">01</span>
+              <span className="bg-red-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded tracking-wider animate-pulse">
+                LIVE
+              </span>
+            </div>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-green-950/30 border border-green-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Activity className="w-12 h-12 text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">LIVE</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Live Matches & Real Time Action
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-green-400 tracking-wider">24 MATCHES LIVE</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-green-400 mx-auto flex items-center justify-center text-gray-400 hover:text-green-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 02: AI FOOTBALL */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-cyan-500/20 hover:border-cyan-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">02</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-cyan-950/30 border border-cyan-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Brain className="w-12 h-12 text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">AI FOOTBALL</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                AI Insights, Analysis & Smart Briefs
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-cyan-400 tracking-wider">POWERED BY MTL AI</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-cyan-400 mx-auto flex items-center justify-center text-gray-400 hover:text-cyan-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 03: CHAT */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">03</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-purple-950/30 border border-purple-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <MessageSquare className="w-12 h-12 text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">CHAT</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Connect. Discuss. Celebrate.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-purple-400 tracking-wider">8.4K FANS ONLINE</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-purple-400 mx-auto flex items-center justify-center text-gray-400 hover:text-purple-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 04: PREDICTIONS */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-amber-500/20 hover:border-amber-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">04</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-amber-950/30 border border-amber-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Target className="w-12 h-12 text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">PREDICTIONS</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Predict Matches. Earn Points. Climb the Ranks.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-amber-400 tracking-wider">12.7K PREDICTIONS TODAY</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-amber-400 mx-auto flex items-center justify-center text-gray-400 hover:text-amber-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 05: FIXTURES */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-teal-500/20 hover:border-teal-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(20,184,166,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">05</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-teal-950/30 border border-teal-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Calendar className="w-12 h-12 text-teal-400 drop-shadow-[0_0_10px_rgba(20,184,166,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">FIXTURES</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Upcoming Matches & Schedules
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-teal-400 tracking-wider">128 MATCHES THIS WEEK</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-teal-400 mx-auto flex items-center justify-center text-gray-400 hover:text-teal-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 06: PAST FIXTURES */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-yellow-500/20 hover:border-yellow-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">06</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-yellow-950/30 border border-yellow-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Clock className="w-12 h-12 text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">PAST FIXTURES</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Results, History & Legendary Matches
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-yellow-400 tracking-wider">1900 → 3099</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-yellow-400 mx-auto flex items-center justify-center text-gray-400 hover:text-yellow-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 07: CLUBS */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-emerald-500/20 hover:border-emerald-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">07</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-emerald-950/30 border border-emerald-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Trophy className="w-12 h-12 text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">CLUBS</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Explore Clubs, Stats, Squads & History
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-emerald-400 tracking-wider">650+ CLUBS</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-emerald-400 mx-auto flex items-center justify-center text-gray-400 hover:text-emerald-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 08: PLAYERS */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-blue-500/20 hover:border-blue-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">08</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-blue-950/30 border border-blue-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <User className="w-12 h-12 text-blue-400 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">PLAYERS</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Profiles, Stats, Rankings & Comparisons
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-blue-400 tracking-wider">50K+ PLAYERS</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-blue-400 mx-auto flex items-center justify-center text-gray-400 hover:text-blue-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 09: FOOTBALL IQ */}
+          <div className="group relative bg-[#0b1219]/80 rounded-2xl p-6 border border-rose-500/20 hover:border-rose-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(244,63,94,0.15)] flex flex-col justify-between min-h-[320px]">
+            <span className="text-xs font-mono text-gray-400">09</span>
+
+            <div className="my-auto text-center flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-rose-950/30 border border-rose-500/40 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Newspaper className="w-12 h-12 text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]" />
+              </div>
+              <h3 className="text-xl font-bold tracking-wider text-white">FOOTBALL IQ</h3>
+              <p className="text-xs text-gray-400 mt-1 max-w-[200px]">
+                News, Opinions, Transfers & Tactical Insights
+              </p>
+            </div>
+
+            <div className="text-center">
+              <p className="text-xs font-bold text-rose-400 tracking-wider">TRENDING NOW</p>
+              <button className="mt-3 w-8 h-8 rounded-full border border-white/10 hover:border-rose-400 mx-auto flex items-center justify-center text-gray-400 hover:text-rose-400 transition-colors">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      {/* ---------------- FOOTER / EXPLORE MORE ---------------- */}
+      <footer className="relative border-t border-white/5 py-8 text-center flex flex-col items-center gap-4">
+        <p className="text-xs font-bold tracking-[0.3em] text-green-400 uppercase">
+          EXPLORE THE FOOTBALL UNIVERSE
+        </p>
+
+        {/* Scroll Indicator */}
+        <div className="w-6 h-10 border-2 border-green-500/50 rounded-full flex justify-center p-1">
+          <div className="w-1.5 h-3 bg-green-400 rounded-full animate-bounce mt-1" />
+        </div>
+      </footer>
+
+    </div>
+  );
+                    }
