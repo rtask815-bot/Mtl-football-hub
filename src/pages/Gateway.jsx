@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Gateway() {
     const navigate = useNavigate();
-    const [telemetryText, setTelemetryText] = useState("Calibrating secure session...");
-    const [buttonText, setButtonText] = useState("Initialize Gateway");
+    const [telemetryText, setTelemetryText] = useState("Connecting...");
+    const [buttonText, setButtonText] = useState("Building...");
     const [isTerminalFading, setIsTerminalFading] = useState(false);
     const [deviceMetrics, setDeviceMetrics] = useState({ width: window.innerWidth, height: window.innerHeight, touch: false });
 
@@ -37,11 +37,11 @@ export default function Gateway() {
         const hasSession = token !== null && token.length > 10;
 
         const sequences = [
-            "Establishing end-to-end encryption...",
+            "Requesting Secure Connection...",
             "Validating cryptographic token integrity...",
-            "Synchronizing real-time telemetry feeds...",
+            "Synchronizing...",
             hasSession ? "Secure session detected..." : "Performing device posture check...",
-            hasSession ? "Routing to encrypted dashboard..." : "Security clearance verified. Ready."
+            hasSession ? "Routing to encrypted dashboard..." : "Security clearance verified."
         ];
 
         let step = 0;
@@ -59,8 +59,8 @@ export default function Gateway() {
                 setIsTerminalFading(true);
                 setTimeout(() => navigate("/dashboard"), 400);
             } else {
-                setTelemetryText("System secure. Proceed to authentication.");
-                setButtonText("Secure Login");
+                setTelemetryText("Proceed to authentication.");
+                setButtonText("CONTINUE");
             }
         }, 3000);
 
@@ -174,7 +174,7 @@ export default function Gateway() {
             speaker.play().catch(() => {});
         }
 
-        setTelemetryText("QUANTUM SECURE PROTOCOL ACTIVE");
+        setTelemetryText("MTL");
 
         const targetX = window.innerWidth / 2;
         const targetY = window.innerHeight / 2 - 30;
@@ -575,8 +575,8 @@ export default function Gateway() {
                         <div className="holo-ring inner"></div>
                     </div>
                     
-                    <h1 className="gateway-title">MTL PREDICTIONS</h1>
-                    <div className="sub-bar">Encrypted Match Center</div>
+                    <h1 className="gateway-title">MTL FOOTBALL HUB</h1>
+                    <div className="sub-bar"> Intelligence Community Center </div>
                     
                     <div className="status-container">
                         <div className="pulse-indicator"></div>
