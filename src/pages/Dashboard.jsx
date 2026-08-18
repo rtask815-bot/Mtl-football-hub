@@ -15,7 +15,7 @@ import {
   Mouse
 } from 'lucide-react';
 
-export default function FootballFansHub() {
+export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#05080c] text-white font-sans selection:bg-green-500 selection:text-black relative overflow-x-hidden">
       
