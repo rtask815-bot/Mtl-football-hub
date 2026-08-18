@@ -11,8 +11,7 @@ import {
   Clock, 
   Trophy, 
   User, 
-  Newspaper,
-  Mouse
+  Newspaper
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -328,4 +327,4 @@ export default function Dashboard() {
 
     </div>
   );
-          }
+}
