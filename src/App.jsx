@@ -63,11 +63,11 @@ export default function App() {
             <SecurityHeadManager />
             <Routes>
                 <Route path="/" element={<Gateway />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/group-chats" element={<ProtectedRoute><GroupChats /></ProtectedRoute>} />
-                <Route path="/past-predictions" element={<ProtectedRoute><PastPredictions /></ProtectedRoute>} />
-                <Route path="/fixtures" element={<ProtectedRoute><Fixtures /></ProtectedRoute>} />
+                <Route path="/Auth" element={<Auth />} />
+                <Route path="/Dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/GroupChats" element={<ProtectedRoute><GroupChats /></ProtectedRoute>} />
+                <Route path="/PastPredictions" element={<ProtectedRoute><PastPredictions /></ProtectedRoute>} />
+                <Route path="/Fixtures" element={<ProtectedRoute><Fixtures /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
