@@ -9,7 +9,7 @@ import {
 
 import Gateway from "./pages/Gateway.jsx";
 import Auth from "./pages/Auth.jsx";
-import {Dashboard} from "./pages/Dashboard.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 import GroupChats from "./pages/GroupChats.jsx";
 import PastPredictions from "./pages/PastPredictions.jsx";
 import Fixtures from "./pages/Fixtures.jsx";
