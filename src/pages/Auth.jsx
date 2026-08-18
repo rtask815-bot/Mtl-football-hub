@@ -602,7 +602,7 @@ export default function Auth() {
             <div className="auth-container">
                 <div className="auth-card">
                     <div className="auth-header">
-                        <h1>MTL FOOTBALL PREDICTIONS</h1>
+                        <h1>MTL FOOTBALL HUB </h1>
                         <div id="aiText">{aiTexts[aiTextIndex]}</div>
                     </div>
 
