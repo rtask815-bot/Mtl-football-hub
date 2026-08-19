@@ -107,15 +107,15 @@ export default function Dashboard() {
             update(wind) {
                 if (this.type === 'cash') {
                     // Banknotes are heavily affected by periodic wind bursts and flutter
-                    this.vx += wind + (Math.random() - 0.5) * 0.4;
-                    this.vy += 0.04 + (Math.random() - 0.5) * 0.2; // lighter gravity feel
+                    this.vx += wind + (Math.random() - 0.5) * 0.2;
+                    this.vy += 0.04 + (Math.random() - 0.5) * 0.06; // lighter gravity feel
                     // Air resistance / drag
                     this.vx *= 0.98;
                     this.vy *= 0.98;
                 } else {
                     // Coins roll and bounce with gravity
                     this.vy += 0.18 + (tiltY * 0.05);
-                    this.vx += tiltX * 0.05 + wind * 0.2;
+                    this.vx += tiltX * 0.05 + wind * 0.1;
                     this.vx *= 0.99; // rolling friction
                 }
 
@@ -1805,7 +1805,7 @@ export default function Dashboard() {
 
                     <div className="ai-brief-box-animated">
                         <div className="dashboard-info-intro">
-                            <strong> A football intelligence hub </strong> refers to an advanced data, analytics and tactical platform used to process match metrics, scout players and optimize team management. <strong>The MTL AI Engine</strong> continuously parses global fixtures, odds shifts and tactical data streams to deliver synchronized intelligence directly to the system.
+                            A football intelligence hub refers to an advanced data analytics and tactical platform used to process match metrics, scout players and optimize team management. The MTL AI Engine continuously parses global fixtures, odds shifts and tactical data streams to deliver synchronized intelligence directly to the system.
                         </div>
 
                         <div className="ai-brief-header">
