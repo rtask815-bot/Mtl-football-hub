@@ -10,9 +10,17 @@ import {
 import Gateway from "./pages/Gateway.jsx";
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Dashboard1 from "./pages/Dashboard1.jsx";
 import GroupChats from "./pages/GroupChats.jsx";
 import PastPredictions from "./pages/PastPredictions.jsx";
+import Predictions from "./pages/Predictions.jsx";
+import Aipredictions from "./pages/Aipredictions.jsx";
 import Fixtures from "./pages/Fixtures.jsx";
+import Live from "./pages/Live.jsx";
+import Chats from "./pages/Chats.jsx";
+import Clubs from "./pages/Clubs.jsx";
+import Notifications from "./pages/Notifications.jsx";
+import Trending from "./pages/Trending.jsx";
 
 function SecurityHeadManager() {
     const location = useLocation();
@@ -62,12 +70,27 @@ export default function App() {
         <BrowserRouter>
             <SecurityHeadManager />
             <Routes>
+                {/* Public Routes */}
                 <Route path="/" element={<Gateway />} />
                 <Route path="/auth" element={<Auth />} />
+
+                {/* Protected Core Dashboard Routes */}
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/dashboard1" element={<ProtectedRoute><Dashboard1 /></ProtectedRoute>} />
+
+                {/* Feature Modules */}
                 <Route path="/group-chats" element={<ProtectedRoute><GroupChats /></ProtectedRoute>} />
+                <Route path="/chats" element={<ProtectedRoute><Chats /></ProtectedRoute>} />
                 <Route path="/past-predictions" element={<ProtectedRoute><PastPredictions /></ProtectedRoute>} />
+                <Route path="/predictions" element={<ProtectedRoute><Predictions /></ProtectedRoute>} />
+                <Route path="/ai-predictions" element={<ProtectedRoute><Aipredictions /></ProtectedRoute>} />
                 <Route path="/fixtures" element={<ProtectedRoute><Fixtures /></ProtectedRoute>} />
+                <Route path="/live" element={<ProtectedRoute><Live /></ProtectedRoute>} />
+                <Route path="/clubs" element={<ProtectedRoute><Clubs /></ProtectedRoute>} />
+                <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+                <Route path="/trending" element={<ProtectedRoute><Trending /></ProtectedRoute>} />
+
+                {/* Fallback Redirect */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
