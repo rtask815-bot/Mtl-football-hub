@@ -61,7 +61,7 @@ export default function Dashboard() {
             };
         }
 
-        showToast("MTL HUB", "Football Intelligence Network initialized.");
+        showToast("MTL HUB", "Connection initialized.");
 
         return () => clearInterval(clockInterval);
     }, []);
@@ -1805,11 +1805,11 @@ export default function Dashboard() {
 
                     <div className="ai-brief-box-animated">
                         <div className="dashboard-info-intro">
-                            <strong>About Us:</strong> We are a group of football funs who chooses to analyze football match data for real-time metrics, predictive feeds and trends. The <strong>MTL AI Engine</strong> continuously parses global fixtures, odds shifts and tactical data streams to deliver synchronized intelligence directly to our terminal.
+                            <strong> A football intelligence hub </strong> refers to an advanced data, analytics and tactical platform used to process match metrics, scout players and optimize team management. </strong> <strong>The MTL AI Engine</strong> continuously parses global fixtures, odds shifts and tactical data streams to deliver synchronized intelligence directly to the system.
                         </div>
 
                         <div className="ai-brief-header">
-                            <span>A Community of :</span>
+                            <span>🚀</span>
                             <span style={{ fontSize: '7px', color: 'var(--dim)' }}>POWERED BY MTL TECH</span>
                         </div>
                         
@@ -1824,10 +1824,10 @@ export default function Dashboard() {
                                 </svg>
                             </div>
                             <div>
-                                <div style={{ fontSize: '8.5px', fontWeight: 800, color: 'white', marginBottom: '4px' }}>Here's your 60-second football briefing for today:</div>
+                                <div style={{ fontSize: '8.5px', fontWeight: 800, color: 'white', marginBottom: '4px' }}>This is a Community of:</div>
                                 <ul className="ai-bullet-list ai-bullet-list-animated">
-                                    <li>Data Analysists.</li>
-                                    <li>System Intelligence.</li>
+                                    <li>Researchers.</li>
+                                    <li>Analysts.</li>
                                     <li>Funs.</li>
                                     <li>Gamblers.</li>
                                 </ul>
