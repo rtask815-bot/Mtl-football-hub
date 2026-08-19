@@ -1805,7 +1805,7 @@ export default function Dashboard() {
 
                     <div className="ai-brief-box-animated">
                         <div className="dashboard-info-intro">
-                            <strong> A football intelligence hub </strong> refers to an advanced data, analytics and tactical platform used to process match metrics, scout players and optimize team management. </strong> <strong>The MTL AI Engine</strong> continuously parses global fixtures, odds shifts and tactical data streams to deliver synchronized intelligence directly to the system.
+                            <strong> A football intelligence hub </strong> refers to an advanced data, analytics and tactical platform used to process match metrics, scout players and optimize team management. <strong>The MTL AI Engine</strong> continuously parses global fixtures, odds shifts and tactical data streams to deliver synchronized intelligence directly to the system.
                         </div>
 
                         <div className="ai-brief-header">
