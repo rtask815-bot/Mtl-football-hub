@@ -295,13 +295,13 @@ export default function Dashboard() {
                 navigate('/live');
                 break;
             case 'centre':
-                navigate('/match-centre');
+                navigate('/trending');
                 break;
-            case 'favourite-teams':
-                navigate('/favourite-teams');
+            case 'notifications':
+                navigate('/notifications');
                 break;
             case 'iq':
-                navigate('/iq');
+                navigate('/predictions');
                 break;
             case 'home':
             default:
@@ -1795,7 +1795,7 @@ export default function Dashboard() {
                         <span className="live-pulse-dot"></span>
                         <span>Live Now (4 Matches Live)</span>
                     </div>
-                    <a href="#live" className="view-all-link" onClick={(e) => { e.preventDefault(); navigateTo('live'); }}>View All Live →</a>
+                    <a href="#live" className="view-all-link" onClick={(e) => { e.preventDefault(); navigateTo('live'); }}>View All Live 📡</a>
                 </div>
                 
                 <div className="live-cards-grid">
