@@ -279,14 +279,14 @@ export default function Dashboard() {
             case 'community':
                 navigate('/group-chats');
                 break;
-            case 'predictions':
+            case 'past-predictions':
                 navigate('/past-predictions');
                 break;
-            case 'ai-football':
-                navigate('/ai-football');
+            case 'ai-predictions':
+                navigate('/ai-predictions');
                 break;
-            case 'chat':
-                navigate('/chat');
+            case 'chats':
+                navigate('/chats');
                 break;
             case 'clubs':
                 navigate('/clubs');
@@ -294,13 +294,13 @@ export default function Dashboard() {
             case 'live':
                 navigate('/live');
                 break;
-            case 'centre':
+            case 'trending':
                 navigate('/trending');
                 break;
             case 'notifications':
                 navigate('/notifications');
                 break;
-            case 'iq':
+            case 'predictions':
                 navigate('/predictions');
                 break;
             case 'home':
@@ -1625,11 +1625,11 @@ export default function Dashboard() {
             <div className="system-bar">
                 <div className="status-left">
                     <span className="status-dot"></span>
-                    <span>MTL HUB SYSTEM ONLINE</span>
+                    <span>ONLINE</span>
                 </div>
                 <div className="status-right">
-                    <span>NODE: KE-01</span>
-                    <span>SECURE</span>
+                    <span>NODE: E096RGDSV-01</span>
+                    <span>TIME</span>
                     <span id="clock">{clock}</span>
                 </div>
             </div>
@@ -1643,8 +1643,8 @@ export default function Dashboard() {
                 </div>
 
                 <div className="section-header-flex" style={{ marginBottom: '10px', position: 'relative', zIndex: 15 }}>
-                    <div className="section-title-badge">🪙 Continuous Gold Coins & Money Rain Physics</div>
-                    <span style={{ fontSize: '7px', color: 'var(--muted)' }}>Tilt device or click inside container to spawn custom coins & bills</span>
+                    <div className="section-title-badge">MTL</div>
+                    <span style={{ fontSize: '7px', color: 'var(--muted)' }}>PFH</span>
                 </div>
                 <div className="game-canvas-wrap" id="canvasWrap">
                     <canvas ref={canvasRef} id="gameCanvas"></canvas>
@@ -1654,7 +1654,7 @@ export default function Dashboard() {
                     <div className="ai-brief-box">
                         <div className="ai-brief-header">
                             <span>🤖 AI Football Brief</span>
-                            <span style={{ fontSize: '7px', color: 'var(--dim)' }}>POWERED BY MTL AI</span>
+                            <span style={{ fontSize: '7px', color: 'var(--dim)' }}>POWERED BY MTL TECH</span>
                         </div>
                         <div className="ai-brief-content">
                             <div className="ai-visual-orb">
@@ -1701,7 +1701,7 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="card card-ai" onClick={() => navigateTo('ai-football')}>
+                    <div className="card card-ai" onClick={() => navigateTo('ai-predictions')}>
                         <span className="card-number">02</span>
                         <div className="card-icon">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -1718,7 +1718,7 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="card card-chat" onClick={() => navigateTo('chat')}>
+                    <div className="card card-chat" onClick={() => navigateTo('chats')}>
                         <span className="card-number">03</span>
                         <div className="card-icon">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -1894,7 +1894,7 @@ export default function Dashboard() {
                     </div>
                     <span>→</span>
                 </div>
-                <div className="qa-card" onClick={() => navigateTo('favourite-teams')}>
+                <div className="qa-card" onClick={() => navigateTo('notifications')}>
                     <div>
                         <div className="qa-title">Favourite Teams</div>
                         <div className="qa-sub">Track your teams</div>
@@ -1974,7 +1974,7 @@ export default function Dashboard() {
                     <div className="dashboard-panel">
                         <div className="section-header-flex" style={{ marginBottom: '8px' }}>
                             <div className="section-title-badge">🔥 Trending Now</div>
-                            <a href="#iq" className="view-all-link" onClick={(e) => { e.preventDefault(); navigateTo('iq'); }}>View All →</a>
+                            <a href="#iq" className="view-all-link" onClick={(e) => { e.preventDefault(); navigateTo('trending'); }}>View All →</a>
                         </div>
 
                         <div className="trending-item" onClick={() => showToast('TRENDING', 'Opening topic: Mbappé goals')}>
