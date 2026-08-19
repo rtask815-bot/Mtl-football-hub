@@ -302,10 +302,10 @@ export default function Dashboard() {
             windTimer++;
             if (windTimer % 300 === 0) {
                 // Trigger wind storm burst direction (-2.5 to 2.5)
-                currentWindForce = (Math.random() - 0.5) * 4;
+                currentWindForce = (Math.random() - 0.5) * 1.7;
             } else if (windTimer % 300 > 150) {
                 // Gradually decay wind back to zero
-                currentWindForce *= 0.96;
+                currentWindForce *= 0.46;
             }
 
             spawnTimer++;
