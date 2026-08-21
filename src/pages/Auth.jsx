@@ -344,7 +344,7 @@ export default function Auth() {
         try {
             const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
-            showToast("Account connected successfully ✔️", "success");
+            showToast("connected", "success");
             localStorage.setItem("user", JSON.stringify(data.user));
             if (data.session?.access_token) {
                 localStorage.setItem("mtl_auth_token", data.session.access_token);
@@ -367,7 +367,7 @@ export default function Auth() {
                 options: { data: { username } }
             });
             if (error) throw error;
-            showToast("NEW USER REGISTERED", "success");
+            showToast("Thank You For Trusting Us", "success");
             setAuthMode("login");
         } catch (err) {
             showToast(err.message, "error");
@@ -879,7 +879,7 @@ export default function Auth() {
                 <div className="premium-modal-overlay">
                     <div className="premium-modal-card" style={{ textAlign: "center" }}>
                         <div style={{ fontFamily: 'Orbitron', fontSize: '15px', fontWeight: '800', letterSpacing: '1px', color: 'var(--neon-cyan)' }}>
-                            Active Session Found
+                            ACTIVE SESSION FOUND ⁉️
                         </div>
                         
                         <div className="animated-section-divider"></div>
@@ -914,7 +914,7 @@ export default function Auth() {
                                 className="btn-alt" 
                                 style={{ fontSize: "12px", padding: "12px", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444" }}
                             >
-                                Sign in with Another Account
+                                Sign in with another account
                             </button>
                         </div>
                     </div>
