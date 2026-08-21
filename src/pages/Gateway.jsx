@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+kiimport React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Gateway() {
@@ -41,7 +41,7 @@ export default function Gateway() {
             "Validating cryptographic token integrity...",
             "Synchronizing...",
             hasSession ? "Secure session detected..." : "Performing device posture check...",
-            hasSession ? "Routing to encrypted dashboard..." : "Security clearance verified."
+            hasSession ? "Routing to encrypted authorization page..." : "Security clearance verified."
         ];
 
         let step = 0;
@@ -55,9 +55,9 @@ export default function Gateway() {
         const timeoutId = setTimeout(() => {
             clearInterval(textInterval);
             if (hasSession) {
-                setTelemetryText("Redirecting to Dashboard...");
+                setTelemetryText("Redirecting to authorization page...");
                 setIsTerminalFading(true);
-                setTimeout(() => navigate("/dashboard"), 400);
+                setTimeout(() => navigate("/auth"), 400);
             } else {
                 setTelemetryText("Proceed to authentication.");
                 setButtonText("CONTINUE");
