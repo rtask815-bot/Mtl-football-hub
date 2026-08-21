@@ -149,7 +149,7 @@ export default function Dashboard() {
                 this.radius = Math.random() * 6 + 12;
                 this.type = Math.random() > 0.4 ? 'coin' : 'cash'; 
                 this.angle = Math.random() * Math.PI * 2;
-                this.spinSpeed = (Math.random() - 0.5) * (this.type === 'coin' ? 0.15 : 0.05);
+                this.spinSpeed = (Math.random() - 0.7) * (this.type === 'coin' ? 0.15 : 0.05);
                 this.scaleX = 1; 
                 this.collected = false;
                 this.value = this.type === 'coin' ? 10 : 25;
@@ -159,8 +159,8 @@ export default function Dashboard() {
                 if (this.collected) return;
 
                 if (this.type === 'cash') {
-                    this.vx += wind + (Math.random() - 0.5) * 0.2;
-                    this.vy += 0.04 + (Math.random() - 0.5) * 0.06;
+                    this.vx += wind + (Math.random() - 0.7) * 0.2;
+                    this.vy += 0.04 + (Math.random() - 0.7) * 0.06;
                     this.vx *= 0.98;
                     this.vy *= 0.98;
                 } else {
@@ -1804,7 +1804,7 @@ export default function Dashboard() {
                             <path d="m21 21-4.3-4.3" />
                         </svg>
                     </button>
-                    <button className="icon-btn" onClick={() => showToast('NOTIFICATIONS', 'No critical alerts detected.')}>
+                    <button className="icon-btn" onClick={() => showToast('NOTIFICATIONS', 'No notifications found.')}>
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
                             <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
@@ -1823,7 +1823,7 @@ export default function Dashboard() {
                     <span>ONLINE • {userName}</span>
                 </div>
                 <div className="status-right">
-                    <span>NODE: E096RGDSV-01</span>
+                    <span>E096RGDSV-01</span>
                     <span>TIME</span>
                     <span id="clock">{clock}</span>
                 </div>
@@ -1832,27 +1832,27 @@ export default function Dashboard() {
             {/* INTERACTIVE COIN & NOTE COLLECTION ANIMATION SECTION */}
             <section className="game-section">
                 <div className="hero">
-                    <div className="welcome">The Pulse of Football</div>
+                    <div className="welcome">The Hub Of Football</div>
                     <h1 className="hero-title">FOOTBALL<br /><span>INTELLIGENCE</span></h1>
-                    <p className="hero-sub">Touch coins or tilt your device to collect items. Clear all to complete the round!</p>
+                    <p className="hero-sub">Welcome To The Community.</p>
                 </div>
 
                 <div className="section-header-flex" style={{ marginBottom: '6px', position: 'relative', zIndex: 15 }}>
-                    <div className="section-title-badge">COIN COLLECTION GAME</div>
+                    <div className="section-title-badge"></div>
                     <span style={{ fontSize: '7px', color: 'var(--muted)' }}>ROUND {gameRound}</span>
                 </div>
 
                 <div className="game-hud">
-                    <span>SCORE COLLECTED: {gameScore}</span>
-                    <span>TOUCH / ROTATE TO DISTURB</span>
+                    <span>AMOUNT COLLECTED: {gameScore}</span>
+                    <span>MTL</span>
                 </div>
 
                 <div className="game-canvas-wrap" id="canvasWrap">
                     <canvas ref={canvasRef} id="gameCanvas"></canvas>
                     {roundOver && (
                         <div className="round-over-overlay">
-                            <div className="round-over-title">Round {gameRound} Completed!</div>
-                            <div className="round-over-score">Total Amount Collected: <b>{gameScore}</b> Coins/Notes</div>
+                            <div className="round-over-title">Round {gameRound} Completed 🏆</div>
+                            <div className="round-over-score">Amount Collected: <b>{gameScore}</b> Coins/Notes</div>
                             <button className="continue-btn" onClick={handleNextRound}>Continue to Round {gameRound + 1}</button>
                         </div>
                     )}
@@ -1929,13 +1929,8 @@ export default function Dashboard() {
                                 </svg>
                             </div>
                             <div>
-                                <div style={{ fontSize: '8.5px', fontWeight: 800, color: 'white', marginBottom: '4px' }}>This is a Community of:</div>
-                                <ul className="ai-bullet-list">
-                                    <li>Researchers.</li>
-                                    <li>Analysts.</li>
-                                    <li>Fans.</li>
-                                    <li>Gamblers.</li>
-                                </ul>
+                                <div style={{ fontSize: '8.5px', fontWeight: 800, color: 'gold', marginBottom: '4px' }}>This is a Community of football funs</div>
+                                
                             </div>
                         </div>
                     </div>
@@ -1957,8 +1952,8 @@ export default function Dashboard() {
                         <h3 className="card-title">Group Chat</h3>
                         <p className="card-description">Join fan squads and discuss matches in real time.</p>
                         <div className="card-bottom">
-                            <span className="card-stat">32 Active Groups</span>
-                            <span className="card-arrow">→</span>
+                            <span className="card-stat">Join to see Active Groups</span>
+                            <span className="card-arrow">📡</span>
                         </div>
                     </div>
 
