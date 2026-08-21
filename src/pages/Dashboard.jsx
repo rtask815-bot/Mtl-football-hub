@@ -55,7 +55,7 @@ export default function Dashboard() {
                     
                     if (sessionError || !session) {
                         // Strict redirect to auth if no session exists
-                        navigate('/auth', { replace: true });
+                        navigate('/gateway', { replace: true });
                         return;
                     }
 
@@ -88,7 +88,7 @@ export default function Dashboard() {
             // Listen for auth state changes (logs out or session expires)
             const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_OUT' || !session) {
-                    navigate('/auth', { replace: true });
+                    navigate('/gateway', { replace: true });
                 } else if (session?.user) {
                     setUserEmail(session.user.email || 'Authenticated User');
                 }
