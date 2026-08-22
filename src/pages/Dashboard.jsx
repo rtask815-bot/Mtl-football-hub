@@ -2357,7 +2357,7 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* ENHANCED PROFILE MODAL */}
+            {/* PROFILE MODAL */}
             <div className={`profile-modal ${isProfileOpen ? 'active' : ''}`} onClick={(e) => { if (e.target.className.includes('profile-modal')) setIsProfileOpen(false); }}>
                 <div className="profile-box" onClick={(e) => e.stopPropagation()}>
                     <div className="profile-avatar-large">
@@ -2373,10 +2373,6 @@ export default function Dashboard() {
                         <div className="profile-field-row">
                             <span className="profile-field-label">Email</span>
                             <span className="profile-field-value">{userEmail}</span>
-                        </div>
-                        <div className="profile-field-row">
-                            <span className="profile-field-label">Created</span>
-                            <span className="profile-field-value">{createdAt}</span>
                         </div>
                         <div className="profile-field-row">
                             <span className="profile-field-label">Role</span>
