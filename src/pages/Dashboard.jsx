@@ -317,7 +317,7 @@ export default function Dashboard() {
 
         const initRoundItems = () => {
             items = [];
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 20; i++) {
                 items.push(new MoneyItem(Math.random() * (canvas.width || 300), Math.random() * -200));
             }
         };
@@ -1912,15 +1912,9 @@ export default function Dashboard() {
                         <div className="dashboard-info-intro">
                             A football intelligence hub refers to an advanced data analytics and tactical platform used to process match metrics, scout players and optimize team management. The MTL AI Engine continuously parses global fixtures, odds shifts and tactical data streams to deliver synchronized intelligence directly to the system.
                         </div>
-
-                        <div className="ai-brief-header">
-                            <span>🚀</span>
-                            <span style={{ fontSize: '7px', color: 'var(--dim)' }}>POWERED BY MTL TECH</span>
-                        </div>
-                        
                         <div className="ai-brief-content">
                             <div>
-                                <div style={{ fontSize: '8.5px', fontWeight: 800, color: 'gold', marginBottom: '4px' }}>This is a Community of football funs</div>
+                                <div style={{ fontSize: '8.5px', fontWeight: 800, color: 'gold', marginBottom: '4px' }}>THIS IS A COMMUNITY OF FOOTBALL FUNS</div>
                                 
                             </div>
                         </div>
@@ -1961,7 +1955,7 @@ export default function Dashboard() {
                         <p className="card-description">Match intelligence, tactical analysis and AI briefs.</p>
                         <div className="card-bottom">
                             <span className="card-stat">MTL AI ENGINE</span>
-                            <span className="card-arrow">→</span>
+                            <span className="card-arrow">🛸</span>
                         </div>
                     </div>
 
@@ -1976,7 +1970,7 @@ export default function Dashboard() {
                         <p className="card-description">Talk football with thousands of supporters online.</p>
                         <div className="card-bottom">
                             <span className="card-stat">8.4K ONLINE</span>
-                            <span className="card-arrow">→</span>
+                            <span className="card-arrow">💬</span>
                         </div>
                     </div>
 
