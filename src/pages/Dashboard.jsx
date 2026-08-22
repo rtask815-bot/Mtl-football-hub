@@ -317,7 +317,7 @@ export default function Dashboard() {
 
         const initRoundItems = () => {
             items = [];
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 50; i++) {
                 items.push(new MoneyItem(Math.random() * (canvas.width || 300), Math.random() * -200));
             }
         };
@@ -1844,7 +1844,7 @@ export default function Dashboard() {
 
                 <div className="game-hud">
                     <span>AMOUNT COLLECTED: {gameScore}</span>
-                    <span>MTL</span>
+                    <span>Just For Fun</span>
                 </div>
 
                 <div className="game-canvas-wrap" id="canvasWrap">
@@ -1919,15 +1919,6 @@ export default function Dashboard() {
                         </div>
                         
                         <div className="ai-brief-content">
-                            <div className="ai-visual-orb ai-visual-orb-animated">
-                                <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="1.5">
-                                    <circle cx="12" cy="12" r="9"/>
-                                    <line className="clock-hand-hour" x1="12" y1="12" x2="12" y2="7" stroke="var(--cyan)" strokeWidth="2" strokeLinecap="round" />
-                                    <line className="clock-hand-min" x1="12" y1="12" x2="16" y2="12" stroke="var(--cyan)" strokeWidth="1.5" strokeLinecap="round" />
-                                    <line className="clock-hand-sec" x1="12" y1="12" x2="12" y2="5" stroke="#f43f5e" strokeWidth="1" strokeLinecap="round" />
-                                    <circle cx="12" cy="12" r="1.5" fill="var(--cyan)" />
-                                </svg>
-                            </div>
                             <div>
                                 <div style={{ fontSize: '8.5px', fontWeight: 800, color: 'gold', marginBottom: '4px' }}>This is a Community of football funs</div>
                                 
