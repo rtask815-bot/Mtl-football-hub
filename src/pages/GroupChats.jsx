@@ -1085,7 +1085,7 @@ export default function GroupChats() {
               <span>~</span> User Profile
             </div>
             <div className="side-nav-item" onClick={backtodashboard} style={{ borderColor: 'rgba(255,0,127,0.4)', color: 'var(--neon-pink)' }}>
-              <span>⮑</span> Back to Main Dashboard
+              <span></span> CLOSE PAGE
             </div>
           </div>
 
