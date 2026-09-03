@@ -91,7 +91,7 @@ export default function Dashboard() {
             }
         });
 
-        showToast("MTL HUB", "Connection initialized.");
+        showToast("MTL HUB", "Page view restored.");
 
         return () => {
             clearInterval(clockInterval);
@@ -153,7 +153,7 @@ export default function Dashboard() {
     const openSearch = () => {
         setIsSearchOpen(true);
         if (iframeSrc === 'about:blank' || !iframeSrc) {
-            setIframeSrc('https://www.google.com/search?igu=1&q=football+intelligence+hub');
+            setIframeSrc('https://www.google.com/search?igu=1&q=todays+top+predictions');
         }
     };
 
@@ -1386,7 +1386,6 @@ export default function Dashboard() {
             <section className="live-now-container">
                 <div className="cards-grid">
                     <div className="card card-live" onClick={() => navigateTo('group-chat')}>
-                        <span className="card-number">01</span>
                         <div className="card-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -1404,7 +1403,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="card card-ai" onClick={() => navigateTo('ai-predictions')}>
-                        <span className="card-number">02</span>
                         <div className="card-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                 <circle cx="12" cy="12" r="9" />
@@ -1421,7 +1419,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="card card-chat" onClick={() => navigateTo('chats')}>
-                        <span className="card-number">03</span>
                         <div className="card-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -1436,7 +1433,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="card card-predictions" onClick={() => navigateTo('predictions')}>
-                        <span className="card-number">04</span>
                         <div className="card-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                 <circle cx="12" cy="12" r="10" />
@@ -1453,7 +1449,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="card card-fixtures" onClick={() => navigateTo('fixtures')}>
-                        <span className="card-number">05</span>
                         <div className="card-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                 <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -1471,7 +1466,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="card card-clubs" onClick={() => navigateTo('clubs')}>
-                        <span className="card-number">06</span>
                         <div className="card-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                 <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2" />
