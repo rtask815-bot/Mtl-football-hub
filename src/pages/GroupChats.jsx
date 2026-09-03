@@ -1107,7 +1107,7 @@ export default function GroupChats() {
                 </svg>
               </button>
               <div className="brand-title-area">
-                <h1>Telegram Hub</h1>
+                <h1>GROUP CHATS</h1>
               </div>
             </div>
 
@@ -1186,8 +1186,8 @@ export default function GroupChats() {
                   {bigThreeGroups.map((g, index) => (
                     <div className="pinned-card" key={g.id} onClick={() => openChatRoom(g.id)}>
                       <div className="pinned-card-header">
-                        <div className="pinned-card-icon">0{index + 1}</div>
-                        <div className="pinned-badge">🟢</div>
+                        <div className="pinned-card-icon">GROUP CHAT ~{index + 1}</div>
+                        <div className="pinned-badge"></div>
                       </div>
                       <div className="section-divider-solid"></div>
                       <div className="pinned-card-body">
@@ -1393,10 +1393,10 @@ export default function GroupChats() {
                           {senderName} <span className="solid-animated-tag tag-member" style={{ fontSize: '0.55rem', padding: '1px 4px', marginLeft: '6px' }}>Member</span>
                         </div>
                         <p style={{ fontSize: '0.88rem', color: '#fff', marginTop: '3px' }}>{formatMentions(m.content)}</p>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '4px' }}>
+                        <div style={{ display: 'flex', margin: '10px', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '4px' }}>
                           <div style={{ display: 'flex', gap: '10px' }}>
-                            {canEdit && <span style={{ cursor: 'pointer', color: 'var(--tg-accent)', fontWeight: 600 }} onClick={() => editMessage(m.id, m.content)}>Edit</span>}
-                            {canDelete && <span style={{ cursor: 'pointer', color: 'var(--tg-destructive)', fontWeight: 600 }} onClick={() => deleteMessage(m.id)}>Delete</span>}
+                            {canEdit && <span style={{ cursor: 'pointer', margin: '10px', color: 'var(--tg-accent)', fontWeight: 600 }} onClick={() => editMessage(m.id, m.content)}>Edit</span>}
+                            {canDelete && <span style={{ cursor: 'pointer', margin: '10px', color: 'var(--tg-destructive)', fontWeight: 600 }} onClick={() => deleteMessage(m.id)}>Delete</span>}
                           </div>
                           <span>{formatDetailedTimestamp(m.created_at)}</span>
                         </div>
