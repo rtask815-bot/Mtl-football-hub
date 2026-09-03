@@ -1,0 +1,787 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+// --- SUPABASE CLIENT INITIALIZATION ---
+const SUPABASE_URL = "https://dfcgbwfralikyqxzxlbd.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2did2ZyYWxpa3lxeHp4bGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1NTQwNDUsImV4cCI6MjA5OTEzMDA0NX0.EJM4uRCquMoWRj9VQI-fvfqLhnGM32WbZmipSjLdGA4";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// --- LOCAL STORAGE UTILITY ENGINE ---
+const LocalStore = {
+  get: (key) => {
+    try {
+      const data = localStorage.getItem('mtl_hub_' + key);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.warn("LocalStorage Read Error:", e);
+      return null;
+    }
+  },
+  set: (key, val) => {
+    try {
+      localStorage.setItem('mtl_hub_' + key, JSON.stringify(val));
+    } catch (e) {
+      console.warn("LocalStorage Write Error:", e);
+    }
+  }
+};
+
+// --- HELPER TIME FORMATTER ---
+const formatTimestamp = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
+  return isToday
+    ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+};
+
+export default function ChatPage({ onNavigateDashboard }) {
+  // --- STATE MANAGEMENT ---
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentProfile, setCurrentProfile] = useState(null);
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [chatRequests, setChatRequests] = useState([]);
+  const [activeChats, setActiveChats] = useState([]);
+  const [unreadCounts, setUnreadCounts] = useState({});
+  const [currentOpenChat, setCurrentOpenChat] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('ACTIVE'); // 'ACTIVE', 'REQUESTS', 'PENDING'
+
+  // Messages & Communication State
+  const [messages, setMessages] = useState([]);
+  const [messageInputText, setMessageInputText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+
+  // Connection Request State
+  const [requestTargetUser, setRequestTargetUser] = useState(null);
+  const [requestIntroText, setRequestIntroText] = useState('');
+
+  // Notifications
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+
+  // Modal Controllers
+  const [activeModal, setActiveModal] = useState(null); // 'sendRequest' | 'notifications' | 'editProfile' | 'profileDetails'
+  const [profileModalUser, setProfileModalUser] = useState(null);
+
+  // Edit Profile State
+  const [editUsername, setEditUsername] = useState('');
+  const [editStatus, setEditStatus] = useState('');
+  const [editAvatarUrl, setEditAvatarUrl] = useState('');
+
+  // DOM Refs
+  const canvasRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // --- INITIALIZATION ---
+  useEffect(() => {
+    loadCachedState();
+    verifySessionAndInitialize();
+    const cleanupCanvas = initSpaceCanvas();
+    return () => cleanupCanvas?.();
+  }, []);
+
+  useEffect(() => {
+    if (currentOpenChat && currentUser) {
+      fetchMessages(currentOpenChat.id);
+    }
+  }, [currentOpenChat]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 140)}px`;
+    }
+  }, [messageInputText]);
+
+  const loadCachedState = () => {
+    const cachedProfile = LocalStore.get('profile');
+    if (cachedProfile) {
+      setCurrentProfile(cachedProfile);
+      setEditUsername(cachedProfile.username || '');
+      setEditStatus(cachedProfile.status_message || '');
+      setEditAvatarUrl(cachedProfile.avatar_url || '');
+    }
+    setAvailableUsers(LocalStore.get('users') || []);
+    setChatRequests(LocalStore.get('chat_requests') || []);
+    setUnreadCounts(LocalStore.get('unread') || {});
+    const cachedNotifs = LocalStore.get('notifications') || [];
+    setNotifications(cachedNotifs);
+    setUnreadNotificationCount(cachedNotifs.filter(n => !n.read).length);
+  };
+
+  const verifySessionAndInitialize = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session?.user) return;
+      setCurrentUser(session.user);
+      await fetchOrCreateProfile(session.user);
+      await syncAllUserData(session.user.id);
+      setupRealtimeSubscriptions(session.user.id);
+    } catch (err) {
+      console.error("Authentication init failed:", err);
+    }
+  };
+
+  const fetchOrCreateProfile = async (user) => {
+    let { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (!profile) {
+      const fallbackName = user.email ? user.email.split('@')[0] : 'Operator_' + user.id.substring(0, 5);
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .insert([{ id: user.id, username: fallbackName, status_message: 'Nodes synchronized.' }])
+        .select()
+        .single();
+      if (newProfile) profile = newProfile;
+    }
+    const activeProfile = profile || { id: user.id, username: 'Operator', status_message: 'Online' };
+    setCurrentProfile(activeProfile);
+    setEditUsername(activeProfile.username || '');
+    setEditStatus(activeProfile.status_message || '');
+    setEditAvatarUrl(activeProfile.avatar_url || '');
+    LocalStore.set('profile', activeProfile);
+  };
+
+  const syncAllUserData = async (currentUserId) => {
+    const { data: users } = await supabase.from('profiles').select('*').neq('id', currentUserId);
+    if (users) {
+      setAvailableUsers(users);
+      LocalStore.set('users', users);
+    }
+
+    const { data: requests, error: reqErr } = await supabase
+      .from('chat_requests')
+      .select(`*, sender:sender_id(*), receiver:receiver_id(*)`)
+      .or(`sender_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`);
+
+    if (!reqErr && requests) {
+      setChatRequests(requests);
+      LocalStore.set('chat_requests', requests);
+      const approvedPeers = requests
+        .filter(r => r.status === 'approved')
+        .map(r => (r.sender_id === currentUserId ? r.receiver : r.sender))
+        .filter(Boolean);
+      setActiveChats(approvedPeers);
+    }
+  };
+
+  const setupRealtimeSubscriptions = (userId) => {
+    const channel = supabase.channel('hub-realtime-messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'private_messages' }, payload => {
+        if (payload.new) {
+          const peerId = payload.new.sender_id === userId ? payload.new.receiver_id : payload.new.sender_id;
+          if (currentOpenChat && currentOpenChat.id === peerId) {
+            fetchMessages(peerId);
+          } else if (payload.new.receiver_id === userId) {
+            setUnreadCounts(prev => {
+              const updated = { ...prev, [peerId]: (prev[peerId] || 0) + 1 };
+              LocalStore.set('unread', updated);
+              return updated;
+            });
+            addNotification("New Message Received", `From active node session.`);
+          }
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_requests' }, () => syncAllUserData(userId))
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  };
+
+  const addNotification = (title, message) => {
+    const newNotif = {
+      id: Date.now(),
+      title,
+      message,
+      read: false,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setNotifications(prev => {
+      const updated = [newNotif, ...prev];
+      LocalStore.set('notifications', updated);
+      setUnreadNotificationCount(updated.filter(n => !n.read).length);
+      return updated;
+    });
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
+    setUnreadNotificationCount(0);
+    LocalStore.set('notifications', []);
+  };
+
+  // --- ACTIONS ---
+  const handleSendChatRequest = async () => {
+    if (!requestTargetUser || !currentUser) return;
+    const { error } = await supabase.from('chat_requests').insert([{
+      sender_id: currentUser.id,
+      receiver_id: requestTargetUser.id,
+      intro_message: requestIntroText.trim() || `Connection requested by ${currentProfile?.username}.`,
+      status: 'pending'
+    }]);
+    if (!error) {
+      addNotification("Connection Outgoing", `Request transmitted to ${requestTargetUser.username}.`);
+      setActiveModal(null);
+      await syncAllUserData(currentUser.id);
+    } else {
+      alert("Failed to send connection request: " + error.message);
+    }
+  };
+
+  const handleRespondToRequest = async (requestId, newStatus, senderUsername) => {
+    const { error } = await supabase.from('chat_requests').update({ status: newStatus }).eq('id', requestId);
+    if (!error) {
+      addNotification("Request Resolved", `Chat connection with ${senderUsername} is now ${newStatus}.`);
+      await syncAllUserData(currentUser.id);
+    } else {
+      alert("Status update failed: " + error.message);
+    }
+  };
+
+  const fetchMessages = async (peerUserId) => {
+    const localKey = `msgs_${currentUser.id}_${peerUserId}`;
+    if (LocalStore.get(localKey)) setMessages(LocalStore.get(localKey));
+
+    const { data } = await supabase
+      .from('private_messages')
+      .select(`*, sender:sender_id(username, avatar_url)`)
+      .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${peerUserId}),and(sender_id.eq.${peerUserId},receiver_id.eq.${currentUser.id})`)
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      setMessages(data);
+      LocalStore.set(localKey, data);
+      setUnreadCounts(prev => {
+        const updated = { ...prev, [peerUserId]: 0 };
+        LocalStore.set('unread', updated);
+        return updated;
+      });
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!messageInputText.trim() || !currentOpenChat || !currentUser || isSending) return;
+    const textToSend = messageInputText.trim();
+    setMessageInputText('');
+    setIsSending(true);
+
+    const optimisticMsg = {
+      id: 'temp_' + Date.now(),
+      sender_id: currentUser.id,
+      receiver_id: currentOpenChat.id,
+      content: textToSend,
+      created_at: new Date().toISOString(),
+      sending: true
+    };
+    setMessages(prev => [...prev, optimisticMsg]);
+
+    const { data, error } = await supabase.from('private_messages').insert([{
+      sender_id: currentUser.id,
+      receiver_id: currentOpenChat.id,
+      content: textToSend
+    }]).select().single();
+
+    setIsSending(false);
+    if (!error && data) {
+      fetchMessages(currentOpenChat.id);
+    } else {
+      alert("Message dispatch failed. Check network link.");
+    }
+  };
+
+  const handleDeleteMessage = async (msgId) => {
+    setMessages(prev => prev.filter(m => m.id !== msgId));
+    const { error } = await supabase.from('private_messages').delete().eq('id', msgId);
+    if (error && currentOpenChat) fetchMessages(currentOpenChat.id);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!currentUser) return;
+    const { data, error } = await supabase.from('profiles').update({
+      username: editUsername,
+      status_message: editStatus,
+      avatar_url: editAvatarUrl
+    }).eq('id', currentUser.id).select().single();
+
+    if (!error && data) {
+      setCurrentProfile(data);
+      LocalStore.set('profile', data);
+      setActiveModal(null);
+      addNotification("Profile Updated", "Local identity parameters synced.");
+    } else {
+      alert("Error saving profile: " + (error?.message || "Unknown error"));
+    }
+  };
+
+  // --- 3D STARFIELD BACKGROUND ENGINE ---
+  const initSpaceCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: false });
+    let animationFrameId;
+
+    let W = (canvas.width = window.innerWidth);
+    let H = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const stars = Array.from({ length: 500 }, () => ({
+      x: (Math.random() - 0.5) * 2500,
+      y: (Math.random() - 0.5) * 2500,
+      z: Math.random() * 2000 + 10,
+      size: Math.random() * 1.5 + 0.5
+    }));
+
+    function render() {
+      ctx.fillStyle = '#0e1621';
+      ctx.fillRect(0, 0, W, H);
+
+      for (let s of stars) {
+        s.z -= 6;
+        if (s.z <= 1) s.z = 2000;
+        let k = 300 / s.z;
+        let px = s.x * k + W / 2;
+        let py = s.y * k + H / 2;
+
+        if (px >= 0 && px <= W && py >= 0 && py <= H) {
+          ctx.fillStyle = '#ffffff';
+          ctx.globalAlpha = Math.min(1, 1 - s.z / 2000);
+          ctx.fillRect(px, py, s.size, s.size);
+        }
+      }
+      animationFrameId = requestAnimationFrame(render);
+    }
+    render();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  const getFilteredChats = () => {
+    return activeChats.filter(chat =>
+      chat.username?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const getFilteredUsers = () => {
+    return availableUsers.filter(u =>
+      u.username?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const pendingRequestsCount = chatRequests.filter(
+    r => r.receiver_id === currentUser?.id && r.status === 'pending'
+  ).length;
+
+  return (
+    <div className="telegram-app-root">
+      <style>{`
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+        body, html, .telegram-app-root { width: 100vw; height: 100vh; overflow: hidden; background: #0e1621; color: #f5f5f5; }
+        #spaceCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+
+        .tg-container { display: flex; width: 100vw; height: 100vh; position: relative; z-index: 5; }
+
+        /* Left Sidebar */
+        .tg-sidebar { width: 380px; background: #17212b; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; height: 100vh; }
+        
+        .tg-header {
+          height: 60px; background: #17212b; display: flex; align-items: center; justify-content: space-between;
+          padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
+        }
+        
+        .dashboard-nav-btn {
+          background: #242f3d; color: #64b5f6; font-size: 0.8rem; font-weight: 600; padding: 7px 14px;
+          border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+        }
+        .dashboard-nav-btn:hover { background: #2b5278; color: #fff; transform: translateY(-1px); }
+
+        .tg-icon-btn { background: none; border: none; color: #708499; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: background 0.2s; position: relative; }
+        .tg-icon-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+        .tg-search-wrapper { padding: 10px 16px; background: #17212b; flex-shrink: 0; }
+        .tg-search-box { position: relative; width: 100%; }
+        .tg-search-box input {
+          width: 100%; background: #242f3d; border: 1px solid transparent; border-radius: 8px; padding: 9px 14px 9px 38px;
+          color: #fff; font-size: 0.88rem; outline: none; transition: border-color 0.2s;
+        }
+        .tg-search-box input:focus { border-color: #2b5278; }
+        .tg-search-box input::placeholder { color: #879baf; }
+        .tg-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #879baf; font-size: 0.85rem; }
+
+        .tg-tabs-bar {
+          display: flex; gap: 8px; padding: 0 16px 12px 16px; background: #17212b; overflow-x: auto; flex-shrink: 0;
+          border-bottom: 1px solid rgba(255,255,255,0.03); scrollbar-width: none;
+        }
+        .tg-tab-pill {
+          background: #242f3d; border: none; border-radius: 16px; color: #879baf; font-size: 0.75rem; font-weight: 600;
+          padding: 6px 14px; cursor: pointer; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .tg-tab-pill.active { background: #2b5278; color: #fff; }
+
+        .tg-chat-list { flex: 1; overflow-y: auto; background: #17212b; display: flex; flex-direction: column; }
+        .tg-chat-item {
+          display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer;
+          border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.15s;
+        }
+        .tg-chat-item:hover, .tg-chat-item.active-peer { background: #202b38; }
+
+        .tg-avatar {
+          width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #2b5278, #17212b);
+          display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 1rem;
+          overflow: hidden; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .tg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .section-header-tag { font-size: 0.72rem; text-transform: uppercase; color: #64b5f6; padding: 14px 16px 6px 16px; font-weight: 700; letter-spacing: 0.8px; }
+
+        /* Workspace Main Panel */
+        .tg-chat-workspace { flex: 1; display: flex; flex-direction: column; background: #0e1621; height: 100vh; position: relative; }
+        .tg-room-header { height: 60px; background: #17212b; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .tg-messages-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #0e1621; }
+        
+        .tg-bubble { max-width: 60%; padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.45; position: relative; word-break: break-word; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .tg-bubble.sent { align-self: flex-end; background: #2b5278; border-bottom-right-radius: 2px; }
+        .tg-bubble.received { align-self: flex-start; background: #182533; border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.04); }
+
+        .tg-input-area { padding: 14px 20px; background: #17212b; display: flex; align-items: flex-end; gap: 12px; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.05); }
+        .tg-input-area textarea {
+          flex: 1; background: #242f3d; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; color: #fff; padding: 10px 14px;
+          outline: none; resize: none; font-size: 0.9rem; max-height: 140px; transition: border-color 0.2s;
+        }
+        .tg-input-area textarea:focus { border-color: #2b5278; }
+        .tg-send-btn { background: #2b5278; border: none; border-radius: 50%; color: #fff; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+        .tg-send-btn:hover { background: #366594; }
+
+        .empty-chat-placeholder {
+          flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #708499; gap: 12px; text-align: center; padding: 20px;
+        }
+
+        /* Modal Overlay System */
+        .tg-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.65); backdrop-filter: blur(5px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .tg-modal-box { background: #17212b; border-radius: 12px; width: 100%; max-width: 440px; padding: 22px; display: flex; flex-direction: column; gap: 16px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 12px 32px rgba(0,0,0,0.6); }
+        .tg-input-field { width: 100%; background: #242f3d; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff; padding: 10px 14px; outline: none; font-size: 0.9rem; margin-top: 4px; }
+        .tg-input-field:focus { border-color: #2b5278; }
+        .tg-btn-primary { background: #2b5278; border: none; color: #fff; font-weight: 600; padding: 11px; border-radius: 8px; cursor: pointer; text-align: center; transition: background 0.2s; }
+        .tg-btn-primary:hover { background: #366594; }
+        .tg-badge { background: #2b5278; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 2px 7px; border-radius: 10px; }
+        .tg-dot-badge { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #ff3366; border-radius: 50%; }
+      `}</style>
+
+      <canvas id="spaceCanvas" ref={canvasRef}></canvas>
+
+      <div className="tg-container">
+        {/* Left Sidebar Layout */}
+        <div className="tg-sidebar">
+          {/* Header */}
+          <header className="tg-header">
+            <button className="dashboard-nav-btn" onClick={() => onNavigateDashboard?.()} title="Return to Dashboard">
+              <span>←</span> Dashboard
+            </button>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button className="tg-icon-btn" onClick={() => setActiveModal('notifications')} title="Notifications">
+                🔔 {unreadNotificationCount > 0 && <span className="tg-dot-badge" />}
+              </button>
+              <button className="tg-icon-btn" onClick={() => setActiveModal('editProfile')} title="Profile Settings">
+                <div className="tg-avatar" style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>
+                  {currentProfile?.avatar_url ? (
+                    <img src={currentProfile.avatar_url} alt="Profile" />
+                  ) : (
+                    currentProfile?.username?.charAt(0).toUpperCase() || 'O'
+                  )}
+                </div>
+              </button>
+            </div>
+          </header>
+
+          {/* Search Bar */}
+          <div className="tg-search-wrapper">
+            <div className="tg-search-box">
+              <span className="tg-search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search feeds and operators..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Category Filter Tabs */}
+          <div className="tg-tabs-bar">
+            <button className={`tg-tab-pill ${activeTab === 'ACTIVE' ? 'active' : ''}`} onClick={() => setActiveTab('ACTIVE')}>
+              CHATS ({activeChats.length})
+            </button>
+            <button className={`tg-tab-pill ${activeTab === 'REQUESTS' ? 'active' : ''}`} onClick={() => setActiveTab('REQUESTS')}>
+              DIRECTORY ({availableUsers.length})
+            </button>
+            <button className={`tg-tab-pill ${activeTab === 'PENDING' ? 'active' : ''}`} onClick={() => setActiveTab('PENDING')}>
+              PENDING {pendingRequestsCount > 0 && <span className="tg-badge">{pendingRequestsCount}</span>}
+            </button>
+          </div>
+
+          {/* Chat / User Feeds */}
+          <div className="tg-chat-list">
+            {activeTab === 'ACTIVE' && getFilteredChats().map(chat => (
+              <div
+                className={`tg-chat-item ${currentOpenChat?.id === chat.id ? 'active-peer' : ''}`}
+                key={chat.id}
+                onClick={() => setCurrentOpenChat(chat)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, overflow: 'hidden' }}>
+                  <div className="tg-avatar" onClick={(e) => { e.stopPropagation(); setProfileModalUser(chat); setActiveModal('profileDetails'); }}>
+                    {chat.avatar_url ? <img src={chat.avatar_url} alt="" /> : chat.username?.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ flex: 1, overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h3 style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fff' }}>{chat.username}</h3>
+                      <span style={{ fontSize: '0.68rem', color: '#708499' }}>Active</span>
+                    </div>
+                    <p style={{ fontSize: '0.78rem', color: '#708499', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '2px' }}>
+                      {chat.status_message || 'Node link online'}
+                    </p>
+                  </div>
+                </div>
+                {unreadCounts[chat.id] > 0 && <span className="tg-badge" style={{ marginLeft: '8px' }}>{unreadCounts[chat.id]}</span>}
+              </div>
+            ))}
+            {activeTab === 'ACTIVE' && activeChats.length === 0 && (
+              <p style={{ padding: '24px 16px', color: '#708499', fontSize: '0.85rem', textAlign: 'center' }}>
+                No active conversations. Establish links via Directory!
+              </p>
+            )}
+
+            {activeTab === 'REQUESTS' && (
+              <>
+                <div className="section-header-tag">Available Operators</div>
+                {getFilteredUsers().map(user => {
+                  const req = chatRequests.find(r => (r.sender_id === currentUser?.id && r.receiver_id === user.id) || (r.receiver_id === currentUser?.id && r.sender_id === user.id));
+                  return (
+                    <div className="tg-chat-item" key={user.id}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, overflow: 'hidden' }}>
+                        <div className="tg-avatar" onClick={(e) => { e.stopPropagation(); setProfileModalUser(user); setActiveModal('profileDetails'); }}>
+                          {user.avatar_url ? <img src={user.avatar_url} alt="" /> : user.username?.charAt(0).toUpperCase()}
+                        </div>
+                        <div style={{ overflow: 'hidden' }}>
+                          <h3 style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fff' }}>{user.username}</h3>
+                          <p style={{ fontSize: '0.78rem', color: '#708499', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.status_message || 'Online'}</p>
+                        </div>
+                      </div>
+                      {req ? (
+                        <span style={{ fontSize: '0.72rem', color: '#64b5f6', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{req.status}</span>
+                      ) : (
+                        <button className="tg-tab-pill active" onClick={() => { setRequestTargetUser(user); setRequestIntroText(`Hello ${user.username}, requesting connection.`); setActiveModal('sendRequest'); }}>
+                          Connect
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+
+            {activeTab === 'PENDING' && (
+              <>
+                <div className="section-header-tag">Inbound Connection Requests</div>
+                {chatRequests.filter(r => r.receiver_id === currentUser?.id && r.status === 'pending').map(req => (
+                  <div className="tg-chat-item" key={req.id} style={{ padding: '14px 16px', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                      <strong style={{ color: '#64b5f6', fontSize: '0.88rem' }}>{req.sender?.username}</strong>
+                      <span style={{ fontSize: '0.68rem', color: '#708499' }}>{formatTimestamp(req.created_at)}</span>
+                    </div>
+                    <p style={{ fontSize: '0.82rem', color: '#fff', fontStyle: 'italic' }}>"{req.intro_message}"</p>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      <button className="tg-tab-pill active" onClick={() => handleRespondToRequest(req.id, 'approved', req.sender?.username)}>Accept</button>
+                      <button className="tg-tab-pill" style={{ background: '#3b1c28', color: '#ff5252' }} onClick={() => handleRespondToRequest(req.id, 'rejected', req.sender?.username)}>Decline</button>
+                    </div>
+                  </div>
+                ))}
+                {pendingRequestsCount === 0 && (
+                  <p style={{ padding: '24px 16px', color: '#708499', fontSize: '0.85rem', textAlign: 'center' }}>No pending incoming connection requests.</p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* --- WORKSPACE CHAT CONTAINER --- */}
+        <div className="tg-chat-workspace">
+          {currentOpenChat ? (
+            <>
+              {/* Header */}
+              <div className="tg-room-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="tg-avatar" style={{ width: '38px', height: '38px', cursor: 'pointer' }} onClick={() => { setProfileModalUser(currentOpenChat); setActiveModal('profileDetails'); }}>
+                    {currentOpenChat.avatar_url ? <img src={currentOpenChat.avatar_url} alt="" /> : currentOpenChat.username?.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '0.95rem', color: '#fff' }}>{currentOpenChat.username}</h3>
+                    <p style={{ fontSize: '0.72rem', color: '#708499' }}>{currentOpenChat.status_message || 'Online'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Messages viewport */}
+              <div className="tg-messages-box">
+                {messages.map((msg) => {
+                  const isOwner = msg.sender_id === currentUser?.id;
+                  return (
+                    <div key={msg.id} className={`tg-bubble ${isOwner ? 'sent' : 'received'}`}>
+                      <p>{msg.content}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', gap: '8px' }}>
+                        <span style={{ fontSize: '0.65rem', color: isOwner ? 'rgba(255,255,255,0.6)' : '#708499' }}>
+                          {formatTimestamp(msg.created_at)}
+                        </span>
+                        {isOwner && (
+                          <button
+                            onClick={() => handleDeleteMessage(msg.id)}
+                            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '0.65rem' }}
+                            title="Delete message"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Text Input Area */}
+              <div className="tg-input-area">
+                <textarea
+                  ref={textareaRef}
+                  rows={1}
+                  placeholder="Type a message..."
+                  value={messageInputText}
+                  onChange={(e) => setMessageInputText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                />
+                <button className="tg-send-btn" onClick={handleSendMessage} disabled={isSending}>
+                  ➤
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="empty-chat-placeholder">
+              <div style={{ fontSize: '3rem', opacity: 0.8 }}>💬</div>
+              <h3 style={{ color: '#fff', fontSize: '1.15rem' }}>No Feed Selected</h3>
+              <p style={{ fontSize: '0.85rem', maxWidth: '320px', lineHeight: 1.5 }}>
+                Select an active conversation or initialize a link request from the directory panel.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* --- MODALS SUITE --- */}
+      {/* Send Request Modal */}
+      {activeModal === 'sendRequest' && requestTargetUser && (
+        <div className="tg-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="tg-modal-box" onClick={e => e.stopPropagation()}>
+            <h3 style={{ color: '#fff', fontSize: '1.05rem' }}>Connect with {requestTargetUser.username}</h3>
+            <div>
+              <label style={{ fontSize: '0.78rem', color: '#879baf' }}>Introductory Message</label>
+              <textarea
+                className="tg-input-field"
+                rows={3}
+                style={{ resize: 'none' }}
+                value={requestIntroText}
+                onChange={e => setRequestIntroText(e.target.value)}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button className="tg-tab-pill" onClick={() => setActiveModal(null)}>Cancel</button>
+              <button className="tg-btn-primary" style={{ padding: '8px 16px' }} onClick={handleSendChatRequest}>Transmit</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Details Modal */}
+      {activeModal === 'profileDetails' && profileModalUser && (
+        <div className="tg-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="tg-modal-box" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', alignItems: 'center' }}>
+            <div className="tg-avatar" style={{ width: '80px', height: '80px', fontSize: '2rem' }}>
+              {profileModalUser.avatar_url ? <img src={profileModalUser.avatar_url} alt="" /> : profileModalUser.username?.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h2 style={{ color: '#fff', fontSize: '1.2rem' }}>{profileModalUser.username}</h2>
+              <p style={{ color: '#64b5f6', fontSize: '0.85rem', marginTop: '4px' }}>{profileModalUser.status_message || 'Online'}</p>
+            </div>
+            <button className="tg-btn-primary" style={{ width: '100%' }} onClick={() => setActiveModal(null)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Profile Modal */}
+      {activeModal === 'editProfile' && (
+        <div className="tg-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="tg-modal-box" onClick={e => e.stopPropagation()}>
+            <h3 style={{ color: '#fff', fontSize: '1.05rem' }}>Edit Node Profile</h3>
+            <div>
+              <label style={{ fontSize: '0.78rem', color: '#879baf' }}>Username</label>
+              <input className="tg-input-field" value={editUsername} onChange={e => setEditUsername(e.target.value)} />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.78rem', color: '#879baf' }}>Status Message</label>
+              <input className="tg-input-field" value={editStatus} onChange={e => setEditStatus(e.target.value)} />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.78rem', color: '#879baf' }}>Avatar Image URL</label>
+              <input className="tg-input-field" value={editAvatarUrl} onChange={e => setEditAvatarUrl(e.target.value)} />
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '8px' }}>
+              <button className="tg-tab-pill" onClick={() => setActiveModal(null)}>Cancel</button>
+              <button className="tg-btn-primary" style={{ padding: '8px 16px' }} onClick={handleSaveProfile}>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications Drawer */}
+      {activeModal === 'notifications' && (
+        <div className="tg-modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="tg-modal-box" onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ color: '#fff', fontSize: '1.05rem' }}>System Log Notifications</h3>
+              <button className="tg-tab-pill" onClick={clearNotifications} style={{ fontSize: '0.7rem' }}>Clear All</button>
+            </div>
+            <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {notifications.map(n => (
+                <div key={n.id} style={{ background: '#242f3d', padding: '10px 12px', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <strong style={{ fontSize: '0.82rem', color: '#64b5f6' }}>{n.title}</strong>
+                    <span style={{ fontSize: '0.68rem', color: '#708499' }}>{n.time}</span>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: '#fff', marginTop: '2px' }}>{n.message}</p>
+                </div>
+              ))}
+              {notifications.length === 0 && <p style={{ color: '#708499', fontSize: '0.85rem' }}>No system notifications logged.</p>}
+            </div>
+            <button className="tg-btn-primary" onClick={() => setActiveModal(null)}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
