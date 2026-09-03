@@ -368,7 +368,7 @@ export default function GroupChats() {
     cancelNotificationLongPress();
     notifPressTimer.current = setTimeout(() => {
       confirmDeleteNotification(notifId);
-    }, 700);
+    }, 1200);
   }
 
   function cancelNotificationLongPress() {
@@ -829,7 +829,7 @@ export default function GroupChats() {
         body{background-color:var(--bg-deep);color:var(--text-main);height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;position:relative}
         .app-container{display:flex;flex-direction:column;width:100vw;height:100vh;max-width:1440px;position:relative;z-index:5;background:linear-gradient(135deg, #060913 0%, #03050a 100%)}
         .workspace{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative}
-        .side-nav-drawer{position:absolute;top:80px;left:-320px;width:300px;height:100%;background:rgba(8, 13, 30, 0.98);border-right:1px solid rgba(0, 243, 255, 0.2);backdrop-filter:blur(20px);z-index:90;transition:left 0.4s cubic-bezier(0.16, 1, 0.3, 1);padding:80px 24px 24px 24px;display:flex;flex-direction:column;gap:20px;box-shadow:15px 0 30px rgba(0, 0, 0, 0.8)}
+        .side-nav-drawer{position:absolute;top:80px;left:-320px;width:100vw;height:100%;background:rgba(8, 13, 30, 0.98);border-right:1px solid rgba(0, 243, 255, 0.2);backdrop-filter:blur(20px);z-index:90;transition:left 0.4s cubic-bezier(0.16, 1, 0.3, 1);padding:80px 24px 24px 24px;display:flex;flex-direction:column;gap:20px;box-shadow:15px 0 30px rgba(0, 0, 0, 0.8)}
         .side-nav-drawer.open{left:0}
         .side-nav-item{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;color:var(--text-muted);border:2px solid transparent;background:rgba(255, 255, 255, 0.02);cursor:pointer;transition:all 0.3s}
         .side-nav-item:hover,.side-nav-item.active{color:var(--neon-cyan);border-color:rgba(0, 243, 255, 0.3);background:rgba(0, 243, 255, 0.08);box-shadow:0 0 15px rgba(0, 243, 255, 0.2)}
@@ -857,7 +857,7 @@ export default function GroupChats() {
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .section-title{font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--neon-cyan);margin-bottom:10px;margin-top:6px;text-shadow:0 0 8px rgba(0, 243, 255, 0.4)}
         .pinned-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px}
-        .pinned-card{background:linear-gradient(135deg, rgba(18, 27, 56, 0.9), rgba(11, 17, 38, 0.95));border:1px solid rgba(176, 0, 255, 0.3);border-radius:16px;padding:18px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s ease;box-shadow:0 4px 20px rgba(0, 0, 0, 0.5);display:flex;flex-direction:column}
+        .pinned-card{background:linear-gradient(135deg, rgba(18, 27, 56, 0.9), rgba(11, 17, 38, 0.95));border:1px solid rgba(176, 0, 255, 0.3);border-radius:16px;padding:18px;cursor:none;position:relative;overflow:hidden;transition:all 0.3s ease;box-shadow:0 4px 20px rgba(0, 0, 0, 0.5);display:flex;flex-direction:column}
         .pinned-card:hover{border-color:var(--neon-cyan);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0, 243, 255, 0.25)}
         .pinned-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
         .pinned-badge{color:var(--neon-cyan);font-size:1.4rem}
@@ -907,7 +907,7 @@ export default function GroupChats() {
         .chat-input-bar{width:min(100%, 850px);margin:0 auto;display:flex;align-items:flex-end;gap:7px;padding:5px;background:rgba(13, 25, 43, 0.94);border:1px solid rgba(255, 255, 255, 0.075);border-radius:20px;box-shadow:0 10px 35px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(0, 243, 255, 0.015);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
         .chat-input-bar textarea{flex:1;width:100%;min-height:40px;max-height:140px;padding:10px 10px 9px;background:transparent;border:none;outline:none;resize:none;color:#edf6ff;font-family:inherit;font-size:0.9rem;line-height:1.4;scrollbar-width:thin}
         .chat-input-bar textarea::placeholder{color:#71849b}
-        .chat-input-bar button{width:40px;height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;margin:0;border:none;border-radius:50%;background:linear-gradient(145deg, #24d8e8, #10a9c4);color:#03131b;cursor:pointer;box-shadow:0 4px 15px rgba(0, 201, 230, 0.22);transition:transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease}
+        .chat-input-bar button{width:40px;height:800px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;margin:0;border:none;border-radius:50%;background:linear-gradient(145deg, #24d8e8, #10a9c4);color:#03131b;cursor:pointer;box-shadow:0 4px 15px rgba(0, 201, 230, 0.22);transition:transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease}
         .chat-input-bar button:hover{transform:translateY(-1px) scale(1.04);filter:brightness(1.08);box-shadow:0 6px 20px rgba(0, 201, 230, 0.32)}
         .error-notification-banner{display:none;background:linear-gradient(135deg, rgba(255, 0, 127, 0.15), rgba(40, 10, 25, 0.85));border:1px solid var(--neon-pink);border-radius:14px;padding:16px 20px;margin-bottom:16px;align-items:center;justify-content:space-between;box-shadow:0 0 25px rgba(255, 0, 127, 0.3);animation:slideDown 0.3s ease forwards}
         .error-notification-banner.active{display:flex}
@@ -990,12 +990,7 @@ export default function GroupChats() {
           {/* SECTION 1: Top Header Navigation */}
           <header className="top-header">
             <div className="top-header-left">
-              <button className="icon-action-btn" title="Back to Dashboard" onClick={() => navigateTo('dashboard')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" />
-                  <polyline points="12 19 5 12 12 5" />
-                </svg>
-              </button>
+              
               <button className="icon-action-btn" title="Side Navigation Menu" onClick={toggleSideMenu}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="3" y1="12" x2="21" y2="12" />
@@ -1020,6 +1015,12 @@ export default function GroupChats() {
                   <circle cx="20" cy="10" r="1" />
                   <circle cx="6" cy="20" r="4" />
                   <circle cx="16" cy="2" r="3" />
+                </svg>
+              </button>
+               <button className="icon-action-btn" title="Back to Dashboard" onClick={() => navigateTo('dashboard')}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12" />
+                  <polyline points="12 19 5 12 12 5" />
                 </svg>
               </button>
             </div>
