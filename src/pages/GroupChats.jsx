@@ -913,7 +913,7 @@ export default function GroupChats() {
         .workspace{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative}
         
         /* Telegram Side Nav Drawer */
-        .side-nav-drawer{position:absolute;top:65px;left:-100vw;width:300px;height:calc(100% - 65px);background:var(--tg-dark-panel);border-right:1px solid rgba(255, 255, 255, 0.08);backdrop-filter:blur(20px);z-index:90;transition:left 0.35s cubic-bezier(0.16, 1, 0.3, 1);padding:24px 16px;display:flex;flex-direction:column;gap:12px;box-shadow:15px 0 30px rgba(0, 0, 0, 0.7)}
+        .side-nav-drawer{position:absolute;top:65px;left:-100vw;width:100vw;height:calc(100% - 65px);background:var(--tg-dark-panel);border-right:1px solid rgba(255, 255, 255, 0.08);backdrop-filter:blur(20px);z-index:90;transition:left 0.35s cubic-bezier(0.16, 1, 0.3, 1);padding:24px 16px;display:flex;flex-direction:column;gap:12px;box-shadow:15px 0 30px rgba(0, 0, 0, 0.7)}
         .side-nav-drawer.open{left:0}
         .side-nav-item{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:10px;color:var(--text-main);border:1px solid transparent;background:rgba(255, 255, 255, 0.02);cursor:pointer;transition:all 0.25s;font-size:0.92rem;font-weight:500}
         .side-nav-item:hover,.side-nav-item.active{color:var(--tg-accent);border-color:rgba(51, 144, 236, 0.3);background:rgba(51, 144, 236, 0.1);box-shadow:0 0 15px rgba(51, 144, 236, 0.15)}
@@ -1077,22 +1077,22 @@ export default function GroupChats() {
           {/* SIDE NAVIGATION MENU DRAWER */}
           <div className={`side-nav-drawer ${isSideNavOpen ? 'open' : ''}`} id="sideNavDrawer">
             <div className={`side-nav-item ${activeMainView === 'chats' ? 'active' : ''}`} onClick={() => { setActiveMainView('chats'); toggleSideMenu(); }}>
-              <span>💬</span> Group Chats
+              <span></span> Group Chats
             </div>
             <div className={`side-nav-item ${activeMainView === 'predictions' ? 'active' : ''}`} onClick={() => { setActiveMainView('predictions'); toggleSideMenu(); }}>
-              <span>🔔</span> Notifications
+              <span></span> Notifications
             </div>
             <div className="side-nav-item" onClick={() => { openModal('createGroupModal'); toggleSideMenu(); }}>
-              <span>➕</span> Create New Group
+              <span></span> Create New Group
             </div>
             <div className="side-nav-item" onClick={() => { openModal('deleteRequestModal'); toggleSideMenu(); }}>
-              <span>🛡️</span> Group Approval
+              <span></span> Group Approval
             </div>
             <div className={`side-nav-item ${activeMainView === 'userHub' ? 'active' : ''}`} onClick={() => { setActiveMainView('userHub'); toggleSideMenu(); }}>
-              <span>👤</span> User Profile
+              <span></span> User Profile
             </div>
             <div className="side-nav-item" onClick={() => navigateTo('dashboard')} style={{ borderColor: 'rgba(225,112,118,0.4)', color: 'var(--tg-destructive)' }}>
-              <span>❌</span> CLOSE PAGE
+              <span></span> CLOSE PAGE
             </div>
           </div>
 
@@ -1187,7 +1187,7 @@ export default function GroupChats() {
                     <div className="pinned-card" key={g.id} onClick={() => openChatRoom(g.id)}>
                       <div className="pinned-card-header">
                         <div className="pinned-card-icon">0{index + 1}</div>
-                        <div className="pinned-badge">⭐</div>
+                        <div className="pinned-badge">🟢</div>
                       </div>
                       <div className="section-divider-solid"></div>
                       <div className="pinned-card-body">
@@ -1460,11 +1460,11 @@ export default function GroupChats() {
             <button className="close-modal-btn" onClick={() => closeModal('groupOverviewModal')}>&times;</button>
           </div>
           <div className="modal-body" style={{ alignItems: 'center' }}>
-            <div className="solid-animated-tag tag-admin">TELEGRAM HUB</div>
+            <div className="solid-animated-tag tag-admin">MTL FOOTBALL HUB</div>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              Professional modern Telegram user interface layout with flexible keyboard-tracked input, interactive dials, and voice recognition.
+              Mtl football hub group chat interface
             </p>
-            <button className="primary-action-btn" onClick={() => navigateTo('dashboard')}>Exit This Page</button>
+            <button className="primary-action-btn" onClick={() => navigateTo('dashboard')}>EXIT</button>
           </div>
         </div>
       </div>
