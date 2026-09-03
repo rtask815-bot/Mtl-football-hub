@@ -10,7 +10,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 export default function Gateway() {
     const navigate = useNavigate();
     const [telemetryText, setTelemetryText] = useState("Connecting...");
-    const [buttonText, setButtonText] = useState("Building...");
+    const [buttonText, setButtonText] = useState("connecting...");
     const [isTerminalFading, setIsTerminalFading] = useState(false);
     const [hasActiveSession, setHasActiveSession] = useState(false);
     const [deviceMetrics, setDeviceMetrics] = useState({ width: window.innerWidth, height: window.innerHeight, touch: false });
