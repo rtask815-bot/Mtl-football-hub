@@ -1358,10 +1358,9 @@ export default function Dashboard() {
             <div className="system-bar">
                 <div className="status-left">
                     <span className="status-dot"></span>
-                    <span>ONLINE • {userName}</span>
+                    <span>{userName}</span>
                 </div>
                 <div className="status-right">
-                    <span>E096RGDSV-01</span>
                     <span>TIME</span>
                     <span id="clock">{clock}</span>
                 </div>
