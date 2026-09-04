@@ -1289,7 +1289,6 @@ export default function GroupChats() {
                   <div className="tab-buttons">
                     <button className={`btn-3d ${currentTabFilter === 'all' ? 'btn-3d-primary' : 'btn-3d-dark'} tab-btn`} onClick={() => setCurrentTabFilter('all')}>ALL CHATS</button>
                     <button className={`btn-3d ${currentTabFilter === 'my_groups' ? 'btn-3d-primary' : 'btn-3d-dark'} tab-btn`} onClick={() => setCurrentTabFilter('my_groups')}>MY GROUPS</button>
-                    <button className={`btn-3d ${currentTabFilter === 'available' ? 'btn-3d-primary' : 'btn-3d-dark'} tab-btn`} onClick={() => setCurrentTabFilter('available')}>NOT JOINED</button>
                     <button className={`btn-3d ${currentTabFilter === 'archived' ? 'btn-3d-primary' : 'btn-3d-dark'} tab-btn`} onClick={() => setCurrentTabFilter('archived')}>ARCHIVED</button>
                   </div>
                 </div>
@@ -1594,7 +1593,7 @@ export default function GroupChats() {
           <div className="modal-body" style={{ alignItems: 'center' }}>
             <div className="solid-animated-tag tag-admin">MTL FOOTBALL HUB</div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
-              Mtl football hub group chat interface
+              The Mtl football hub group chat interface serves as a vibrant digital gathering space for enthusiasts of the beautiful game, where fans from all walks of life converge to share their passion for football. This interface is designed with user-friendly features that facilitate seamless communication, allowing members to engage in lively discussions about their favorite teams, players and matches. Within this dynamic environment, users can post real-time updates, share match highlights and exchange opinions on strategies and performances, creating a rich tapestry of conversation that reflects the diverse perspectives of its participants.
             </p>
             <button className="btn-3d btn-3d-primary" style={{ width: '100%', padding: '10px' }} onClick={() => navigateTo('dashboard')}>EXIT</button>
           </div>
