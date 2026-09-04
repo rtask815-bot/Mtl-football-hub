@@ -367,7 +367,7 @@ export default function Auth() {
                 options: { data: { username } }
             });
             if (error) throw error;
-            showToast("Thank You For Trusting Us", "success");
+            showToast("Your Account Has Been Created Successfully. Sing In Now To continue To the Dashboard.", "success");
             setAuthMode("login");
         } catch (err) {
             showToast(err.message, "error");
@@ -404,7 +404,7 @@ export default function Auth() {
                 email: activeSessionUser.email || "No email registered"
             };
         }
-        return { name: "GUEST OPERATOR", email: "guest@mtl.tech" };
+        return { name: "user", email: "developer01@gmail.com" };
     };
 
     const openChatConsole = () => {
@@ -879,13 +879,13 @@ export default function Auth() {
                 <div className="premium-modal-overlay">
                     <div className="premium-modal-card" style={{ textAlign: "center" }}>
                         <div style={{ fontFamily: 'Orbitron', fontSize: '15px', fontWeight: '800', letterSpacing: '1px', color: 'var(--neon-cyan)' }}>
-                            ACTIVE SESSION FOUND ⁉️
+                            AN ACTIVE SESSION ALREADY EXIST
                         </div>
                         
                         <div className="animated-section-divider"></div>
 
                         <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: "8px 0" }}>
-                            An active session currently exists for <br />
+                            An active session already exists for <br />
                             <strong style={{ color: "var(--neon-blue)" }}>{activeSessionUser.email}</strong>
                             {activeSessionUser.user_metadata?.username && (
                                 <> ({activeSessionUser.user_metadata.username})</>
@@ -898,11 +898,11 @@ export default function Auth() {
                             <button 
                                 onClick={() => {
                                     localStorage.setItem("user", JSON.stringify(activeSessionUser));
-                                    triggerSecureTransition("/dashboard", "REDIRECTING...");
+                                    triggerSecureTransition("/dashboard", "Redirecting To User Dashboard...");
                                 }} 
                                 className="btn-prime"
                             >
-                                Continue to Dashboard
+                                CONTINUE TO DASHBOARD
                             </button>
                             <button 
                                 onClick={async () => {
@@ -914,7 +914,7 @@ export default function Auth() {
                                 className="btn-alt" 
                                 style={{ fontSize: "12px", padding: "12px", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444" }}
                             >
-                                Sign in with another account
+                                USE ANOTHER ACCOUNT
                             </button>
                         </div>
                     </div>
@@ -925,7 +925,7 @@ export default function Auth() {
                 <div className="premium-modal-overlay">
                     <div className="premium-modal-card">
                         <div style={{ fontFamily: 'Orbitron', fontSize: '15px', fontWeight: '800', letterSpacing: '1px', color: 'var(--neon-cyan)' }}>
-                            Identity Validation
+                            SIGN IN
                         </div>
 
                         <div className="animated-section-divider"></div>
