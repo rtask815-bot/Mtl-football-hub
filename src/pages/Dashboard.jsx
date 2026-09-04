@@ -58,7 +58,7 @@ export default function Dashboard() {
                 }
 
                 const userRole = user.app_metadata?.role || user.user_metadata?.role;
-                if (userRole === 'admin' || user.email?.endsWith('@admin.mtl.com')) {
+                if (userRole === 'admin' || user.email?.endsWith('@admin.com')) {
                     setIsAdmin(true);
                 }
 
@@ -76,7 +76,7 @@ export default function Dashboard() {
                     setUserName(user.user_metadata?.full_name || user.email?.split('@')[0] || 'Authenticated User');
                 }
             } catch (err) {
-                console.error("Strict session check failure:", err);
+                console.error("Session check failure:", err);
                 navigate('/auth', { replace: true });
             }
         };
@@ -91,7 +91,7 @@ export default function Dashboard() {
             }
         });
 
-        showToast("MTL HUB", "Page view restored.");
+        showToast("NOTICE 🔔", "Page refreshed.");
 
         return () => {
             clearInterval(clockInterval);
