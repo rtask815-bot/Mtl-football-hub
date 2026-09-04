@@ -344,7 +344,6 @@ export default function Auth() {
         try {
             const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
-            showToast("connected", "success");
             localStorage.setItem("user", JSON.stringify(data.user));
             if (data.session?.access_token) {
                 localStorage.setItem("mtl_auth_token", data.session.access_token);
