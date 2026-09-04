@@ -750,7 +750,7 @@ export default function Auth() {
                                     <input 
                                         type="email" 
                                         className="form-control" 
-                                        placeholder="name@domain.tech"
+                                        placeholder="Type email here"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required 
@@ -758,12 +758,12 @@ export default function Auth() {
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label>Cipher Key (password)</label>
+                                <label>PASSWORD</label>
                                 <div className="input-wrapper">
                                     <input 
                                         type={showPassword ? "text" : "password"} 
                                         className="form-control" 
-                                        placeholder="••••••••"
+                                        placeholder="Type password here"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required 
@@ -783,7 +783,7 @@ export default function Auth() {
                                             checked={rememberDevice} 
                                             onChange={(e) => setRememberDevice(e.target.checked)} 
                                         /> 
-                                        Remember Device
+                                        
                                     </label>
                                     <a href="/reset-password" onClick={(e) => { e.preventDefault(); navigate("/reset-password"); }} className="forgot-password-link">RESET PASSWORD</a>
                                 </div>
@@ -798,7 +798,7 @@ export default function Auth() {
                                     <input 
                                         type="text" 
                                         className="form-control" 
-                                        placeholder="operator_01"
+                                        placeholder="Type username here"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         required 
@@ -811,7 +811,7 @@ export default function Auth() {
                                     <input 
                                         type="email" 
                                         className="form-control" 
-                                        placeholder="operator@domain.tech"
+                                        placeholder="Type email here"
                                         value={regEmail}
                                         onChange={(e) => setRegEmail(e.target.value)}
                                         required 
@@ -824,7 +824,7 @@ export default function Auth() {
                                     <input 
                                         type={showRegPassword ? "text" : "password"} 
                                         className="form-control" 
-                                        placeholder="••••••••"
+                                        placeholder="Type password here"
                                         value={regPassword}
                                         onChange={(e) => setRegPassword(e.target.value)}
                                         required 
