@@ -96,11 +96,9 @@ export default function GroupChats() {
   
   // Dynamic Futuristic Loader Messages Sequence
   const loadingTexts = [
-    "loading chats...",
-    "loading messages...",
-    "synchronizing matrix...",
-    "authenticating session...",
-    "establishing secure link..."
+    "Wait a Second...",
+    "loading data...",
+    "synchronizing..."
   ];
 
   // UI & Drawer States
@@ -764,11 +762,6 @@ export default function GroupChats() {
 
     if (!error) {
       closeModal('groupAboutModal');
-      await fetchGroups();
-      openChatRoom(groupId);
-    } else {
-      showErrorBanner("Join Error", error.message);
-    }
   }
 
   async function exitGroup(groupId) {
@@ -1343,8 +1336,8 @@ export default function GroupChats() {
             </div>
 
             <div>
-              <div className="loader-brand-title">MTL FOOTBALL HUB</div>
-              <div className="loader-brand-sub">INTELLIGENCE COMMUNITY CENTER</div>
+              <div className="loader-brand-title">LOADING...</div>
+              <div className="loader-brand-sub">Kindly Wait A second</div>
             </div>
 
             <div className="loader-status-pill">
@@ -1353,7 +1346,7 @@ export default function GroupChats() {
             </div>
 
             <div className="loader-action-button">
-              CONNECTING... &gt;&gt;
+              Loading... &gt;&gt;
             </div>
           </div>
         </div>
@@ -1365,7 +1358,7 @@ export default function GroupChats() {
           {/* TELEGRAM SIDE NAVIGATION DRAWER WITH CLOSE BUTTON */}
           <div className={`side-nav-drawer ${isSideNavOpen ? 'open' : ''}`} id="sideNavDrawer">
             <div className="side-nav-header">
-              <h3>SYSTEM MATRIX</h3>
+              <h3>NAV MENU</h3>
               <button className="side-nav-close-btn" onClick={toggleSideMenu} title="Close Menu">&times;</button>
             </div>
             <div className={`side-nav-item ${activeMainView === 'chats' ? 'active' : ''}`} onClick={() => { setActiveMainView('chats'); toggleSideMenu(); }}>
