@@ -332,7 +332,7 @@ export default function DirectUserChats() {
       }
     };
 
-    const syncInterval = setInterval(performIntervalSync, 60000);
+    const syncInterval = setInterval(performIntervalSync, 600);
     return () => clearInterval(syncInterval);
   }, [currentUser, fetchAllUsersAndDirectChats, fetchDirectMessages]);
 
@@ -457,7 +457,7 @@ export default function DirectUserChats() {
     setCustomPrompt({
       title: 'DELETE NOTIFICATION',
       titleColor: 'var(--tg-destructive)',
-      message: 'Are you sure you want to remove this notification?',
+      message: 'Are you sure you want to remove this notification ?',
       confirmText: 'Delete',
       confirmBg: 'var(--tg-destructive)',
       confirmColor: '#fff',
@@ -937,19 +937,19 @@ export default function DirectUserChats() {
           {/* SIDE DRAWER */}
           <div className={`side-nav-drawer ${isSideNavOpen ? 'open' : ''}`} id="sideNavDrawer">
             <div className={`side-nav-item ${activeMainView === 'chats' ? 'active' : ''}`} onClick={() => { setActiveMainView('chats'); toggleSideMenu(); }}>
-              💬 All Chats
+               All Chats
             </div>
             <div className={`side-nav-item ${activeMainView === 'predictions' ? 'active' : ''}`} onClick={() => { setActiveMainView('predictions'); toggleSideMenu(); }}>
-              🔔 Notifications
+               Notifications
             </div>
             <div className="side-nav-item" onClick={() => { openModal('newDirectChatModal'); toggleSideMenu(); }}>
-              👤 Start Direct Chat
+               Start Direct Chat
             </div>
             <div className={`side-nav-item ${activeMainView === 'userHub' ? 'active' : ''}`} onClick={() => { setActiveMainView('userHub'); toggleSideMenu(); }}>
-              ⚙️ My Profile
+               My Profile
             </div>
             <div className="side-nav-item" onClick={() => navigateTo('dashboard')} style={{ color: 'var(--tg-destructive)' }}>
-              🚪 Back to Dashboard
+               Back to Dashboard
             </div>
           </div>
 
