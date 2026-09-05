@@ -1849,12 +1849,12 @@ export default function GroupChats() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginTop: '6px' }}>
                 <div className="group-item" onClick={() => { setCurrentTabFilter('my_groups'); setActiveMainView('chats'); }} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
                   <h3 style={{ fontSize: '0.88rem', color: 'var(--tg-accent)' }}>Active Channels</h3>
-                  <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Manage joined channels.</p>
+                  <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Manage Groups You Have Joined.</p>
                   <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#fff', marginTop: '4px' }}>{joinedCount} Joined &rarr;</div>
                 </div>
                 <div className="group-item" onClick={() => { setCurrentTabFilter('my_groups'); setActiveMainView('chats'); }} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '6px' }}>
                   <h3 style={{ fontSize: '0.88rem', color: 'var(--tg-accent)' }}>Created Nodes</h3>
-                  <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Channels created by user.</p>
+                  <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Manage Groups you have created.</p>
                   <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#fff', marginTop: '4px' }}>{createdCount} Created &rarr;</div>
                 </div>
               </div>
@@ -1977,7 +1977,7 @@ export default function GroupChats() {
             )}
             {isListening && (
               <div className="typing-indicator-container">
-                <span style={{ fontSize: '0.68rem', color: 'var(--tg-accent)', fontWeight: 'bold', marginRight: '4px' }}>Vocal Synth Active</span>
+                <span style={{ fontSize: '0.68rem', color: 'var(--tg-accent)', fontWeight: 'bold', marginRight: '4px' }}>Voice note Active</span>
                 <div className="typing-dot"></div>
                 <div className="typing-dot"></div>
                 <div className="typing-dot"></div>
@@ -1990,7 +1990,7 @@ export default function GroupChats() {
             <div className="chat-input-bar">
               <textarea
                 id="chatMessageInput"
-                placeholder="Transmit message..."
+                placeholder="Send message..."
                 rows={1}
                 value={chatInputText}
                 onChange={(e) => {
@@ -2037,11 +2037,11 @@ export default function GroupChats() {
             <button className="close-modal-btn" onClick={() => closeModal('groupOverviewModal')}>&times;</button>
           </div>
           <div className="modal-body" style={{ alignItems: 'center' }}>
-            <div className="solid-animated-tag tag-admin">MTL FOOTBALL HUB - CORE AI</div>
+            <div className="solid-animated-tag tag-admin">MTL FOOTBALL HUB</div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              The Mtl football hub group chat interface serves as a vibrant digital gathering space for enthusiasts of the beautiful game, where fans from all walks of life converge to share their passion for football. Controlled by a futuristic AI core, this interface is designed with real-time sync, quantum-encrypted messaging pipelines, and predictive user interactions to facilitate seamless communication.
+              The Group Chat interface serves as a vibrant digital gathering space for enthusiasts of the beautiful game, where fans from all walks of life converge to share their passion for football. This interface is designed with real-time sync, quantum-encrypted messaging pipelines and predictive user interactions to facilitate seamless communication.
             </p>
-            <button className="btn-3d btn-3d-primary" style={{ width: '100%', padding: '10px' }} onClick={() => navigateTo('dashboard')}>EXIT HUB</button>
+            <button className="btn-3d btn-3d-primary" style={{ width: '100%', padding: '10px' }} onClick={() => navigateTo('dashboard')}>EXIT FROM GROUP CHATS</button>
           </div>
         </div>
       </div>
@@ -2050,7 +2050,7 @@ export default function GroupChats() {
       <div className={`overlay-screen ${modals.groupAboutModal ? 'active' : ''}`} id="groupAboutModal">
         <div className="modal-box" style={{ textAlign: 'center' }}>
           <div className="modal-header">
-            <h3>CHANNEL TELEMETRY</h3>
+            <h3>JOIN GROUP</h3>
             <button className="close-modal-btn" onClick={() => closeModal('groupAboutModal')}>&times;</button>
           </div>
           <div className="modal-body" style={{ alignItems: 'center' }} id="groupAboutBodyContent">
@@ -2078,7 +2078,7 @@ export default function GroupChats() {
                         disabled={isJoiningGroup} 
                         onClick={() => joinGroup(group.id)}
                       >
-                        {isJoiningGroup ? 'Connecting to Node...' : 'Join Channel Now'}
+                        {isJoiningGroup ? 'Connecting...' : 'Join Group Now'}
                       </button>
                     </div>
                   </>
@@ -2120,9 +2120,9 @@ export default function GroupChats() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                      <button className="btn-3d btn-3d-dark" style={{ flex: 1, padding: '10px' }} onClick={() => exitGroup(group.id)}>Disconnect</button>
+                      <button className="btn-3d btn-3d-dark" style={{ flex: 1, padding: '10px' }} onClick={() => exitGroup(group.id)}>EXIT</button>
                       {(group.creator_id === currentUser?.id || currentProfile?.is_global_admin) && (
-                        <button className="btn-3d btn-3d-danger" style={{ flex: 1, padding: '10px' }} onClick={() => deleteGroup(group.id)}>Purge Node</button>
+                        <button className="btn-3d btn-3d-danger" style={{ flex: 1, padding: '10px' }} onClick={() => deleteGroup(group.id)}>DELETE</button>
                       )}
                     </div>
                   </>
@@ -2156,14 +2156,14 @@ export default function GroupChats() {
                   <input type="radio" name="gtype" checked={selectedNewGroupType === 'Public'} onChange={() => setSelectedNewGroupType('Public')} id="radioPublic" />
                   <div>
                     <h4 style={{ fontSize: '0.82rem', color: '#fff' }}>Public Directory</h4>
-                    <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Broadcasting to public matrix after approval</p>
+                    <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Public access after approval</p>
                   </div>
                 </div>
                 <div className={`radio-card ${selectedNewGroupType === 'Private' ? 'selected' : ''}`} onClick={() => setSelectedNewGroupType('Private')}>
                   <input type="radio" name="gtype" checked={selectedNewGroupType === 'Private'} onChange={() => setSelectedNewGroupType('Private')} id="radioPrivate" />
                   <div>
-                    <h4 style={{ fontSize: '0.82rem', color: '#fff' }}>Private Node</h4>
-                    <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Encrypted invite access only</p>
+                    <h4 style={{ fontSize: '0.82rem', color: '#fff' }}>Private Group</h4>
+                    <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Invite access only</p>
                   </div>
                 </div>
               </div>
@@ -2184,12 +2184,12 @@ export default function GroupChats() {
             <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(0, 240, 255, 0.15)', border: '1px solid var(--tg-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tg-accent)' }}>
               
             </div>
-            <h4 style={{ color: '#fff', fontSize: '0.9rem' }}>Admin Node Authorization</h4>
-            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>New network nodes require clearance authorization before public feed activation.</p>
+            <h4 style={{ color: '#fff', fontSize: '0.9rem' }}>Admin Authorization</h4>
+            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>New groups require superadmin approval authorization before public access.</p>
 
             <div id="adminApprovalList" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
               {pendingApprovalGroups.length === 0 ? (
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No nodes currently awaiting clearance.</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No Group currently awaiting approval.</p>
               ) : (
                 pendingApprovalGroups.map(g => {
                   const creatorName = g.creator_name || g.creator_id || 'USER';
@@ -2202,7 +2202,7 @@ export default function GroupChats() {
                       {currentProfile?.is_global_admin ? (
                         <button className="btn-3d btn-3d-primary" style={{ padding: '5px 10px', fontSize: '0.7rem' }} onClick={() => approveGroup(g.id)}>Authorize</button>
                       ) : (
-                        <span style={{ fontSize: '0.68rem', color: 'var(--tg-accent)' }}>Pending Clearance</span>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--tg-accent)' }}>Pending approval</span>
                       )}
                     </div>
                   );
