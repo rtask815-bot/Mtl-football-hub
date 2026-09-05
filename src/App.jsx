@@ -17,7 +17,7 @@ import Predictions from "./pages/Predictions.jsx";
 import Aipredictions from "./pages/Aipredictions.jsx";
 import Fixtures from "./pages/Fixtures.jsx";
 import Live from "./pages/Live.jsx";
-import Chats from "./pages/Chats.jsx";
+import News from "./pages/News.jsx";
 import Clubs from "./pages/Clubs.jsx";
 import Notifications from "./pages/Notifications.jsx";
 import Trending from "./pages/Trending.jsx";
@@ -80,7 +80,7 @@ export default function App() {
 
                 {/* Feature Modules */}
                 <Route path="/group-chats" element={<ProtectedRoute><GroupChats /></ProtectedRoute>} />
-                <Route path="/chats" element={<ProtectedRoute><Chats /></ProtectedRoute>} />
+                <Route path="/news" element={<ProtectedRoute><News /></ProtectedRoute>} />
                 <Route path="/past-predictions" element={<ProtectedRoute><PastPredictions /></ProtectedRoute>} />
                 <Route path="/predictions" element={<ProtectedRoute><Predictions /></ProtectedRoute>} />
                 <Route path="/ai-predictions" element={<ProtectedRoute><Aipredictions /></ProtectedRoute>} />
