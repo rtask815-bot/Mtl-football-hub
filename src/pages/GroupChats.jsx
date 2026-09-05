@@ -97,17 +97,16 @@ export default function GroupChats() {
   // AI System State
   const [aiSystemStatus, setAiSystemStatus] = useState("OPTIMAL");
   const [aiLogFeed, setAiLogFeed] = useState([
-    "INITIALIZING NEXUS CORE...",
-    "QUANTUM ENCRYPTION: ACTIVE",
-    "REALTIME SYNC: ONLINE"
+    "INITIALIZED",
+    "SYNCHRONIZED."
   ]);
 
   // Dynamic Futuristic Loader Messages Sequence
   const loadingTexts = [
-    "INITIALIZING SYSTEM CORE...",
-    "SYNCHRONIZING NEURAL NODE...",
-    "ESTABLISHING SECURE LINK...",
-    "LOADING QUANTUM DATA..."
+    "INITIALIZING...",
+    "SYNCHRONIZING...",
+    "ESTABLISHING SECURE CONNECTION...",
+    "LOADING DATA..."
   ];
 
   // UI & Drawer States
@@ -291,7 +290,7 @@ export default function GroupChats() {
   function showErrorBanner(title, message) {
     setErrorBanner({
       active: true,
-      title: title || "AI Notice",
+      title: title || "SYSTEM ALERT",
       message: message || "System anomaly detected."
     });
     setAiSystemStatus("WARNING");
@@ -329,7 +328,7 @@ export default function GroupChats() {
     verifySessionAndInitialize().finally(() => {
       setTimeout(() => {
         setIsLoading(false);
-        appendAiLog("CORE SYNC COMPLETED");
+        appendAiLog("DATA LOADING COMPLETED");
       }, 1000);
     });
 
@@ -397,7 +396,7 @@ export default function GroupChats() {
     try {
       const { data: { session }, error } = await supabaseClient.auth.getSession();
       if (error || !session || !session.user) {
-        appendAiLog("SESSION MISSING: REDIRECTING");
+        appendAiLog("SESSION MISSING: REDIRECTING TO AUTHENTICATION PAGE");
         window.location.href = 'auth.html';
         return;
       }
@@ -455,7 +454,7 @@ export default function GroupChats() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      showErrorBanner("Synchronization Error", "Failed to retrieve quantum channels.");
+      showErrorBanner("Synchronization Error", "Failed to retrieve chats.");
       return;
     }
 
@@ -481,7 +480,7 @@ export default function GroupChats() {
                 return newCounts;
               });
               playNotificationSound();
-              appendAiLog("NEW INCOMING DATA STREAM");
+              appendAiLog("NEW INCOMING MESSAGES");
             }
             return activeGroup;
           });
@@ -508,14 +507,14 @@ export default function GroupChats() {
   function handleUserClick(targetUserId, targetUsername) {
     if (targetUserId === currentUser?.id) return;
     setCustomPrompt({
-      title: 'AI DIRECT UPLINK REQUEST',
+      title: 'SEND CHAT REQUEST',
       titleColor: '#00f0ff',
-      message: `Initiate encrypted end-to-end direct stream with ${targetUsername}?`,
-      confirmText: 'Establish Link',
+      message: `Initiate an encrypted end-to-end direct chat with ${targetUsername}?`,
+      confirmText: 'SEND',
       confirmBg: 'var(--3d-button-bg)',
       confirmColor: '#fff',
       onConfirm: async () => {
-        addLocalNotification("CHAT REQUEST SENT", `Direct stream invite transmitted to ${targetUsername}.`);
+        addLocalNotification("CHAT REQUEST SENT", `Chat request transmitted to ${targetUsername}.`);
         showToast("CHAT REQUEST", `Request sent to ${targetUsername}`);
         setCustomPrompt(null);
       }
@@ -535,10 +534,10 @@ export default function GroupChats() {
 
   function confirmDeleteNotification(notifId) {
     setCustomPrompt({
-      title: 'PURGE LOG ENTRY',
+      title: 'DELETE NOTIFICATIONS',
       titleColor: 'var(--tg-destructive)',
-      message: 'Are you sure you want to purge this system event from local memory?',
-      confirmText: 'Purge Data',
+      message: 'Are you sure you want to delete this system event ?',
+      confirmText: 'Delete Data',
       confirmBg: 'var(--tg-destructive)',
       confirmColor: '#fff',
       onConfirm: () => {
@@ -547,24 +546,24 @@ export default function GroupChats() {
         LocalStore.set('notifications', updated);
         setNotifications(updated);
         setCustomPrompt(null);
-        appendAiLog("LOG PURGED");
+        appendAiLog("NOTIFICATION DELETED");
       }
     });
   }
 
   function promptClearAllNotifications() {
     setCustomPrompt({
-      title: 'PURGE ALL EVENT LOGS',
+      title: 'DELETE ALL NOTIFICATIONS',
       titleColor: 'var(--tg-destructive)',
-      message: 'Purge all notification records from system RAM?',
-      confirmText: 'Purge All',
+      message: 'Delete all notification records from system RAM?',
+      confirmText: 'Delete All',
       confirmBg: 'var(--tg-destructive)',
       confirmColor: '#fff',
       onConfirm: () => {
         LocalStore.set('notifications', []);
         setNotifications([]);
         setCustomPrompt(null);
-        appendAiLog("ALL LOGS CLEARED");
+        appendAiLog("ALL NOTIFICATIONS CLEARED");
       }
     });
   }
@@ -586,7 +585,7 @@ export default function GroupChats() {
     setCustomPrompt({
       title: isArchived ? 'RESTORING NODE' : 'ENCRYPTING NODE',
       titleColor: '#00f0ff',
-      message: `Execute AI command to ${actionText} this channel?`,
+      message: `Execute command to ${actionText} this channel?`,
       confirmText: 'Execute',
       confirmBg: 'var(--3d-button-bg)',
       confirmColor: '#fff',
@@ -629,7 +628,7 @@ export default function GroupChats() {
     await fetchMessages(group.id);
     setIsLoading(false);
     openModal('chatRoomModal');
-    appendAiLog(`UPLINK CONNECTED: ${group.name.toUpperCase()}`);
+    appendAiLog(`CONNECTED: ${group.name.toUpperCase()}`);
   }
 
   async function fetchMessages(groupId) {
@@ -649,7 +648,7 @@ export default function GroupChats() {
       .order('created_at', { ascending: true });
 
     if (error) {
-      showErrorBanner("Message Error", "Failed to load channel telemetry.");
+      showErrorBanner("Message Error", "Failed to load chat messages.");
       return;
     }
 
@@ -720,7 +719,7 @@ export default function GroupChats() {
   function editMessage(msgId, oldContent) {
     setCustomPrompt({
       type: 'textarea',
-      title: 'MODIFY TRANSMISSION',
+      title: 'EDIT MESSAGE',
       titleColor: '#00f0ff',
       defaultValue: oldContent,
       confirmText: 'Save Patch',
@@ -736,7 +735,7 @@ export default function GroupChats() {
 
           if (!error && currentOpenGroup) {
             fetchMessages(currentOpenGroup.id);
-            appendAiLog("TRANSMISSION REVISED");
+            appendAiLog("MESSAGE EDITED");
           }
         }
         setCustomPrompt(null);
@@ -792,7 +791,7 @@ export default function GroupChats() {
     if (!error) {
       closeModal('groupAboutModal');
       await fetchGroups();
-      appendAiLog("NODE ACCESS GRANTED");
+      appendAiLog("ACCESS GRANTED");
     }
   }
 
@@ -808,7 +807,7 @@ export default function GroupChats() {
       closeModal('groupAboutModal');
       closeModal('chatRoomModal');
       await fetchGroups();
-      appendAiLog("NODE DISCONNECTED");
+      appendAiLog("GROUPABOUT CLOSED");
     }
   }
 
@@ -822,7 +821,7 @@ export default function GroupChats() {
       closeModal('groupAboutModal');
       closeModal('chatRoomModal');
       await fetchGroups();
-      appendAiLog("NODE TERMINATED");
+      appendAiLog("GROUPMODAL CLOSED");
     }
   }
 
@@ -834,7 +833,7 @@ export default function GroupChats() {
       .eq('user_id', userId);
 
     if (!error) {
-      addLocalNotification("ADMIN ELEVATION", "Node user elevated to clearance Level 1.");
+      addLocalNotification("ADMIN ELEVATION", "User elevated to ADMIN.");
       openGroupAbout(groupId);
     }
   }
@@ -847,7 +846,7 @@ export default function GroupChats() {
       .eq('user_id', userId);
 
     if (!error) {
-      addLocalNotification("ADMIN DEMOTION", "Node user clearance adjusted to Level 0.");
+      addLocalNotification("ADMIN DEMOTION", "ADMIN clearance adjusted to USER.");
       openGroupAbout(groupId);
     }
   }
@@ -861,9 +860,9 @@ export default function GroupChats() {
       type: 'input',
       title: 'GENERATE INVITATION LINK',
       titleColor: '#00f0ff',
-      message: `Invite users to node ${groupName} via Cyber ID / Email:`,
-      placeholder: 'Enter quantum ID or email address...',
-      confirmText: 'Dispatch Signal',
+      message: `Invite users to ${groupName} via User ID / Email:`,
+      placeholder: 'Enter User ID or email address...',
+      confirmText: 'INVITE',
       confirmBg: 'var(--3d-button-bg)',
       confirmColor: '#fff',
       onConfirm: (target) => {
@@ -871,7 +870,7 @@ export default function GroupChats() {
           const inviteLink = `${window.location.origin}${window.location.pathname}?group=${groupId}`;
           const inviteMessage = `Invitation generated by ${inviterName} for channel ${groupName}.`;
           addLocalNotification("INVITATION DISPATCHED", inviteMessage);
-          alert(`Access link dispatched to target: ${target}\n\nQuantum Access URL:\n${inviteLink}`);
+          alert(`Access link sent to target: ${target}\n\nAccess URL:\n${inviteLink}`);
         }
         setCustomPrompt(null);
       }
@@ -881,9 +880,9 @@ export default function GroupChats() {
   function suspendMember(groupId, userId) {
     setCustomPrompt({
       type: 'number',
-      title: 'ISOLATE NODE MEMBER',
+      title: 'SUSPEND MEMBER',
       titleColor: 'var(--tg-destructive)',
-      message: 'Set isolation timeline in hours:',
+      message: 'Set suspension timeline in hours:',
       defaultValue: '24',
       confirmText: 'Isolate',
       confirmBg: 'var(--tg-destructive)',
@@ -898,10 +897,10 @@ export default function GroupChats() {
             .eq('user_id', userId);
 
           if (!error) {
-            addLocalNotification("MEMBER ISOLATED", `User signal suppressed for ${duration} hours.`);
+            addLocalNotification("MEMBER SUSPENDED", `User signal suppressed for ${duration} hours.`);
             openGroupAbout(groupId);
           } else {
-            showErrorBanner("Isolation Failed", error.message);
+            showErrorBanner("suspension Failed", error.message);
           }
         }
         setCustomPrompt(null);
@@ -918,7 +917,7 @@ export default function GroupChats() {
       .from('chat_groups')
       .insert([{
         name: newGroupName.trim(),
-        description: newGroupDesc.trim() || 'Futuristic secure communications channel.',
+        description: newGroupDesc.trim() || 'Secure communication channel.',
         type: selectedNewGroupType,
         creator_id: currentUser.id,
         is_approved: isApproved
@@ -935,9 +934,9 @@ export default function GroupChats() {
       setNewGroupDesc('');
       closeModal('createGroupModal');
       await fetchGroups();
-      addLocalNotification("CHANNEL INITIALIZED", `Channel ${newGroupName.trim()} online.`);
+      addLocalNotification("CHANNEL INITIALIZED", `Group Chat ${newGroupName.trim()} online.`);
     } else {
-      showErrorBanner("Initialization Failed", error?.message || 'Unable to instantiate channel.');
+      showErrorBanner("Initialization Failed", error?.message || 'Unable to instantiate group chat.');
     }
   }
 
@@ -974,9 +973,9 @@ export default function GroupChats() {
       setCurrentProfile(data);
       LocalStore.set('profile', data);
       closeModal('editProfileModal');
-      appendAiLog("IDENTITY PROTOCOL UPDATED");
+      appendAiLog("IDENTITY UPDATED");
     } else {
-      showErrorBanner("Update Anomaly", error?.message || 'Could not update identity matrix.');
+      showErrorBanner("Update Anomaly", error?.message || 'Could not update identity.');
     }
   }
 
@@ -1585,8 +1584,8 @@ export default function GroupChats() {
             </div>
 
             <div>
-              <div className="loader-brand-title">SYSTEM CORE</div>
-              <div className="loader-brand-sub">NEXUS AI CONTROL ONLINE</div>
+              <div className="loader-brand-title">DATA LOADING</div>
+              <div className="loader-brand-sub">Kindly Wait A Second</div>
             </div>
 
             <div className="loader-status-pill">
@@ -1595,7 +1594,7 @@ export default function GroupChats() {
             </div>
 
             <div className="loader-action-button">
-              SYNCHRONIZING &gt;&gt;
+              loading... &gt;&gt;
             </div>
           </div>
         </div>
@@ -1607,7 +1606,7 @@ export default function GroupChats() {
           {/* TELEGRAM SIDE NAVIGATION DRAWER */}
           <div className={`side-nav-drawer ${isSideNavOpen ? 'open' : ''}`} id="sideNavDrawer">
             <div className="side-nav-header">
-              <h3>SYSTEM CONTROL</h3>
+              <h3>SIDE NAV MENU</h3>
               <button className="side-nav-close-btn" onClick={toggleSideMenu} title="Close Menu">&times;</button>
             </div>
             <div className={`side-nav-item ${activeMainView === 'chats' ? 'active' : ''}`} onClick={() => { setActiveMainView('chats'); toggleSideMenu(); }}>
@@ -1628,7 +1627,7 @@ export default function GroupChats() {
 
             {/* AI SYSTEM STATUS FEED */}
             <div className="ai-system-hud-bar">
-              <div style={{ fontWeight: 'bold', color: '#fff' }}>CORE STATUS: {aiSystemStatus}</div>
+              <div style={{ fontWeight: 'bold', color: '#fff' }}>SYSTEM LOGS: {aiSystemStatus}</div>
               {aiLogFeed.map((log, idx) => (
                 <div key={idx} style={{ opacity: 0.8 }}>{log}</div>
               ))}
@@ -1738,9 +1737,9 @@ export default function GroupChats() {
                   {archivedCount > 0 && currentTabFilter !== 'archived' && (
                     <div className="archived-top-bar" onClick={() => setCurrentTabFilter('archived')}>
                       <div className="group-item-left">
-                        <div className="group-item-avatar" style={{ background: 'var(--tg-dark-card)' }}>📥</div>
+                        <div className="group-item-avatar" style={{ background: 'var(--tg-dark-card)' }}>🔸</div>
                         <div className="group-item-info">
-                          <h4>Archived Channels</h4>
+                          <h4>Archived Groups</h4>
                           <p>{archivedCount} {archivedCount === 1 ? 'channel' : 'channels'} stored</p>
                         </div>
                       </div>
@@ -1829,7 +1828,7 @@ export default function GroupChats() {
 
             {/* VIEW 2: USER HUB / PROFILE */}
             <div className={`view-section ${activeMainView === 'userHub' ? 'active' : ''}`} id="view-userHub">
-              <div className="section-title">IDENTITY MATRIX</div>
+              <div className="section-title">USER PROFILE</div>
               <div style={{ background: 'var(--3d-card-bg)', border: 'var(--3d-card-border)', boxShadow: 'var(--3d-card-shadow)', borderRadius: '16px', padding: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
                 <div className="flex-row" style={{ gap: '14px' }}>
                   <div className="avatar" style={{ width: '56px', height: '56px' }} id="hubUserAvatarLarge">
@@ -2138,7 +2137,7 @@ export default function GroupChats() {
       <div className={`overlay-screen ${modals.createGroupModal ? 'active' : ''}`} id="createGroupModal">
         <div className="modal-box">
           <div className="modal-header">
-            <h3>INITIALIZE NEW CHANNEL</h3>
+            <h3>CREATE A GROUP</h3>
             <button className="close-modal-btn" onClick={() => closeModal('createGroupModal')}>&times;</button>
           </div>
           <div className="modal-body">
@@ -2183,7 +2182,7 @@ export default function GroupChats() {
           </div>
           <div className="modal-body" style={{ alignItems: 'center' }}>
             <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(0, 240, 255, 0.15)', border: '1px solid var(--tg-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tg-accent)' }}>
-              🛡️
+              
             </div>
             <h4 style={{ color: '#fff', fontSize: '0.9rem' }}>Admin Node Authorization</h4>
             <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>New network nodes require clearance authorization before public feed activation.</p>
@@ -2218,20 +2217,20 @@ export default function GroupChats() {
       <div className={`overlay-screen ${modals.editProfileModal ? 'active' : ''}`} id="editProfileModal">
         <div className="modal-box">
           <div className="modal-header">
-            <h3>UPDATE IDENTITY MATRIX</h3>
+            <h3>UPDATE IDENTITY</h3>
             <button className="close-modal-btn" onClick={() => closeModal('editProfileModal')}>&times;</button>
           </div>
           <div className="modal-body">
             <div className="form-group">
-              <label>Cyber Handle</label>
+              <label>NAME</label>
               <input type="text" id="editProfileNameInput" value={editProfileName} onChange={(e) => setEditProfileName(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Status Transmission</label>
+              <label>Status Description</label>
               <input type="text" id="editProfileStatusInput" value={editProfileStatus} onChange={(e) => setEditProfileStatus(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Avatar Visual Stream URL</label>
+              <label>Avatar Visual URL</label>
               <input type="text" id="editProfileAvatarInput" placeholder="https://images.unsplash.com/..." value={editProfileAvatar} onChange={(e) => setEditProfileAvatar(e.target.value)} />
             </div>
             <button className="btn-3d btn-3d-primary" style={{ padding: '10px', fontSize: '0.85rem' }} onClick={saveProfileChanges}>Save Changes</button>
