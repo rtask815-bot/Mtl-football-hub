@@ -125,8 +125,8 @@ export default function Dashboard() {
             case 'ai-predictions':
                 navigate('/ai-predictions');
                 break;
-            case 'chats':
-                navigate('/chats');
+            case 'news':
+                navigate('/news');
                 break;
             case 'clubs':
                 navigate('/clubs');
@@ -1423,11 +1423,11 @@ export default function Dashboard() {
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                             </svg>
                         </div>
-                        <h3 className="card-title">Chat</h3>
-                        <p className="card-description">Talk football with thousands of supporters online.</p>
+                        <h3 className="card-title">TRENDING NEWS</h3>
+                        <p className="card-description">Get football updates from all across the world.</p>
                         <div className="card-bottom">
-                            <span className="card-stat">8.4K ONLINE</span>
-                            <span className="card-arrow">💬</span>
+                            <span className="card-stat">8.4K plus</span>
+                            <span className="card-arrow">🗺️</span>
                         </div>
                     </div>
 
