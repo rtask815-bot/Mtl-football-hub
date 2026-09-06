@@ -1,4 +1,4 @@
-const OPENAI_API_KEY = "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";
+const OPENAI_API_KEY = "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";
 const TARGET_MODEL = "gpt-4o-mini";
 
 import React, { useEffect, useState, useRef } from "react";
