@@ -22,10 +22,6 @@ export default defineConfig({
 
     build: {
         outDir: "dist",
-        sourcemap: true,
-        rollupOptions: {
-            // Externalize 'three' so Rollup doesn't try to bundle it if it's not installed locally
-            external: ["three"]
-        }
+        sourcemap: true
     }
 });
