@@ -774,7 +774,7 @@ export default function MatchHubApp() {
       }
     } catch (err) {
       showToast(err.message || "Failed to save record.");
-    } fontally {
+    } finally {
       setLoader(prev => ({ ...prev, active: false }));
     }
   };
