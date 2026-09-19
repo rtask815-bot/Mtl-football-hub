@@ -2202,7 +2202,7 @@ export default function GroupChats() {
                     <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)' }}>Dial the create button in order to create a group.</p>
                   </div>
                 </div>
-                <button className="btn-3d btn-3d-primary" style={{ padding: '7px 14px', fontSize: 'var(--fs-xs)' }} onClick={() => openModal('createGroupModal')}CREATE GROUP</button>
+                <button className="btn-3d btn-3d-primary" style={{ padding: '7px 14px', fontSize: 'var(--fs-xs)' }} onClick={() => openModal('createGroupModal')}>CREATE GROUP</button>
               </div>
 
               {/* GROUP TABS HEADER */}
