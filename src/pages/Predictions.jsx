@@ -1869,7 +1869,7 @@ function CardWithLongPress({ children, className, onClick, onLongPress }) {
 
 function ButtonWithLongPress({ children, className, onClick, onLongPress }) {  
   const timerRef = useRef(null);  
-  const isLongPressRef.current = false;  
+  const isLongPressRef = useRef(false); // Fixed: wrap initial value in useRef()
 
   const handleTouchStart = () => {  
     isLongPressRef.current = false;  
