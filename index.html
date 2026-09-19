@@ -3,14 +3,28 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;" />
+    
+    <!-- Updated Content Security Policy to allow Google Fonts, WebGL, Supabase, and Google Search iframe -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; frame-src 'self' https://www.google.com; connect-src 'self' https://dfcgbwfralikyqxzxlbd.supabase.co wss://dfcgbwfralikyqxzxlbd.supabase.co https:;" />
+    
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
+    
+    <!-- Primary App Title and Theme Color -->
     <title>MTL Football Hub.</title>
+    <meta name="theme-color" content="#0b0f19" />
+    <meta name="description" content="MTL Football Intelligence - Real-time stats, AI match predictions, dynamic hotline dialing, and secure encrypted feeds." />
+
+    <!-- Google Fonts Preconnect Links -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Required Typography Fonts (Inter, Outfit, Orbitron) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet" />
 </head>
-<body>
+<body class="bg-[#0b0f19] text-[#f9fafb] antialiased selection:bg-[#10b981] selection:text-black">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
 </body>
