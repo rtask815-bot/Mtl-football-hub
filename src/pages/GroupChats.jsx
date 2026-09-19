@@ -97,16 +97,15 @@ export default function GroupChats() {
   // AI System State
   const [aiSystemStatus, setAiSystemStatus] = useState("OPTIMAL");
   const [aiLogFeed, setAiLogFeed] = useState([
-    "INITIALIZED",
-    "SYNCHRONIZED."
+    "connected",
+    "data loading completed."
   ]);
 
   // Dynamic Futuristic Loader Messages Sequence
   const loadingTexts = [
-    "INITIALIZING ARCHITECTURE...",
-    "SYNCHRONIZING SECURE NODES...",
-    "ESTABLISHING QUANTUM LINK...",
-    "LOADING MESH DATA..."
+    "connecting...",
+    "loading data...",
+    "loading completed"
   ];
 
   // UI & Drawer States
@@ -133,7 +132,7 @@ export default function GroupChats() {
 
   // Form Inputs
   const [editProfileName, setEditProfileName] = useState('');
-  const [editProfileStatus, setEditProfileStatus] = useState('Connected to Secure Matrix.');
+  const [editProfileStatus, setEditProfileStatus] = useState('online');
   const [editProfileAvatar, setEditProfileAvatar] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupDesc, setNewGroupDesc] = useState('');
@@ -213,7 +212,7 @@ export default function GroupChats() {
 
       recognition.onerror = () => {
         setIsListening(false);
-        appendAiLog("VOICE INPUT MODULE ERROR");
+        appendAiLog("voice input error");
       };
 
       recognition.onend = () => {
@@ -233,7 +232,7 @@ export default function GroupChats() {
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
-      appendAiLog("VOICE SYNTHESIS TERMINATED");
+      appendAiLog("VOICE MMODULE CLOSED");
     } else {
       try {
         recognitionRef.current.start();
@@ -444,7 +443,7 @@ export default function GroupChats() {
 
     setCurrentProfile(finalProfile);
     setEditProfileName(finalProfile.username || '');
-    setEditProfileStatus(finalProfile.status_message || 'Connected to Secure Matrix.');
+    setEditProfileStatus(finalProfile.status_message || 'onlineqq1qq.');
     setEditProfileAvatar(finalProfile.avatar_url || '');
     LocalStore.set('profile', finalProfile);
   }
@@ -2054,7 +2053,7 @@ export default function GroupChats() {
           <div className={`side-nav-drawer ${isSideNavOpen ? 'open' : ''}`} id="sideNavDrawer">
             <div className="side-nav-header">
               <h3>SIDE NAV MENU</h3>
-              <button className="side-nav-close-btn" onClick={toggleSideMenu} title="Close Menu">&times;</button>
+              <button className="side-nav-close-btn" onClick={toggleSideMenu} title="Close Menu">❌</button>
             </div>
             <div className={`side-nav-item ${activeMainView === 'chats' ? 'active' : ''}`} onClick={() => { setActiveMainView('chats'); toggleSideMenu(); }}>
               <span className="svg-icon-3d">
@@ -2139,11 +2138,6 @@ export default function GroupChats() {
                   <img src={currentAvatar} alt="User" id="headerAvatarImg" />
                 </div>
               </div>
-              <button className="icon-action-btn" title="Group Description & Navigation" onClick={() => openModal('groupOverviewModal')}>
-                <span className="svg-icon-3d">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                </span>
-              </button>
               <button className="icon-action-btn" title="Back to Dashboard" onClick={() => navigateTo('dashboard')}>
                 <span className="svg-icon-3d">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
@@ -2173,10 +2167,6 @@ export default function GroupChats() {
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                 </svg>
                 Filter
-              </button>
-              <button className="btn-3d btn-3d-primary create-group-btn" onClick={() => openModal('createGroupModal')}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Create
               </button>
             </div>
           </div>
@@ -2208,11 +2198,11 @@ export default function GroupChats() {
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                   </div>
                   <div>
-                    <h4 style={{ color: '#fff', fontSize: 'var(--fs-sm)', fontFamily: 'var(--font-cyber)', fontWeight: 'bold' }}>SECURE QUANTUM MESH ACTIVE</h4>
-                    <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)' }}>End-to-End Encrypted Group Networks Online. Choose or instantiate a node.</p>
+                    <h4 style={{ color: '#fff', fontSize: 'var(--fs-sm)', fontFamily: 'var(--font-cyber)', fontWeight: 'bold' }}>GROUP CREATION</h4>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)' }}>Dial the create button in order to create a group.</p>
                   </div>
                 </div>
-                <button className="btn-3d btn-3d-primary" style={{ padding: '7px 14px', fontSize: 'var(--fs-xs)' }} onClick={() => openModal('createGroupModal')}>EXPLORE</button>
+                <button className="btn-3d btn-3d-primary" style={{ padding: '7px 14px', fontSize: 'var(--fs-xs)' }} onClick={() => openModal('createGroupModal')}CREATE GROUP</button>
               </div>
 
               {/* GROUP TABS HEADER */}
@@ -2241,7 +2231,7 @@ export default function GroupChats() {
                           <p>{archivedCount} {archivedCount === 1 ? 'channel' : 'channels'} stored</p>
                         </div>
                       </div>
-                      <span style={{ color: 'var(--tg-accent)', fontSize: '1rem', fontWeight: 'bold' }}>&rarr;</span>
+                      <span style={{ color: 'var(--tg-accent)', fontSize: '1rem', fontWeight: 'bold' }}></span>
                     </div>
                   )}
 
@@ -2276,7 +2266,7 @@ export default function GroupChats() {
                           {joined ? (
                             <span className="solid-animated-tag tag-member">JOINED</span>
                           ) : (
-                            <span style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 'bold' }}>VIEW</span>
+                            <span style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', fontWeight: 'bold' }}>OPEN</span>
                           )}
                           {unread > 0 && <div className="unread-badge">{unread}</div>}
                         </div>
@@ -2351,12 +2341,12 @@ export default function GroupChats() {
                 <div className="group-item" onClick={() => { setCurrentTabFilter('my_groups'); setActiveMainView('chats'); }} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
                   <h3 style={{ fontSize: 'var(--fs-sm)', color: 'var(--tg-accent)', fontFamily: 'var(--font-cyber)' }}>Active Channels</h3>
                   <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>Manage Groups You Have Joined.</p>
-                  <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 'bold', color: '#fff', marginTop: '4px' }}>{joinedCount} Joined &rarr;</div>
+                  <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 'bold', color: '#fff', marginTop: '4px' }}>You have joined {joinedCount} Group(s)</div>
                 </div>
                 <div className="group-item" onClick={() => { setCurrentTabFilter('my_groups'); setActiveMainView('chats'); }} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
-                  <h3 style={{ fontSize: 'var(--fs-sm)', color: 'var(--tg-accent)', fontFamily: 'var(--font-cyber)' }}>Created Nodes</h3>
+                  <h3 style={{ fontSize: 'var(--fs-sm)', color: 'var(--tg-accent)', fontFamily: 'var(--font-cyber)' }}>Created Groups</h3>
                   <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>Manage Groups you have created.</p>
-                  <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 'bold', color: '#fff', marginTop: '4px' }}>{createdCount} Created &rarr;</div>
+                  <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 'bold', color: '#fff', marginTop: '4px' }}>You have created {createdCount} Group(s)</div>
                 </div>
               </div>
             </div>
@@ -2418,7 +2408,7 @@ export default function GroupChats() {
               <div className="chat-avatar">{currentOpenGroup.name.substring(0, 2).toUpperCase()}</div>
               <div>
                 <h3 style={{ fontSize: 'var(--fs-sm)', color: '#fff', fontFamily: 'var(--font-cyber)' }}>{currentOpenGroup.name}</h3>
-                <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--tg-online)' }}>Encrypted Matrix Channel</p>
+                <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--tg-online)' }}>End-to-end Encrypted</p>
               </div>
             </div>
             <div className="flex-row">
@@ -2428,13 +2418,13 @@ export default function GroupChats() {
                 </span>
               </button>
               <button className="icon-action-btn" title="Close Room" onClick={() => closeModal('chatRoomModal')}>
-                ✕
+                ❌
               </button>
             </div>
           </div>
 
           <div className="chat-messages-area" ref={chatMessagesAreaRef}>
-            <div className="chat-time-divider">ENCRYPTED STREAM INITIALIZED</div>
+            <div className="chat-time-divider"></div>
 
             {messages.map((m, idx) => {
               const isOutgoing = m.sender_id === currentUser?.id;
@@ -2521,8 +2511,8 @@ export default function GroupChats() {
       <div className={`overlay-screen ${modals.createGroupModal ? 'active' : ''}`}>
         <div className="modal-box">
           <div className="modal-header">
-            <h3>CREATE NEW NODE</h3>
-            <button className="close-modal-btn" onClick={() => closeModal('createGroupModal')}>&times;</button>
+            <h3>CREATE A NEW GROUP</h3>
+            <button className="close-modal-btn" onClick={() => closeModal('createGroupModal')}>❌</button>
           </div>
           <div className="modal-body">
             <div className="form-group">
@@ -2557,7 +2547,7 @@ export default function GroupChats() {
               </div>
             </div>
             <button className="btn-3d btn-3d-primary" style={{ padding: '13px', width: '100%', marginTop: '8px' }} onClick={createNewGroupSubmit}>
-              INITIALIZE CHANNEL
+              CREATE
             </button>
           </div>
         </div>
@@ -2568,7 +2558,7 @@ export default function GroupChats() {
         <div className="modal-box">
           <div className="modal-header">
             <h3>CHANNEL SPECS</h3>
-            <button className="close-modal-btn" onClick={() => closeModal('groupAboutModal')}>&times;</button>
+            <button className="close-modal-btn" onClick={() => closeModal('groupAboutModal')}>❌</button>
           </div>
           <div className="modal-body">
             {currentOpenGroup && (
@@ -2581,19 +2571,19 @@ export default function GroupChats() {
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {isMember(currentOpenGroup, currentUser?.id) ? (
                     <>
-                      <button className="btn-3d btn-3d-dark" style={{ flex: 1, padding: '11px' }} onClick={() => inviteMember(currentOpenGroup.id)}>Invite Member</button>
-                      <button className="btn-3d btn-3d-danger" style={{ flex: 1, padding: '11px' }} onClick={() => exitGroup(currentOpenGroup.id)}>Leave Group</button>
+                      <button className="btn-3d btn-3d-dark" style={{ flex: 1, padding: '11px' }} onClick={() => inviteMember(currentOpenGroup.id)}>Invite New Member</button>
+                      <button className="btn-3d btn-3d-danger" style={{ flex: 1, padding: '11px' }} onClick={() => exitGroup(currentOpenGroup.id)}>Exit Group</button>
                     </>
                   ) : (
                     <button className="btn-3d btn-3d-primary" style={{ width: '100%', padding: '11px' }} onClick={() => joinGroup(currentOpenGroup.id)}>
-                      JOIN GROUP CHANNEL
+                      JOIN GROUP
                     </button>
                   )}
                 </div>
 
                 {isGroupAdmin(currentOpenGroup, currentUser?.id) && (
                   <button className="btn-3d btn-3d-danger" style={{ width: '100%', padding: '11px' }} onClick={() => deleteGroup(currentOpenGroup.id)}>
-                    TERMINATE CHANNEL
+                    DELETE GROUP
                   </button>
                 )}
 
@@ -2634,11 +2624,11 @@ export default function GroupChats() {
         <div className="modal-box">
           <div className="modal-header">
             <h3>PENDING APPROVALS</h3>
-            <button className="close-modal-btn" onClick={() => closeModal('deleteRequestModal')}>&times;</button>
+            <button className="close-modal-btn" onClick={() => closeModal('deleteRequestModal')}>❌</button>
           </div>
           <div className="modal-body">
             {pendingApprovalGroups.length === 0 ? (
-              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>No nodes requiring administrator authorization.</p>
+              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)' }}>No New Groups requiring administrator authorization.</p>
             ) : (
               pendingApprovalGroups.map(g => (
                 <div key={g.id} className="notification-item-card">
@@ -2660,8 +2650,8 @@ export default function GroupChats() {
       <div className={`overlay-screen ${modals.editProfileModal ? 'active' : ''}`}>
         <div className="modal-box">
           <div className="modal-header">
-            <h3>EDIT IDENTITY</h3>
-            <button className="close-modal-btn" onClick={() => closeModal('editProfileModal')}>&times;</button>
+            <h3>EDIT USER IDENTITY</h3>
+            <button className="close-modal-btn" onClick={() => closeModal('editProfileModal')}>❌</button>
           </div>
           <div className="modal-body">
             <div className="form-group">
@@ -2677,7 +2667,7 @@ export default function GroupChats() {
               <input type="text" value={editProfileAvatar} onChange={(e) => setEditProfileAvatar(e.target.value)} />
             </div>
             <button className="btn-3d btn-3d-primary" style={{ padding: '13px', width: '100%', marginTop: '8px' }} onClick={saveProfileChanges}>
-              UPDATE MATRIX IDENTITY
+              Save Changes
             </button>
           </div>
         </div>
@@ -2687,15 +2677,12 @@ export default function GroupChats() {
       <div className={`overlay-screen ${modals.groupOverviewModal ? 'active' : ''}`}>
         <div className="modal-box">
           <div className="modal-header">
-            <h3>QUANTUM MESH INFO</h3>
+            <h3>GROUP CHATS</h3>
             <button className="close-modal-btn" onClick={() => closeModal('groupOverviewModal')}>&times;</button>
           </div>
           <div className="modal-body">
             <div className="decorated-prompt-box">
               <h4 style={{ color: 'var(--tg-accent)', fontSize: 'var(--fs-sm)', fontFamily: 'var(--font-cyber)', marginBottom: '8px' }}>SYSTEM ARCHITECTURE</h4>
-              <p style={{ fontSize: 'var(--fs-xs)', color: '#fff', lineHeight: '1.6' }}>
-                GroupChats page is built with 3D cyber optics, real-time message broadcasting, direct audio synthesis prompts, and independent scrolling viewport layers.
-              </p>
             </div>
           </div>
         </div>
@@ -2707,7 +2694,7 @@ export default function GroupChats() {
           <div className="modal-box" style={{ maxWidth: '420px' }}>
             <div className="modal-header">
               <h3 style={{ color: customPrompt.titleColor || 'var(--tg-accent)' }}>{customPrompt.title}</h3>
-              <button className="close-modal-btn" onClick={() => setCustomPrompt(null)}>&times;</button>
+              <button className="close-modal-btn" onClick={() => setCustomPrompt(null)}>❌</button>
             </div>
             <div className="modal-body">
               {customPrompt.message && <p style={{ fontSize: 'var(--fs-sm)', color: '#fff' }}>{customPrompt.message}</p>}
