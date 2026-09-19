@@ -785,6 +785,7 @@ export default function GroupChats() {
 
     setGroupAboutMembers(membersList || []);
     openModal('groupAboutModal');
+    closeModal('chatRoomModal');
   }
 
   async function joinGroup(groupId) {
