@@ -2157,7 +2157,7 @@ export default function GroupChats() {
               <input
                 type="text"
                 id="globalSearchInput"
-                placeholder="Search quantum channels..."
+                placeholder="Search groups..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -2199,11 +2199,10 @@ export default function GroupChats() {
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                   </div>
                   <div>
-                    <h4 style={{ color: '#fff', fontSize: 'var(--fs-sm)', fontFamily: 'var(--font-cyber)', fontWeight: 'bold' }}>GROUP CREATION</h4>
-                    <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)' }}>Dial the create button in order to create a group.</p>
+                    <h4 style={{ color: '#fff', fontSize: 'var(--fs-sm)', fontFamily: 'var(--font-cyber)', fontWeight: 'bold' }}>GROUP CREATION OPTION</h4>
                   </div>
                 </div>
-                <button className="btn-3d btn-3d-primary" style={{ padding: '7px 14px', fontSize: 'var(--fs-xs)' }} onClick={() => openModal('createGroupModal')}>CREATE GROUP</button>
+                <button className="btn-3d btn-3d-primary" style={{ padding: '7px 14px', fontSize: 'var(--fs-xs)' }} onClick={() => openModal('createGroupModal')}>CREATE</button>
               </div>
 
               {/* GROUP TABS HEADER */}
@@ -2223,9 +2222,6 @@ export default function GroupChats() {
                     <div className="archived-top-bar" onClick={() => setCurrentTabFilter('archived')}>
                       <div className="group-item-left">
                         <div className="group-item-avatar" style={{ background: 'var(--tg-dark-card)' }}>
-                          <span className="svg-icon-3d">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-                          </span>
                         </div>
                         <div className="group-item-info">
                           <h4>Archived Groups</h4>
