@@ -26,7 +26,7 @@ function verifyHackLocksAndSanitize(payload, showToast) {
       if (typeof payload[key] === 'string') {
         const low = payload[key].toLowerCase();
         if (low.includes('<script') || low.includes('javascript:') || low.includes('onerror=') || low.includes('onload=')) {
-          if (showToast) showToast("🚨 XSS Injection Attempt Blocked by Security Hack Lock!");
+          if (showToast) showToast("🚨 Malicious Attempt Blocked by Security Hack Lock!");
           throw new Error("Security Violation: Malicious payload detected.");
         }
         payload[key] = sanitizeInput(payload[key]);
@@ -98,11 +98,11 @@ function buildLiveMatch(match) {
     ...match,
     id: match.id,
     league: match.league || match.competition || 'FOOTBALL',
-    teams: match.teams || 'Unknown Teams',
-    score: match.score || match.final_score || '0 - 0',
+    teams: match.teams || 'Teams not selected',
+    score: match.score || match.final_score || '- _ -',
     minute: minuteStr, 
     progress,
-    details: match.live_details || match.details || match.analysis_text || 'Live match intelligence available.'
+    details: match.live_details || match.details || match.analysis_text || 'Live match available.'
   };
 }
 
@@ -128,7 +128,7 @@ export default function PrePage() {
   const [contrastMode, setContrastMode] = useState(false);
 
   // Floating Loader & Toasts State
-  const [loader, setLoader] = useState({ active: true, promptText: 'INITIALIZING SECURE CORE...' });
+  const [loader, setLoader] = useState({ active: true, promptText: 'loading...' });
   const [toasts, setToasts] = useState([]);
   const [dbError, setDbError] = useState(null);
 
@@ -190,7 +190,7 @@ export default function PrePage() {
   const triggerFloatingLoader = (promptText) => {
     setLoader({
       active: true,
-      promptText: promptText || 'Processing Command...'
+      promptText: promptText || 'Processing...'
     });
   };
 
@@ -472,11 +472,11 @@ export default function PrePage() {
   useEffect(() => {
     let intervalId;
     async function init() {
-      triggerFloatingLoader("ESTABLISHING QUANTUM SYNC...");
+      triggerFloatingLoader("connection completed");
       const authenticated = await checkUserSession();
       if (!authenticated) return;
 
-      triggerFloatingLoader("FETCHING NEURAL FEEDS...");
+      triggerFloatingLoader("loading data...");
       await loadDatabaseReactions();
 
       await Promise.all([
@@ -663,7 +663,7 @@ export default function PrePage() {
         user_id: currentUser?.id
       }, showToast);
 
-      triggerFloatingLoader("Posting comment to database...");
+      triggerFloatingLoader("posting Comment");
       const { error } = await db.from('comments').insert([sanitizedPayload]);
 
       if (error) {
@@ -671,7 +671,7 @@ export default function PrePage() {
         showToast("Failed to save comment.");
       } else {
         await loadDatabaseComments();
-        showToast("Comment published successfully!", false);
+        showToast("Comment posted successfully!", false);
       }
     } catch (err) {
       showToast(err.message || "Error occurred while posting comment.");
@@ -686,7 +686,7 @@ export default function PrePage() {
     const comment = comments.find(c => String(c.id) === String(commentId));
     if (!comment) return;
 
-    const newText = prompt("Edit your comment:", comment.comment);
+    const newText = prompt("Edit comment:", comment.comment);
     if (newText === null) return;
     if (newText.trim() === '') {
       showToast("Comment cannot be empty.");
@@ -832,7 +832,7 @@ export default function PrePage() {
         prob_home: item?.prob_home || '',
         prob_draw: item?.prob_draw || '',
         prob_away: item?.prob_away || '',
-        confidence_stars: item?.confidence_stars || 3,
+        confidence_stars: item?.confidence_stars || 5,
         analysis_text: item?.analysis_text || '',
         status: item?.status || 'PENDING',
         final_score: item?.final_score || ''
@@ -871,7 +871,7 @@ export default function PrePage() {
     const { section, editingItemId } = adminModal;
     try {
       const cleanPayload = verifyHackLocksAndSanitize({ ...adminFormFields }, showToast);
-      triggerFloatingLoader("Saving Admin Record...");
+      triggerFloatingLoader("Saving data...");
 
       let table = section;
       let error = null;
@@ -894,7 +894,7 @@ export default function PrePage() {
         if (section === 'trending') await loadTrendingFromDB();
       }
     } catch (err) {
-      showToast(err.message || "Failed to save record.");
+      showToast(err.message || "Failed to save data.");
     } finally {
       hideFloatingLoader();
     }
@@ -906,7 +906,7 @@ export default function PrePage() {
       const { error } = await db.from('matches').delete().eq('id', id);
       if (error) { showDatabaseError('matches', error, 'DELETE_MATCH'); return; }
       await loadMatchesFromDB();
-      showToast("Match removed.", false);
+      showToast("Match deleted.", false);
     } catch (err) { showDatabaseError('matches', err, 'DELETE_MATCH'); }
     finally { hideFloatingLoader(); }
   };
@@ -1094,12 +1094,12 @@ export default function PrePage() {
           className="bg-slate-950/60 rounded-xl p-3 space-y-2 border border-slate-800/60 hover:border-emerald-500/50 transition cursor-pointer"
         >
           <div className="flex justify-between items-center text-[11px] font-bold text-slate-300">
-            <span>💬 Comments ({comments.length})</span>
+            <span>({comments.length}) comments</span>
             <span className="text-emerald-400 text-[10px] uppercase font-bold">Fullscreen ➔</span>
           </div>
           <div className="space-y-1.5 max-h-20 overflow-y-auto text-[11px]">
             {comments.length === 0 ? <p className="text-slate-500 italic text-[10px]">No comments yet. Click to start discussion.</p> : null}
-            {comments.slice(-2).map((c, i) => (
+            {comments.slice(-1).map((c, i) => (
               <div key={i} className="bg-slate-900 p-1.5 rounded border border-slate-800 text-slate-300">
                 <span className="font-bold text-emerald-400">{c.user}:</span> {c.comment}
               </div>
@@ -1120,7 +1120,7 @@ export default function PrePage() {
                 onClick={(e) => { e.stopPropagation(); openMatchChatModal(match.id, match.teams || ''); }} 
                 className="bg-slate-900 border border-slate-700/60 px-3 py-1.5 rounded-xl text-xs text-slate-200 hover:text-emerald-400 transition flex items-center gap-1"
               >
-                💬 Group Chat
+                Group Chats
               </button>
             </div>
             {isAdmin && (
@@ -1277,12 +1277,12 @@ export default function PrePage() {
               <div className="relative w-20 h-20 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-ping"></div>
                 <div className="w-16 h-16 rounded-full bg-cyan-500/10 border-2 border-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-[pulse_1s_infinite]">
-                  <span className="text-3xl animate-[bounce_0.8s_infinite]">❤️</span>
+                  <span className="text-3xl animate-[bounce_0.8s_infinite]">💰</span>
                 </div>
               </div>
             </div>
             <div className="space-y-1">
-              <h4 className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 font-mono">DIRECTIVE EXECUTING</h4>
+              <h4 className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 font-mono">LOADING DATA</h4>
               <p id="loader-prompt-text" className="text-sm font-bold text-slate-200 uppercase tracking-wide font-mono">{loader.promptText}</p>
             </div>
           </div>
@@ -1337,9 +1337,6 @@ export default function PrePage() {
             </div>
 
             <nav className="space-y-3">
-              <a href="/dashboard" className="w-full flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-black transition text-xs font-bold">
-                <span className="text-base">⬅️</span> Back to Dashboard
-              </a>
               <button onClick={() => { setDialingModalOpen(true); toggleSideNav(); }} className="w-full flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500 hover:text-emerald-400 transition text-xs font-semibold text-slate-200">
                 <span className="text-base">📞</span> Contact Centre
               </button>
@@ -1368,7 +1365,6 @@ export default function PrePage() {
                 </div>
                 <div>
                   <h1 className="font-bold tracking-wider text-lg leading-tight font-mono text-white">PREDICTIONS <span className="text-emerald-400">HUB</span></h1>
-                  <span className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Feel Welcomed.</span>
                 </div>
               </div>
 
@@ -1402,7 +1398,7 @@ export default function PrePage() {
                   className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-200"
                 >
                   <span>Back</span>
-                  <span>➔</span>
+                  <span></span>
                 </a>
               </div>
             </div>
@@ -1413,7 +1409,6 @@ export default function PrePage() {
             <div className="max-w-7xl mx-auto text-center relative z-10 space-y-3">
               <span className="text-xs uppercase tracking-[0.25em] text-emerald-400 font-bold bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">Sports Analytics & 4D Intelligence</span>
               <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight uppercase font-mono text-white">FOOTBALL <span className="text-emerald-400">INTELLIGENCE</span></h2>
-              <p className="text-slate-400 text-sm lg:text-base max-w-2xl mx-auto font-medium">Real-time stats, AI match predictions, dynamic hotline dialing and secure encrypted feeds.</p>
             </div>
           </section>
 
@@ -1425,7 +1420,7 @@ export default function PrePage() {
                   <div className="flex items-center gap-3">
                     <span className="text-2xl animate-pulse">🚨</span>
                     <div>
-                      <h3 className="font-extrabold text-red-400 text-sm uppercase tracking-widest font-mono">CRITICAL DATABASE EXCEPTION DIAGNOSTIC</h3>
+                      <h3 className="font-extrabold text-red-400 text-sm uppercase tracking-widest font-mono">SYSTEM ALERT</h3>
                       <p className="text-xs text-slate-300 font-semibold">{dbError.title}</p>
                     </div>
                   </div>
@@ -1457,7 +1452,7 @@ export default function PrePage() {
               <div className="flex items-center justify-between section-header border-b border-slate-800 pb-4">
                 <div>
                   <h3 className="font-extrabold text-xl uppercase tracking-wider text-white font-mono flex items-center gap-3">
-                    <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span> LIVE MATCH INTEL
+                    <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span> LIVE MATCHES
                   </h3>
                   <span className="text-xs text-cyan-400 font-semibold">{liveMatchesData.length} Matches currently active</span>
                 </div>
@@ -1481,7 +1476,6 @@ export default function PrePage() {
                   >
                     ⚽ MATCHES & PREDICTIONS
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">Click title for Google search context.</p>
                 </div>
               </div>
 
@@ -1490,16 +1484,16 @@ export default function PrePage() {
                 {/* Header Tab Buttons */}
                 <div className="flex items-center gap-2 bg-slate-950 p-2 rounded-2xl border border-slate-800 self-start">
                   <button 
-                    onClick={() => setActiveMatchTab('future')} 
-                    className={`px-5 py-2 rounded-xl text-xs font-bold font-mono transition ${activeMatchTab === 'future' ? 'bg-emerald-500 text-black shadow-lg' : 'text-slate-400 hover:text-white'}`}
-                  >
-                    UPCOMING MATCHES
-                  </button>
-                  <button 
                     onClick={() => setActiveMatchTab('past')} 
                     className={`px-5 py-2 rounded-xl text-xs font-bold font-mono transition ${activeMatchTab === 'past' ? 'bg-emerald-500 text-black shadow-lg' : 'text-slate-400 hover:text-white'}`}
                   >
                     PAST PREDICTIONS
+                  </button>
+                  <button 
+                    onClick={() => setActiveMatchTab('future')} 
+                    className={`px-5 py-2 rounded-xl text-xs font-bold font-mono transition ${activeMatchTab === 'future' ? 'bg-emerald-500 text-black shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    UPCOMING MATCHES
                   </button>
                 </div>
 
@@ -1585,7 +1579,7 @@ export default function PrePage() {
                       >
                         🔥 TRENDING NEWS
                       </h3>
-                      <span className="text-xs text-slate-400">Active Discussions Feed</span>
+                      <span className="text-xs text-slate-400">Discussions Feed</span>
                     </div>
                   </div>
                   <div id="trending-container" className="space-y-4">
@@ -1627,10 +1621,10 @@ export default function PrePage() {
           <div id="google-iframe-modal" className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex flex-col p-4 sm:p-8 my-auto">
             <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 mb-3 flex items-center justify-between shadow-2xl">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500 text-black font-extrabold flex items-center justify-center font-mono">AI</div>
+                <div className="w-8 h-8 rounded-lg bg-emerald-500 text-black font-extrabold flex items-center justify-center font-mono">MTL</div>
                 <div>
-                  <h4 className="text-xs font-bold font-mono text-emerald-400">GOOGLE QUICK SEARCH</h4>
-                  <p id="google-search-query-display" className="text-[10px] text-slate-400 font-mono">Automated AI Mode: "{googleIframeModal.query}"</p>
+                  <h4 className="text-xs font-bold font-mono text-emerald-400">QUICK SEARCH</h4>
+                  <p id="google-search-query-display" className="text-[10px] text-slate-400 font-mono">"{googleIframeModal.query}"</p>
                 </div>
               </div>
               <button onClick={closeGoogleIframeModal} className="w-8 h-8 rounded-full bg-red-900/40 text-red-300 border border-red-500/30 flex items-center justify-center font-bold text-xs hover:bg-red-800 transition">✕</button>
@@ -1648,14 +1642,13 @@ export default function PrePage() {
             <div className="bg-slate-950 p-4 border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <h4 className="font-bold text-sm tracking-wide font-mono text-white">Community Chat</h4>
               </div>
               <button onClick={() => setGlobalChatOpen(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
             </div>
             
             <div id="global-chat-messages" className="flex-1 p-4 overflow-y-auto flex flex-col space-y-3 text-xs">
               {globalChatMessages.length === 0 ? (
-                <div className="text-center text-slate-500 text-xs py-8">Welcome to global community chat!</div>
+                <div className="text-center text-slate-500 text-xs py-8">Welcome !</div>
               ) : (
                 globalChatMessages.map(msg => {
                   const isMe = currentUser && msg.user_id === currentUser.id;
@@ -1684,7 +1677,7 @@ export default function PrePage() {
                 value={globalChatInput} 
                 onChange={(e) => setGlobalChatInput(e.target.value)} 
                 onKeyDown={(e) => e.key === 'Enter' && sendGlobalChatMessage()} 
-                placeholder="Enter community discussion directive..." 
+                placeholder="Enter text here..." 
                 className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
               />
               <button onClick={sendGlobalChatMessage} className="bg-emerald-500 text-black font-bold px-4 py-2 rounded-xl text-xs hover:bg-emerald-400 transition">Send</button>
@@ -1699,9 +1692,9 @@ export default function PrePage() {
               
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500 text-emerald-400 flex items-center justify-center font-bold text-lg font-mono">💬</div>
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500 text-emerald-400 flex items-center justify-center font-bold text-lg font-mono"></div>
                   <div>
-                    <h3 className="text-lg md:text-xl font-extrabold text-white font-mono">Comments Stream: {commentsModal.teams || 'Match Thread'}</h3>
+                    <h3 className="text-lg md:text-xl font-extrabold text-white font-mono">{commentsModal.teams || 'Match Thread'}</h3>
                     <p className="text-xs text-emerald-400">Leave a comment.</p>
                   </div>
                 </div>
@@ -1712,7 +1705,7 @@ export default function PrePage() {
                 {(() => {
                   const comments = matchCommentsStore[commentsModal.matchId] || [];
                   if (!comments.length) {
-                    return <div className="text-center text-slate-500 py-12 text-xs font-medium">No comments posted for this match yet. Be the first to share analysis!</div>;
+                    return <div className="text-center text-slate-500 py-12 text-xs font-medium">No comments posted for this match yet. Be the first to share your analysis !</div>;
                   }
                   return comments.map(c => {
                     const canEdit = userProfile.role === 'admin' || (currentUser && c.user_id === currentUser.id);
@@ -1741,7 +1734,7 @@ export default function PrePage() {
               </div>
 
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Post Public Comment</h4>
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Post a Comment</h4>
                 <div className="flex gap-3">
                   <textarea 
                     value={fullscreenCommentInput} 
@@ -1769,7 +1762,6 @@ export default function PrePage() {
               <div className="space-y-6">
                 <div className="border-b border-slate-800 pb-4 section-header">
                   <h3 className="text-2xl font-extrabold text-emerald-400 uppercase tracking-wider font-mono">{statsModal.title}</h3>
-                  <p className="text-xs text-slate-400 mt-1">Dataset display.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[65vh] overflow-y-auto pr-2">
                   {!statsModal.dataset || !statsModal.dataset.length ? (
@@ -1865,7 +1857,7 @@ export default function PrePage() {
             <div className="bg-[#0f172a] border-2 border-slate-800 rounded-3xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden shadow-2xl my-auto">
               <div className="bg-slate-950 p-4 border-b border-slate-800 flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-sm text-emerald-400 font-mono">Group Chat: {matchChatModal.teams}</h4>
+                  <h4 className="font-bold text-sm text-emerald-400 font-mono">{matchChatModal.teams}</h4>
                   <p className="text-[10px] text-slate-400">Match discussion Group</p>
                 </div>
                 <button onClick={closeMatchChatModal} className="text-slate-400 hover:text-white font-bold text-lg">✕</button>
@@ -1874,7 +1866,7 @@ export default function PrePage() {
               <div id="match-chat-messages" className="flex-1 p-4 overflow-y-auto flex flex-col space-y-3 text-xs">
                 {(() => {
                   const msgs = matchChatStore[matchChatModal.matchId] || [];
-                  if (!msgs.length) return <div className="text-center text-slate-500 text-xs py-8">Start the discussion for this match!</div>;
+                  if (!msgs.length) return <div className="text-center text-slate-500 text-xs py-8">Start a discussion for this match!</div>;
                   return msgs.map(msg => {
                     const isMe = currentUser && msg.user_id === currentUser.id;
                     const canEdit = userProfile.role === 'admin' || isMe;
@@ -1920,7 +1912,7 @@ export default function PrePage() {
                   <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500 text-emerald-400 flex items-center justify-center text-xl">📞</div>
                   <div>
                     <h3 className="text-lg font-bold font-mono text-white">Live Call Centre</h3>
-                    <p className="text-xs text-slate-400">Direct call support +254716883895</p>
+                    <p className="text-xs text-slate-400">Direct call support</p>
                   </div>
                 </div>
                 <button onClick={() => setDialingModalOpen(false)} className="text-slate-400 hover:text-white font-bold text-lg">✕</button>
