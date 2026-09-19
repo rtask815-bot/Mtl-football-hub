@@ -1277,7 +1277,7 @@ export default function PrePage() {
               <div className="relative w-20 h-20 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-ping"></div>
                 <div className="w-16 h-16 rounded-full bg-cyan-500/10 border-2 border-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-[pulse_1s_infinite]">
-                  <span className="text-3xl animate-[bounce_0.8s_infinite]">💰</span>
+                  <span className="text-3xl animate-[bounce_0.8s_infinite]"></span>
                 </div>
               </div>
             </div>
@@ -1391,7 +1391,7 @@ export default function PrePage() {
                   ☰
                 </button>
 
-                {/* Professional Back Button located at FURTHEST END */}
+                {/* Back Button located at FURTHEST END */}
                 <a 
                   href="/dashboard" 
                   title="Back to Dashboard" 
@@ -1407,7 +1407,7 @@ export default function PrePage() {
           {/* Banner */}
           <section className="relative overflow-hidden py-12 px-6 border-b border-slate-800/80 bg-gradient-to-b from-[#0f172a] to-[#090d16] animate-slide-in">
             <div className="max-w-7xl mx-auto text-center relative z-10 space-y-3">
-              <span className="text-xs uppercase tracking-[0.25em] text-emerald-400 font-bold bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">Sports Analytics & 4D Intelligence</span>
+              <span className="text-xs uppercase tracking-[0.25em] text-emerald-400 font-bold bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">Sports Analytics & Intelligence</span>
               <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight uppercase font-mono text-white">FOOTBALL <span className="text-emerald-400">INTELLIGENCE</span></h2>
             </div>
           </section>
@@ -1740,7 +1740,7 @@ export default function PrePage() {
                     value={fullscreenCommentInput} 
                     onChange={(e) => setFullscreenCommentInput(e.target.value)} 
                     rows="2" 
-                    placeholder="Enter detailed match comment directive for record..." 
+                    placeholder="Enter text here..." 
                     className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
                   />
                   <button onClick={submitFullscreenComment} className="bg-emerald-500 text-black font-extrabold px-6 py-2 rounded-xl text-xs hover:bg-emerald-400 transition self-end">Post Comment</button>
