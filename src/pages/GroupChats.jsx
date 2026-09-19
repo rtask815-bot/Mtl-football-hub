@@ -1031,7 +1031,7 @@ export default function GroupChats() {
           --bg-deep: #03070d;
           --bg-panel: #09131f;
           --bg-card: #0e1c2e;
-          --border-glow: rgba(0, 240, 255, 0.4);
+          --border-glow: rgba(0, 240, 255, 0.1);
           --tg-accent: #00f0ff;
           --tg-accent-hover: #00b8e6;
           --tg-dark-card: #081422;
@@ -1054,8 +1054,8 @@ export default function GroupChats() {
 
           /* Dynamic 3D Solid Surface Elevation System */
           --3d-card-bg: linear-gradient(145deg, #0f2035 0%, #06121f 100%);
-          --3d-card-border: 1px solid rgba(0, 240, 255, 0.25);
-          --3d-card-shadow: 0 10px 25px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 12px rgba(0, 240, 255, 0.08);
+          --3d-card-border: 1px solid rgba(0, 240, 255, 0.05);
+          --3d-card-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 12px rgba(0, 240, 255, 0.08);
           
           --3d-button-bg: linear-gradient(180deg, #00f0ff 0%, #0077c8 100%);
           --3d-button-shadow: 0 4px 0 #004488, 0 8px 18px rgba(0, 240, 255, 0.35);
@@ -1064,8 +1064,8 @@ export default function GroupChats() {
           --3d-btn-dark: linear-gradient(180deg, #14283e 0%, #091522 100%);
           --3d-btn-dark-shadow: 0 4px 0 #03080e, 0 6px 12px rgba(0, 0, 0, 0.6);
 
-          --3d-btn-danger: linear-gradient(180deg, #ff2a55 0%, #a80024 100%);
-          --3d-btn-danger-shadow: 0 4px 0 #590011, 0 6px 12px rgba(255, 42, 85, 0.35);
+          --3d-btn-danger: linear-gradient(180deg, #ff2a55 10%, #a80024 10%);
+          --3d-btn-danger-shadow: 0 4px 0 #590011, 0 6px 12px rgba(105, 42, 85, 0.15);
         }
 
         * {
