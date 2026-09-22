@@ -16,7 +16,7 @@ import Predictions from "./pages/Predictions.jsx";
 import Aipredictions from "./pages/Aipredictions.jsx";
 import Fixtures from "./pages/Fixtures.jsx";
 import Live from "./pages/Live.jsx";
-import Tv from "./pages/tv.jsx";
+import Tv from "./pages/Tv.jsx";
 import Clubs from "./pages/Clubs.jsx";
 import Notifications from "./pages/Notifications.jsx";
 import Trending from "./pages/Trending.jsx";
