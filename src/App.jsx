@@ -10,7 +10,6 @@ import {
 import Gateway from "./pages/Gateway.jsx";
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Dashboard1 from "./pages/Dashboard1.jsx";
 import GroupChats from "./pages/GroupChats.jsx";
 import PastPredictions from "./pages/PastPredictions.jsx";
 import Predictions from "./pages/Predictions.jsx";
@@ -76,7 +75,6 @@ export default function App() {
 
                 {/* Protected Core Dashboard Routes */}
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/dashboard1" element={<ProtectedRoute><Dashboard1 /></ProtectedRoute>} />
 
                 {/* Feature Modules */}
                 <Route path="/group-chats" element={<ProtectedRoute><GroupChats /></ProtectedRoute>} />
