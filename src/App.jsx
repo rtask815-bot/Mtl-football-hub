@@ -23,8 +23,8 @@ import Notifications from "./pages/Notifications.jsx";
 import Trending from "./pages/Trending.jsx";
 
 // Initialize Supabase Client
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || "https://your-supabase-url.supabase.co";
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || "your-anon-key";
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || "https://dfcgbwfralikyqxzxlbd.supabase.co";
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2did2ZyYWxpa3lxeHp4bGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1NTQwNDUsImV4cCI6MjA5OTEzMDA0NX0.EJM4uRCquMoWRj9VQI-fvfqLhnGM32WbZmipSjLdGA4";
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 function SecurityHeadManager() {
