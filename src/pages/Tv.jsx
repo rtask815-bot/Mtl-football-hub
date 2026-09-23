@@ -17,7 +17,7 @@ const CONFIG = Object.freeze({
     authRoute: "/auth"
 });
 
-export default function MtlTVRoom({ targetWebsite = CONFIG.defaultTargetUrl }) {
+export default function Tv({ targetWebsite = CONFIG.defaultTargetUrl }) {
     // Dynamic Proxy URL generator helper
     const getProxyUrl = useCallback((target) => {
         const encodedUrl = encodeURIComponent(target);
