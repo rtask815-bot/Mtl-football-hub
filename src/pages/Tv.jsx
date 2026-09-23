@@ -10,7 +10,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const CONFIG = Object.freeze({
     // Standard endpoint without .js for Vercel/Next.js/Express compatibility
     proxyApiBase: "/api/proxy",
-    defaultTargetUrl: "https://www.famelack.com/tv/sports/rSbwbBDpFexSew",
+    defaultTargetUrl: "https://www.betika.com.gh/streams",
     cropTop: 60,
     loadTimeout: 15000,
     controlsDuration: 5000,
