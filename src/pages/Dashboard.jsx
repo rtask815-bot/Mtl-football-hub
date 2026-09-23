@@ -566,7 +566,7 @@ export default function Dashboard() {
       }
     } catch (err) {
       showToast(err.message || "Security exception on posting comment.");
-    } fontally {
+    } finally {
       hideFloatingLoader();
     }
   }
