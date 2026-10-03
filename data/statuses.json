@@ -1,0 +1,96 @@
+[
+  {
+    "userId": "f934079c-ed46-40a9-ad0e-1c67980ca53b",
+    "userName": "Rtask",
+    "userAvatar": "https://www.image2url.com/r2/default/images/1788532540865-9cbb4a93-514c-4e6b-aaec-e7380472a638.jpeg",
+    "statusType": "match_card",
+    "matchFixture": "Arsenal vs Chelsea",
+    "league": "Premier League London Derby",
+    "predictionPick": "Home Win & Over 2.5 Goals",
+    "predictedScore": "2 - 1",
+    "decimalOdds": 2.15,
+    "confidenceStars": 5,
+    "themeColor": "emerald",
+    "id": "status_1790866487490_g4o1j",
+    "viewsCount": 1,
+    "likesCount": 0,
+    "viewers": [
+      "f934079c-ed46-40a9-ad0e-1c67980ca53b"
+    ],
+    "likers": [],
+    "createdAt": "2026-10-01T14:54:47.490Z",
+    "expiresAt": "2026-10-02T14:54:47.490Z"
+  },
+  {
+    "userId": "15970857-2725-42d8-aca2-8930acb650f8",
+    "userName": "Mourice Lennox",
+    "userAvatar": "https://www.image2url.com/r2/default/images/1788532540865-9cbb4a93-514c-4e6b-aaec-e7380472a638.jpeg",
+    "statusType": "match_card",
+    "matchFixture": "CF Montréal vs Toronto FC",
+    "league": "MLS Canadian Classique",
+    "predictionPick": "Home Win & Over 2.5 Goals",
+    "predictedScore": "2 - 1",
+    "decimalOdds": 2.15,
+    "confidenceStars": 5,
+    "themeColor": "emerald",
+    "id": "status_1790864759475_gav3r",
+    "viewsCount": 1,
+    "likesCount": 0,
+    "viewers": [
+      "15970857-2725-42d8-aca2-8930acb650f8"
+    ],
+    "likers": [],
+    "createdAt": "2026-10-01T14:25:59.475Z",
+    "expiresAt": "2026-10-02T14:25:59.475Z"
+  },
+  {
+    "userId": "usr_sam_tactics",
+    "userName": "Coach Samantha",
+    "statusType": "image",
+    "mediaType": "image",
+    "mediaUrl": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80",
+    "matchFixture": "Arsenal vs Chelsea",
+    "league": "Premier League Derby",
+    "predictionPick": "Over 2.5 Total Match Goals",
+    "predictedScore": "3 - 1",
+    "decimalOdds": 1.95,
+    "caption": "North London lights ready for the derby clash! Tactical press will be decisive.",
+    "id": "status_1790850713799_4juur",
+    "createdAt": "2026-10-01T10:31:53.799Z",
+    "expiresAt": "2026-10-02T10:31:53.799Z",
+    "viewsCount": 3,
+    "likesCount": 0,
+    "viewers": [
+      "usr_sam_tactics",
+      "guest",
+      "15970857-2725-42d8-aca2-8930acb650f8"
+    ],
+    "likers": []
+  },
+  {
+    "userId": "usr_alex_mtl",
+    "userName": "Alex Mercier",
+    "statusType": "reel",
+    "mediaType": "video",
+    "mediaUrl": "https://assets.mixkit.co/videos/preview/mixkit-soccer-player-kicking-ball-in-stadium-41126-large.mp4",
+    "matchFixture": "CF Montréal vs Toronto FC",
+    "league": "MLS Canadian Classique",
+    "predictionPick": "Sensational 88th-minute volley winner!",
+    "predictedScore": "2 - 1",
+    "decimalOdds": 2.25,
+    "caption": "Watch this strike from the supporters section tonight! Unstoppable technique! ⚽🔥",
+    "id": "status_1790850710163_xt4wu",
+    "createdAt": "2026-10-01T10:31:50.163Z",
+    "expiresAt": "2026-10-02T10:31:50.163Z",
+    "viewsCount": 3,
+    "likesCount": 1,
+    "viewers": [
+      "usr_alex_mtl",
+      "test_viewer_2",
+      "15970857-2725-42d8-aca2-8930acb650f8"
+    ],
+    "likers": [
+      "test_fan_1"
+    ]
+  }
+]

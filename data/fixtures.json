@@ -1,0 +1,68 @@
+[
+  {
+    "id": "fix-arsenal-mancity",
+    "teams": "Arsenal vs Manchester City",
+    "league": "Premier League",
+    "match_date": "2026-10-01",
+    "match_time": "19:45",
+    "venue": "Emirates Stadium, London",
+    "broadcast": "Sky Sports Main Event / 4K UHD",
+    "round": "Matchday 29 Title Showdown",
+    "status": "LIVE"
+  },
+  {
+    "id": "fix-real-barca",
+    "teams": "Real Madrid vs Barcelona",
+    "league": "La Liga",
+    "match_date": "2026-10-01",
+    "match_time": "21:00",
+    "venue": "Santiago Bernabéu, Madrid",
+    "broadcast": "DAZN LaLiga / ESPN+ 4K",
+    "round": "El Clásico - Matchday 30",
+    "status": "SCHEDULED"
+  },
+  {
+    "id": "fix-bayern-bvb",
+    "teams": "Bayern Munich vs Borussia Dortmund",
+    "league": "Bundesliga",
+    "match_date": "2026-10-01",
+    "match_time": "18:30",
+    "venue": "Allianz Arena, Munich",
+    "broadcast": "Sky Sport Bundesliga 1",
+    "round": "Der Klassiker - Matchday 27",
+    "status": "LIVE"
+  },
+  {
+    "id": "fix-inter-juve",
+    "teams": "Inter Milan vs Juventus",
+    "league": "Serie A",
+    "match_date": "2026-10-01",
+    "match_time": "20:45",
+    "venue": "San Siro, Milan",
+    "broadcast": "DAZN Serie A / CBS Sports Golazo",
+    "round": "Derby d'Italia",
+    "status": "SCHEDULED"
+  },
+  {
+    "id": "fix-psg-om",
+    "teams": "Paris Saint-Germain vs Marseille",
+    "league": "Ligue 1",
+    "match_date": "2026-10-01",
+    "match_time": "21:00",
+    "venue": "Parc des Princes, Paris",
+    "broadcast": "Prime Video Ligue 1 / beIN Sports",
+    "round": "Le Classique",
+    "status": "SCHEDULED"
+  },
+  {
+    "id": "fix-liverpool-chelsea",
+    "teams": "Liverpool vs Chelsea",
+    "league": "Premier League",
+    "match_date": "2026-10-03",
+    "match_time": "16:30",
+    "venue": "Anfield, Liverpool",
+    "broadcast": "Sky Sports Premier League",
+    "round": "Matchday 30 Super Sunday",
+    "status": "UPCOMING"
+  }
+]

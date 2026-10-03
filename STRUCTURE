@@ -1,0 +1,34 @@
+Mtl-football-hub/
+│
+├── index.html
+├── package.json
+├── vite.config.js
+│
+├── public/
+│   ├── images/
+│   ├── icons/
+│   └── fonts/
+│
+└── src/
+    │
+    ├── main.jsx
+    │
+    ├── App.jsx
+    │
+    ├── pages/
+    │   ├── StartPage.jsx
+    │   ├── AuthPage.jsx
+    │   ├── Dashboard.jsx
+    │   ├── GroupChats.jsx
+    │   ├── PastPredictions.jsx
+    │   └── Fixtures.jsx
+    │
+    ├── components/
+    │   ├── Navbar.jsx
+    │   ├── Sidebar.jsx
+    │   ├── PredictionCard.jsx
+    │   ├── FixtureCard.jsx
+    │   └── ChatMessage.jsx
+    │
+    └── data/
+        └── mockData.js

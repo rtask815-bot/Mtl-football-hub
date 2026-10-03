@@ -1,0 +1,561 @@
+@import "tailwindcss";
+
+@layer base {
+  :root,
+  .theme-midnight,
+  [data-theme="midnight"] {
+    --bg-dark: #070a13;
+    --bg-surface: #0e1626;
+    --bg-card: #132038;
+    --border-color: #243552;
+    --color-primary: #10b981;
+    --color-secondary: #0284c7;
+    --color-accent: #f59e0b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+  }
+
+  .theme-day,
+  [data-theme="day"] {
+    --bg-dark: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --border-color: #cbd5e1;
+    --color-primary: #059669;
+    --color-secondary: #0284c7;
+    --color-accent: #d97706;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    user-select: none;
+    overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Professional Modern Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+}
+
+/* ============================================================
+   HORIZONTAL CAROUSEL & CARD SLIDER UTILITIES
+   Allows smooth left-to-right scrolling for cards
+   ============================================================ */
+.horizontal-scroll-container {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  gap: 0.875rem;
+  padding-bottom: 0.75rem;
+  padding-top: 0.25rem;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  cursor: grab;
+  user-select: none;
+}
+
+.horizontal-scroll-container.dragging {
+  cursor: grabbing;
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+}
+
+.horizontal-scroll-container::-webkit-scrollbar {
+  height: 5px;
+}
+
+.horizontal-scroll-container::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 9999px;
+}
+.horizontal-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.4);
+  border-radius: 9999px;
+}
+.horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.8);
+}
+
+.horizontal-scroll-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   FUTURISTIC TOAST CSS ANIMATIONS
+   ============================================================ */
+@keyframes checkDraw {
+  0% {
+    stroke-dashoffset: 50;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes toastPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+@keyframes pulseGlowEmerald {
+  0%, 100% {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(16, 185, 129, 0.7);
+  }
+}
+
+@keyframes pulseGlowRose {
+  0%, 100% {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(244, 63, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(244, 63, 94, 0.7);
+  }
+}
+
+.animate-check-draw {
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: checkDraw 0.4s ease-out forwards 0.1s;
+}
+
+.animate-toast-pop {
+  animation: toastPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-toast-shake {
+  animation: toastShake 0.4s ease-in-out forwards;
+}
+
+.glow-emerald-active {
+  animation: pulseGlowEmerald 2s infinite ease-in-out;
+}
+
+.glow-rose-active {
+  animation: pulseGlowRose 2s infinite ease-in-out;
+}
+
+/* ============================================================
+   PROFESSIONAL TYPOGRAPHY SYSTEM
+   Clean, readable, modern sans-serif typography (no sci-fi fonts)
+   ============================================================ */
+.font-heading {
+  font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+}
+
+.font-body,
+.font-inter,
+.font-orbitron,
+.font-rajdhani,
+.font-outfit {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+}
+
+/* Backwards-compatible glow classes mapped to clean professional accents */
+.text-glow-emerald {
+  color: #34d399;
+}
+.text-glow-cyan {
+  color: #38bdf8;
+}
+.text-glow-purple {
+  color: #a78bfa;
+}
+.text-glow-amber {
+  color: #fbbf24;
+}
+
+/* ============================================================
+   SOLID BACKGROUND CONTAINERS & CARD ARCHITECTURE
+   Professional, high-contrast, robust UI architecture
+   ============================================================ */
+.page-container,
+.cyber-page-container,
+.cyber-container {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 4.5rem 1rem 3.5rem 1rem;
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+}
+
+@media (min-width: 640px) {
+  .page-container,
+  .cyber-page-container,
+  .cyber-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container,
+  .cyber-page-container,
+  .cyber-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Uniform Page Header across all views */
+.page-header,
+.cyber-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .page-header,
+  .cyber-page-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.page-title,
+.cyber-page-title {
+  font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  line-height: 2.15rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .page-title,
+  .cyber-page-title {
+    font-size: 2.25rem;
+    line-height: 2.6rem;
+  }
+}
+
+.page-subtitle,
+.cyber-page-subtitle {
+  font-size: 0.925rem;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.section-title,
+.cyber-section-title {
+  font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+/* Solid Container Card Structure */
+.pro-card,
+.cyber-card,
+.futuristic-card,
+.hud-panel {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 1rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.pro-card:hover,
+.cyber-card:hover,
+.futuristic-card:hover {
+  border-color: #374151;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================================
+   PROFESSIONAL BUTTONS & CONTROLS
+   ============================================================ */
+.btn-cyber,
+.cyber-btn,
+.btn-see-more {
+  background: #10b981;
+  color: #030712;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2);
+}
+
+.btn-cyber:hover,
+.cyber-btn:hover,
+.btn-see-more:hover {
+  background: #059669;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+
+.btn-secondary {
+  background: #1f2937;
+  color: #f3f4f6;
+  border: 1px solid #374151;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #374151;
+  color: #ffffff;
+  border-color: #4b5563;
+}
+
+/* ============================================================
+   PROGRESS & METRICS BARS (PREMIUM SMOOTH ANIMATIONS)
+   ============================================================ */
+.water-progress-container {
+  width: 100%;
+  background: #0f172a;
+  height: 8px;
+  border-radius: 9999px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.water-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #059669 0%, #10b981 50%, #34d399 100%);
+  border-radius: 9999px;
+  position: relative;
+  transition: width 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+}
+
+.water-progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: progress-shimmer 2.4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.premium-progress-track {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.premium-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #059669 0%, #10b981 60%, #34d399 100%);
+  border-radius: 9999px;
+  position: relative;
+  transition: width 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+}
+
+.premium-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: progress-shimmer 2.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Equalizer Bars */
+.audio-equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 14px;
+}
+
+.audio-bar {
+  width: 3px;
+  background: #10b981;
+  border-radius: 2px;
+  animation: eq-bounce 1s ease-in-out infinite alternate;
+}
+
+.audio-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+.audio-bar:nth-child(2) { height: 90%; animation-delay: 0.25s; }
+.audio-bar:nth-child(3) { height: 60%; animation-delay: 0.4s; }
+.audio-bar:nth-child(4) { height: 100%; animation-delay: 0.15s; }
+.audio-bar:nth-child(5) { height: 50%; animation-delay: 0.35s; }
+
+@keyframes eq-bounce {
+  0% { height: 20%; }
+  100% { height: 100%; }
+}
+
+/* ============================================================
+   CLEAN GOOGLE SEARCH OVERRIDES
+   ============================================================ */
+.gcse-search-container {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.gsc-control-cse {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.gsc-input-box {
+  background: #111827 !important;
+  border: 1px solid #374151 !important;
+  border-radius: 0.75rem !important;
+  color: #f9fafb !important;
+}
+
+.gsc-results {
+  background-color: #111827 !important;
+  border: 1px solid #374151 !important;
+  border-radius: 1rem !important;
+}
+
+.app-content-wrapper { 
+  position: relative; 
+  z-index: 10; 
+}
+
+/* ============================================================
+   CHAT CONTAINER WALLPAPERS & ADAPTIVE STYLES
+   WhatsApp, Telegram and Lite modes
+   ============================================================ */
+.wallpaper-whatsapp-dark {
+  background-color: #0b141a;
+  background-image: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
+}
+
+.wallpaper-telegram-space {
+  background-color: #0b1120;
+  background-image: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+    radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px;
+}
+
+.wallpaper-emerald-pitch {
+  background-color: #032014;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(16, 185, 129, 0.05),
+    rgba(16, 185, 129, 0.05) 40px,
+    transparent 40px,
+    transparent 80px
+  ),
+  radial-gradient(ellipse at center, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+}
+
+.wallpaper-oled-black {
+  background-color: #000000;
+  background-image: none;
+}
+
+.wallpaper-cyber-grid {
+  background-color: #070c18;
+  background-image: linear-gradient(rgba(6, 182, 212, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.07) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.wallpaper-ocean-deep {
+  background: radial-gradient(circle at 50% 10%, #0d2847 0%, #061528 50%, #030a14 100%);
+}
+
+/* WhatsApp/Telegram Message Tail Effect */
+.chat-bubble-outgoing {
+  border-bottom-right-radius: 4px !important;
+}
+
+.chat-bubble-incoming {
+  border-bottom-left-radius: 4px !important;
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "news-cl-quarterfinals",
+    "title": "UEFA Champions League Quarter-Final Tactical Draw & Odds Analysis",
+    "summary": "Full analytical breakdown of the European quarter-final matchups, tactical clash simulations, and historical probability models.",
+    "content": "The draw for the UEFA Champions League quarter-finals has generated unprecedented excitement across European football. Reigning champions and domestic pace-setters are set for titanic collisions. Our tactical simulations reveal razor-thin margins, especially with high pressing formations testing deep defensive structures.",
+    "category": "Champions League",
+    "author": "Markus Lindqvist, Senior UEFA Analyst",
+    "imageUrl": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1200&q=80",
+    "likes": 420,
+    "createdAt": "2026-10-01T07:30:00.000Z"
+  },
+  {
+    "id": "news-title-race",
+    "title": "Premier League Title Race: Expected Goals (xG) & Metric Projections",
+    "summary": "Deep dive into underlying performance metrics, squad depth indices, and remaining calendar difficulty for the top three contenders.",
+    "content": "As the Premier League season enters its decisive final months, the difference between title triumph and heartbreak narrows to fine margins. High-turnover attacking transitions and set-piece efficiency are proving to be the statistical determinants of late season form.",
+    "category": "Premier League",
+    "author": "David Henderson, Data Intelligence",
+    "imageUrl": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80",
+    "likes": 315,
+    "createdAt": "2026-10-01T08:00:00.000Z"
+  },
+  {
+    "id": "news-transfer-wire",
+    "title": "Global Transfer Intelligence: Midfield Anchors & Next-Gen Strikers",
+    "summary": "Scouting dossiers and contract telemetry tracking Europe's most coveted emerging talents ahead of the upcoming market window.",
+    "content": "Top European scouting departments have shifted focus toward versatile hybrid midfielders capable of operating as box-to-box progressors and deep ball distributors. With several blockbuster buyouts lined up, contract talks are intensifying.",
+    "category": "Transfers",
+    "author": "Elena Rostova, Scouting Network",
+    "imageUrl": "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1200&q=80",
+    "likes": 288,
+    "createdAt": "2026-10-01T08:45:00.000Z"
+  }
+]

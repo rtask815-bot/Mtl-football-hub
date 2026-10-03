@@ -1,0 +1,32 @@
+{
+  "15970857-2725-42d8-aca2-8930acb650f8": {
+    "id": "15970857-2725-42d8-aca2-8930acb650f8",
+    "username": "Mourice Lennox",
+    "full_name": "Mourice Lennox",
+    "avatar_url": "https://www.image2url.com/r2/default/images/1788532540865-9cbb4a93-514c-4e6b-aaec-e7380472a638.jpeg",
+    "bio": "Developer",
+    "info": null,
+    "location": "Kenya, Miigori",
+    "phone": "07168838955",
+    "favorite_teams": [
+      "Arsenal"
+    ],
+    "updated_at": "2026-10-01T14:33:36.010Z",
+    "userId": "15970857-2725-42d8-aca2-8930acb650f8",
+    "updatedAt": "2026-10-01T14:33:45.424Z"
+  },
+  "f934079c-ed46-40a9-ad0e-1c67980ca53b": {
+    "id": "f934079c-ed46-40a9-ad0e-1c67980ca53b",
+    "username": "Rtask",
+    "full_name": "Rtask",
+    "avatar_url": "https://www.image2url.com/r2/default/images/1788532540865-9cbb4a93-514c-4e6b-aaec-e7380472a638.jpeg",
+    "bio": "Developer",
+    "info": null,
+    "location": "Kenya, Migori",
+    "phone": "0716883895",
+    "favorite_teams": [],
+    "updated_at": "2026-10-01T14:40:56.457Z",
+    "userId": "f934079c-ed46-40a9-ad0e-1c67980ca53b",
+    "updatedAt": "2026-10-01T14:40:57.410Z"
+  }
+}
