@@ -1,91 +1,51 @@
 /**
- * Intersection Observer Entrance Animation Engine
- * Automatically detects when card elements enter the viewport (vertical or horizontal scroll containers)
- * and triggers smooth fade-in and slide-up entrance animations.
+ * Upfront Card & Element Visibility Engine
+ * Ensures all cards and containers are rendered fully visible immediately on page load,
+ * eliminating glitchy entrance delays during scrolling.
  */
 
-export function createScrollObserver(
-  options: IntersectionObserverInit = {
-    root: null,
-    rootMargin: '0px 30px 0px 30px',
-    threshold: 0.1,
-  }
-): {
+export function createScrollObserver(): {
   observe: (element: Element) => void;
   unobserve: (element: Element) => void;
   disconnect: () => void;
 } {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        // Unobserve after animating in once to optimize performance
-        observer.unobserve(entry.target);
-      }
-    });
-  }, options);
-
   return {
     observe: (element: Element) => {
-      if (element) observer.observe(element);
+      if (element) element.classList.add('is-visible');
     },
-    unobserve: (element: Element) => {
-      if (element) observer.unobserve(element);
-    },
-    disconnect: () => {
-      observer.disconnect();
-    },
+    unobserve: () => {},
+    disconnect: () => {},
   };
 }
 
-/**
- * Initializes viewport IntersectionObserver for all elements matching selector
- */
 export function initViewportAnimationObserver(
   selector: string = '.animate-on-scroll, .card-reveal, .horizontal-scroll-item'
 ): () => void {
-  if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+  if (typeof window === 'undefined') {
     return () => {};
   }
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        }
-      });
-    },
-    {
-      root: null,
-      rootMargin: '20px 40px 20px 40px',
-      threshold: 0.08,
-    }
-  );
-
-  const observeElements = () => {
+  const markAllVisible = () => {
     const elements = document.querySelectorAll(selector);
     elements.forEach((el) => {
-      if (!el.classList.contains('is-visible')) {
-        observer.observe(el);
-      }
+      el.classList.add('is-visible');
     });
   };
 
-  observeElements();
+  markAllVisible();
 
-  // Re-check DOM for dynamically rendered cards
   const mutationObserver = new MutationObserver(() => {
-    observeElements();
+    markAllVisible();
   });
 
-  mutationObserver.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
+  if (document.body) {
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  }
 
   return () => {
-    observer.disconnect();
     mutationObserver.disconnect();
   };
 }
