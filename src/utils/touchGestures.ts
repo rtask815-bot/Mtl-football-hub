@@ -1,6 +1,6 @@
 /**
- * Native Touch & Drag Gesture Engine for Horizontal Scroll Containers
- * Provides smooth drag-to-scroll, touch swipe inertia, and swipe gesture velocity.
+ * Native Touch, Wheel & Drag Gesture Engine for Horizontal Scroll Containers
+ * Enables smooth horizontal mouse wheel conversion, drag-to-scroll, and touch swipe momentum.
  */
 
 export function enableSwipeToScroll(container: HTMLElement): () => void {
@@ -14,11 +14,23 @@ export function enableSwipeToScroll(container: HTMLElement): () => void {
   let lastTime = Date.now();
   let animId: number | null = null;
 
-  const onPointerDown = (e: PointerEvent) => {
-    // Only handle primary button / touch
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
+  // 1. Mouse Wheel Horizontal Scroll Mapper
+  const onWheel = (e: WheelEvent) => {
+    // If the user is scrolling vertically with mouse wheel over the row, translate to horizontal scroll
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      container.scrollBy({
+        left: e.deltaY * 1.5,
+        behavior: 'smooth'
+      });
+    }
+  };
 
-    // Don't intercept button clicks or inputs
+  // 2. Mouse/Pointer Drag-to-Scroll
+  const onPointerDown = (e: PointerEvent) => {
+    // Only intercept desktop mouse left-click drag to avoid blocking mobile touch pan
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+
     const target = e.target as HTMLElement;
     if (target.closest('button, input, select, textarea, a, [role="button"]')) {
       return;
@@ -43,16 +55,15 @@ export function enableSwipeToScroll(container: HTMLElement): () => void {
     isDown = false;
     container.classList.remove('dragging');
 
-    // Inertia momentum scrolling after touch release
-    if (Math.abs(velocity) > 0.5) {
-      let currentVelocity = velocity * 12;
+    if (Math.abs(velocity) > 0.4) {
+      let currentVelocity = velocity * 14;
       const step = () => {
-        if (Math.abs(currentVelocity) < 0.5 || !container) {
+        if (Math.abs(currentVelocity) < 0.4 || !container) {
           if (animId) cancelAnimationFrame(animId);
           return;
         }
         container.scrollLeft -= currentVelocity;
-        currentVelocity *= 0.92; // Friction deceleration
+        currentVelocity *= 0.90;
         animId = requestAnimationFrame(step);
       };
       animId = requestAnimationFrame(step);
@@ -64,7 +75,7 @@ export function enableSwipeToScroll(container: HTMLElement): () => void {
     e.preventDefault();
 
     const x = e.pageX - container.offsetLeft;
-    const walk = (x - startX) * 1.2; // Drag multiplier
+    const walk = (x - startX) * 1.4;
     const now = Date.now();
     const dt = Math.max(1, now - lastTime);
 
@@ -75,13 +86,14 @@ export function enableSwipeToScroll(container: HTMLElement): () => void {
     container.scrollLeft = scrollLeft - walk;
   };
 
-  // Add event listeners
+  container.addEventListener('wheel', onWheel, { passive: false });
   container.addEventListener('pointerdown', onPointerDown);
   container.addEventListener('pointerleave', onPointerLeaveOrUp);
   container.addEventListener('pointerup', onPointerLeaveOrUp);
   container.addEventListener('pointermove', onPointerMove);
 
   return () => {
+    container.removeEventListener('wheel', onWheel);
     container.removeEventListener('pointerdown', onPointerDown);
     container.removeEventListener('pointerleave', onPointerLeaveOrUp);
     container.removeEventListener('pointerup', onPointerLeaveOrUp);
@@ -90,9 +102,6 @@ export function enableSwipeToScroll(container: HTMLElement): () => void {
   };
 }
 
-/**
- * Automatically initializes swipe gestures on all elements with class .horizontal-scroll-container
- */
 export function initAllHorizontalSwipeContainers() {
   const containers = document.querySelectorAll<HTMLElement>('.horizontal-scroll-container');
   const cleanups: Array<() => void> = [];

@@ -1101,193 +1101,193 @@ export default function Dashboard() {
             subtitle="Click or scroll left and right to launch any hub module"
           >
             {/* User Profile & Status */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigate('/profile')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-emerald-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigate('/profile')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)' }}>PROFILE</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>PROFILE</span>
               </div>
-              <div>
-                <div className="title">User Profile & Status</div>
-                <div className="sub">Bio, clubs & match card status</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>User Profile & Status</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Bio, clubs & match card status</div>
               </div>
             </div>
 
             {/* 1. Match Predictions */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('predictions')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-emerald-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('predictions')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" />
                   <circle cx="12" cy="12" r="6" />
                   <circle cx="12" cy="12" r="2" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)' }}>ODDS</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>ODDS</span>
               </div>
-              <div>
-                <div className="title">Match Predictions</div>
-                <div className="sub">Full odds & insights</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Match Predictions</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Full odds & insights</div>
               </div>
             </div>
 
             {/* 2. Other Apps */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('clubs')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-emerald-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('clubs')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <rect x="3" y="3" width="7" height="7" rx="1.5" />
                   <rect x="14" y="3" width="7" height="7" rx="1.5" />
                   <rect x="14" y="14" width="7" height="7" rx="1.5" />
                   <rect x="3" y="14" width="7" height="7" rx="1.5" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(52, 211, 153, 0.15)', color: '#34d399', border: '1px solid rgba(52, 211, 153, 0.3)' }}>PORTALS</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(52, 211, 153, 0.2)', color: '#34d399', border: '1px solid rgba(52, 211, 153, 0.4)' }}>PORTALS</span>
               </div>
-              <div>
-                <div className="title">Other Apps</div>
-                <div className="sub">Betting, predictions & virtuals</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Other Apps</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Betting, predictions & virtuals</div>
               </div>
             </div>
 
             {/* 2. AI Predictions */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('ai-predictions')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-cyan-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('ai-predictions')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>AI MODEL</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.4)' }}>AI MODEL</span>
               </div>
-              <div>
-                <div className="title">AI Predictions</div>
-                <div className="sub">Neural win-rate models</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>AI Predictions</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Neural win-rate models</div>
               </div>
             </div>
 
             {/* 3. Live TV */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('tv')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-rose-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('tv')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)' }}>LIVE</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.25)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.5)' }}>LIVE</span>
               </div>
-              <div>
-                <div className="title">LIVE TV</div>
-                <div className="sub">Watch live streams</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>LIVE TV</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Watch live streams</div>
               </div>
             </div>
 
             {/* 4. Fixtures Grid */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('fixtures')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-emerald-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('fixtures')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                   <line x1="16" y1="2" x2="16" y2="6" />
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)' }}>CALENDAR</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>CALENDAR</span>
               </div>
-              <div>
-                <div className="title">Fixtures & Tables</div>
-                <div className="sub">Schedules & kickoffs</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Fixtures & Tables</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Schedules & kickoffs</div>
               </div>
             </div>
 
             {/* 5. Group Chats */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('group-chats')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-teal-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('group-chats')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(45, 212, 191, 0.15)', color: '#2dd4bf', border: '1px solid rgba(45, 212, 191, 0.3)' }}>CHAT</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(45, 212, 191, 0.2)', color: '#2dd4bf', border: '1px solid rgba(45, 212, 191, 0.4)' }}>CHAT</span>
               </div>
-              <div>
-                <div className="title">Group Chats</div>
-                <div className="sub">Join fan communities</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Group Chats</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Join fan communities</div>
               </div>
             </div>
 
             {/* 6. Direct Messages & News */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('news')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-amber-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('news')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(251, 146, 60, 0.15)', color: '#fb923c', border: '1px solid rgba(251, 146, 60, 0.3)' }}>INTEL</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(251, 146, 60, 0.2)', color: '#fb923c', border: '1px solid rgba(251, 146, 60, 0.4)' }}>INTEL</span>
               </div>
-              <div>
-                <div className="title">News & Direct Feed</div>
-                <div className="sub">Direct chat & news</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>News & Direct Feed</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Direct chat & news</div>
               </div>
             </div>
 
             {/* 7. Past Predictions Archive */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('past-predictions')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-purple-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('past-predictions')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.3)' }}>HISTORY</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.4)' }}>HISTORY</span>
               </div>
-              <div>
-                <div className="title">Past Predictions</div>
-                <div className="sub">Historical match records</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Past Predictions</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Historical match records</div>
               </div>
             </div>
 
             {/* 8. Live In-Play Scores */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('live')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-yellow-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('live')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(234, 179, 8, 0.15)', color: '#facc15', border: '1px solid rgba(234, 179, 8, 0.3)' }}>IN-PLAY</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(234, 179, 8, 0.2)', color: '#facc15', border: '1px solid rgba(234, 179, 8, 0.4)' }}>IN-PLAY</span>
               </div>
-              <div>
-                <div className="title">Live Matches</div>
-                <div className="sub">Real-time match scores</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Live Matches</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Real-time match scores</div>
               </div>
             </div>
 
             {/* 9. Trending Discussions */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('trending')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-rose-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('trending')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(244, 63, 94, 0.15)', color: '#fb7185', border: '1px solid rgba(244, 63, 94, 0.3)' }}>HOT</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(244, 63, 94, 0.2)', color: '#fb7185', border: '1px solid rgba(244, 63, 94, 0.4)' }}>HOT</span>
               </div>
-              <div>
-                <div className="title">Trending Topics</div>
-                <div className="sub">Viral debriefs & news</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Trending Topics</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Viral debriefs & news</div>
               </div>
             </div>
 
             {/* 11. Notifications */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => navigateTo('notifications')}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-amber-400 hover:scale-102 transition-all shadow-lg" onClick={() => navigateTo('notifications')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }}>ALERTS</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.4)' }}>ALERTS</span>
               </div>
-              <div>
-                <div className="title">System Notices</div>
-                <div className="sub">Match alerts & bullet</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>System Notices</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Match alerts & bullet</div>
               </div>
             </div>
 
             {/* 12. Google Scout Modal */}
-            <div className="hub-card min-w-[175px] w-[185px] shrink-0 h-full" onClick={() => setIsSearchOpen(true)}>
+            <div className="hub-card min-w-[210px] w-[220px] shrink-0 p-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 hover:border-blue-400 hover:scale-102 transition-all shadow-lg" onClick={() => setIsSearchOpen(true)}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                <svg className="card-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <svg className="card-icon-svg w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)' }}>SEARCH</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px', background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.4)' }}>SEARCH</span>
               </div>
-              <div>
-                <div className="title">Google Scout</div>
-                <div className="sub">Live web & intel search</div>
+              <div style={{ marginTop: '12px' }}>
+                <div className="title" style={{ fontSize: '14px', fontWeight: 800 }}>Google Scout</div>
+                <div className="sub" style={{ fontSize: '11px', marginTop: '4px' }}>Live web & intel search</div>
               </div>
             </div>
           </HorizontalScrollRow>
@@ -1343,50 +1343,50 @@ export default function Dashboard() {
                 </div>
               ) : (
                 getFilteredMatches().slice(0, 6).map(match => (
-                  <div key={match.id} className="min-w-[280px] sm:min-w-[320px] max-w-[340px] shrink-0" style={{ background: '#0a1422', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted)' }}>
-                      <span style={{ color: 'var(--green)', fontWeight: 700 }}>{match.league || 'LEAGUE'}</span>
-                      <span>{match.match_date} • {match.match_time}</span>
+                  <div key={match.id} className="min-w-[340px] sm:min-w-[400px] w-[400px] shrink-0 p-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 hover:border-emerald-400 hover:scale-[1.01] transition-all shadow-xl space-y-3">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--muted)' }}>
+                      <span style={{ color: 'var(--green)', fontWeight: 800, letterSpacing: '0.5px' }}>{match.league || 'LEAGUE'}</span>
+                      <span style={{ fontWeight: 600 }}>{match.match_date} • {match.match_time}</span>
                     </div>
                     
                     <h3 
-                      style={{ fontSize: '15px', fontWeight: 800, margin: '8px 0', cursor: 'pointer' }} 
+                      style={{ fontSize: '16px', fontWeight: 800, cursor: 'pointer', lineHeight: '1.3' }} 
                       title="Click to search on Google"
                       onClick={() => openGoogleScout(match.teams + ' match intelligence ' + (match.league || ''))}
-                      className="hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5"
+                      className="hover:text-emerald-400 transition-colors inline-flex items-center gap-2 w-full"
                     >
                       <span className="truncate">{match.teams}</span>
-                      <Search className="w-3.5 h-3.5 text-cyan-400 opacity-75 shrink-0" />
+                      <Search className="w-4 h-4 text-cyan-400 opacity-80 shrink-0" />
                     </h3>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', background: '#101d2e', padding: '8px 12px', borderRadius: '8px' }}>
-                      <span>Prediction: <strong>{match.prediction}</strong></span>
-                      <span style={{ color: 'var(--amber)', fontWeight: 700 }}>Odds: {formatOdds(match.decimal_odds)}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', background: '#101d2e', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <span>Prediction: <strong style={{ color: '#34d399' }}>{match.prediction}</strong></span>
+                      <span style={{ color: 'var(--amber)', fontWeight: 800, background: 'rgba(245,158,11,0.15)', padding: '3px 8px', borderRadius: '6px' }}>Odds: {formatOdds(match.decimal_odds)}</span>
                     </div>
 
                     {/* Probability Distribution */}
-                    <div style={{ marginTop: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--muted)', marginBottom: '4px' }}>
-                        <span>Probability</span>
+                    <div style={{ marginTop: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted)', marginBottom: '6px', fontWeight: 600 }}>
+                        <span>Probability Distribution</span>
                         <span>H: {match.prob_home}% | D: {match.prob_draw}% | A: {match.prob_away}%</span>
                       </div>
-                      <div className="water-progress-container">
+                      <div className="water-progress-container h-2.5">
                         <div className="water-progress-bar" style={{ width: `${match.prob_home}%` }} />
                       </div>
                     </div>
 
                     {/* Card Actions */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--border)' }}>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button className="btn-outline" onClick={() => reactToMatch(match.id, 'fire')}>🔥 {match.reactions?.fire || 0}</button>
-                        <button className="btn-outline" onClick={() => reactToMatch(match.id, 'heart')}>❤️ {match.reactions?.heart || 0}</button>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="btn-outline px-3 py-1.5 text-xs" onClick={() => reactToMatch(match.id, 'fire')}>🔥 {match.reactions?.fire || 0}</button>
+                        <button className="btn-outline px-3 py-1.5 text-xs" onClick={() => reactToMatch(match.id, 'heart')}>❤️ {match.reactions?.heart || 0}</button>
                       </div>
 
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button className="btn-outline" onClick={() => setActiveCommentMatch(match)}>💬 ({(matchCommentsStore[match.id] || []).length})</button>
-                        <button className="btn-cyber" onClick={() => setActiveMatchDetail(match)}>Details</button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="btn-outline px-3 py-1.5 text-xs" onClick={() => setActiveCommentMatch(match)}>💬 ({(matchCommentsStore[match.id] || []).length})</button>
+                        <button className="btn-cyber px-4 py-1.5 text-xs font-bold" onClick={() => setActiveMatchDetail(match)}>Details</button>
                         {isAdmin && (
-                          <button className="btn-outline" style={{ color: 'var(--red)' }} onClick={() => deleteRecord('matches', match.id)}>Delete</button>
+                          <button className="btn-outline px-3 py-1.5 text-xs" style={{ color: 'var(--red)' }} onClick={() => deleteRecord('matches', match.id)}>Delete</button>
                         )}
                       </div>
                     </div>
@@ -1422,19 +1422,22 @@ export default function Dashboard() {
               <div style={{ fontSize: '12px', color: 'var(--muted)', textAlign: 'center', padding: '20px', width: '100%' }}>No trending stories.</div>
             ) : (
               trendingData.slice(0, 8).map(news => (
-                <div key={news.id} className="min-w-[260px] max-w-[300px] shrink-0" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#0a1422', padding: '14px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#fb923c', background: 'rgba(251, 146, 60, 0.15)', padding: '6px 10px', borderRadius: '8px' }}>#{news.rank}</span>
+                <div key={news.id} className="min-w-[340px] sm:min-w-[380px] w-[380px] shrink-0 p-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 hover:border-amber-400 hover:scale-[1.01] transition-all shadow-xl flex items-start gap-3.5">
+                  <span style={{ fontSize: '15px', fontWeight: 900, color: '#fb923c', background: 'rgba(251, 146, 60, 0.18)', border: '1px solid rgba(251, 146, 60, 0.3)', padding: '8px 12px', borderRadius: '10px' }} className="shrink-0">#{news.rank}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div 
-                      style={{ fontSize: '13px', fontWeight: 700, cursor: 'pointer', lineHeight: '1.4' }} 
+                      style={{ fontSize: '14px', fontWeight: 700, cursor: 'pointer', lineHeight: '1.5' }} 
                       title="Click to search on Google"
                       onClick={() => openGoogleScout(news.title, 'news')}
-                      className="hover:text-amber-400 transition-colors inline-flex items-center gap-1.5 truncate w-full"
+                      className="hover:text-amber-400 transition-colors inline-flex items-center gap-2 line-clamp-2 w-full"
                     >
-                      <span className="truncate">{news.title}</span>
-                      <Search className="w-3.5 h-3.5 text-cyan-400 opacity-70 shrink-0" />
+                      <span className="line-clamp-2">{news.title}</span>
+                      <Search className="w-4 h-4 text-amber-400 opacity-80 shrink-0 mt-0.5" />
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>💬 {news.comments_count} interactions</div>
+                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px', fontWeight: 600 }} className="flex items-center gap-3">
+                      <span>💬 {news.comments_count} interactions</span>
+                      <span className="text-amber-400/80 font-bold">• Breaking Intel</span>
+                    </div>
                   </div>
                 </div>
               ))
@@ -1467,27 +1470,27 @@ export default function Dashboard() {
               <div style={{ fontSize: '12px', color: 'var(--muted)', textAlign: 'center', padding: '20px', width: '100%' }}>No upcoming fixtures.</div>
             ) : (
               fixturesData.slice(0, 8).map(fix => (
-                <div key={fix.id} className="min-w-[270px] max-w-[310px] shrink-0" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0a1422', padding: '14px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                    <div style={{ width: '32px', height: '32px', background: '#101d2e', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'var(--green)', shrink: 0 }}>
+                <div key={fix.id} className="min-w-[320px] sm:min-w-[380px] w-[380px] shrink-0 p-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 hover:scale-[1.01] transition-all shadow-xl flex items-center justify-between gap-3">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                    <div style={{ width: '38px', height: '38px', background: '#101d2e', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, color: 'var(--green)' }} className="shrink-0 shadow-md">
                       {fix.badge}
                     </div>
-                    <div style={{ minWidth: 0 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <div 
-                        style={{ fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ fontSize: '14px', fontWeight: 800, cursor: 'pointer' }}
                         title="Click to search on Google"
                         onClick={() => openGoogleScout(fix.teams + ' ' + (fix.league || '') + ' fixture schedule')}
                         className="hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5 truncate w-full"
                       >
                         <span className="truncate">{fix.teams}</span>
-                        <Search className="w-3.5 h-3.5 text-cyan-400 opacity-70 shrink-0" />
+                        <Search className="w-3.5 h-3.5 text-cyan-400 opacity-80 shrink-0" />
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--muted)' }} className="truncate">{fix.league}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 600, marginTop: '2px' }} className="truncate">{fix.league}</div>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right', shrink: 0, marginLeft: '8px' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--green)', fontWeight: 700 }}>{fix.match_time}</div>
-                    <div style={{ fontSize: '10px', color: 'var(--muted)' }}>{fix.match_date}</div>
+                  <div style={{ textAlign: 'right', shrink: 0, marginLeft: '10px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--green)', fontWeight: 800, background: 'rgba(16,185,129,0.15)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.3)' }}>{fix.match_time}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '3px', fontWeight: 600 }}>{fix.match_date}</div>
                   </div>
                 </div>
               ))

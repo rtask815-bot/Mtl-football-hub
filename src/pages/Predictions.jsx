@@ -1469,7 +1469,7 @@ export default function PrePage() {
                     );
                   }
                   return filtered.map((m, idx) => (
-                    <div key={m.id || idx} className="min-w-[290px] sm:min-w-[340px] max-w-[360px] shrink-0">
+                    <div key={m.id || idx} className="min-w-[340px] sm:min-w-[400px] w-[400px] shrink-0">
                       {renderMatchPredictionCard(m, idx === filtered.length - 1)}
                     </div>
                   ));
