@@ -435,7 +435,7 @@ export default function NewsPage() {
   const featuredArticle = articles.find((a) => a.featured) || articles[0];
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] pb-24">
+    <div className="min-h-screen bg-transparent text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] pb-24">
       {/* Universal Floating Action Button */}
       <UniversalFAB
         showBackToDashboard={true}

@@ -1248,7 +1248,7 @@ export default function PrePage() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black ${contrastMode ? 'contrast-200 bg-black' : ''}`}>
+    <div className={`min-h-screen bg-transparent text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black ${contrastMode ? 'contrast-200' : ''}`}>
       <div className="app-content-wrapper flex flex-col min-h-screen justify-between relative z-10">
 
         {/* Unified Alert / Toast Prompts */}

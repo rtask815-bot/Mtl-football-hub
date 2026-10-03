@@ -508,7 +508,7 @@ export default function Aipredictions() {
   };
 
   return (
-    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(6,182,212,0.06),rgba(0,0,0,0))] pb-20">
+    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-transparent pb-20">
       {/* Futuristic Fullscreen Loading Overlay */}
       <FuturisticLoader 
         active={loading} 

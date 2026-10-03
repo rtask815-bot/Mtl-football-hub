@@ -863,7 +863,7 @@ export default function OtherApps() {
   const totalResults = filteredBetting.length + filteredPredictions.length + filteredVirtuals.length;
 
   return (
-    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.06),rgba(0,0,0,0))] text-slate-100 pb-20">
+    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-transparent text-slate-100 pb-20">
 
       {/* ------------------------------------------------------------- */}
       {/* FULLSCREEN IN-APP CONTAINER (IDENTICAL TO FAMELACK EXPERIENCE)  */}

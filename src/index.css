@@ -279,6 +279,22 @@
    SOLID BACKGROUND CONTAINERS & CARD ARCHITECTURE
    Professional, high-contrast, solid cards over translucent page layout
    ============================================================ */
+html,
+body,
+#root,
+#app-root,
+main,
+.page-container,
+.cyber-page-container,
+.cyber-container,
+.app-content-wrapper,
+.dashboard-wrapper,
+.cyber-page-wrapper,
+.min-h-screen {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
 .page-container,
 .cyber-page-container,
 .cyber-container {
@@ -289,12 +305,8 @@
   position: relative;
   z-index: 10;
   min-height: 100vh;
-  background-color: rgba(7, 11, 22, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border-left: 1px solid rgba(255, 255, 255, 0.05);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 1.25rem;
 }
 
 @media (min-width: 640px) {

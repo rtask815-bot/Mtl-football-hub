@@ -459,7 +459,7 @@ export default function AdminControlPanel() {
      AUTHORIZED ADMIN CONTROL PANEL INTERFACE
      ============================================================ */
   return (
-    <div className="min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.06),rgba(0,0,0,0))] text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] flex">
+    <div className="min-h-screen bg-transparent text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] flex">
       <UniversalFAB showBackToDashboard={true} />
 
       {/* Floating Status Notification Toast */}

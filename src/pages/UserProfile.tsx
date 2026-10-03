@@ -512,7 +512,7 @@ export default function UserProfile() {
   const favoriteTeamsList = editFavoriteTeams;
 
   return (
-    <div className="min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.06),rgba(0,0,0,0))] font-['Plus_Jakarta_Sans',sans-serif] text-slate-100 pt-3 sm:pt-4 pb-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-transparent font-['Plus_Jakarta_Sans',sans-serif] text-slate-100 pt-3 sm:pt-4 pb-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* RESPONSIVE TOAST NOTIFICATION BANNER */}
