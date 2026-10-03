@@ -133,7 +133,7 @@ export default function Gateway() {
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    background-color: #010307;
+                    background-color: transparent;
                     color: #f8fafc;
                     font-family: 'Plus Jakarta Sans', sans-serif;
                     perspective: 1400px;
@@ -152,7 +152,7 @@ export default function Gateway() {
                     position: absolute;
                     inset: 0;
                     z-index: -5;
-                    background: radial-gradient(circle at 50% 50%, #071736 0%, #010307 100%);
+                    background: transparent;
                 }
 
                 .cyber-matrix-overlay {
