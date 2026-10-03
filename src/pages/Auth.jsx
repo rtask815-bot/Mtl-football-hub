@@ -336,8 +336,8 @@ export default function Auth() {
         purpleLight.position.set(5, 5, -5);
         scene.add(purpleLight);
 
-        // Field Pitch Grid Track
-        const gridHelper = new THREE.GridHelper(30, 20, 0x00f5d4, 0x1e293b);
+        // Quantum Void Matrix Grid
+        const gridHelper = new THREE.GridHelper(30, 20, 0x8b5cf6, 0x070514);
         gridHelper.position.y = -0.8;
         scene.add(gridHelper);
 

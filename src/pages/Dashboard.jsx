@@ -145,10 +145,10 @@ export default function Dashboard() {
 
     const geometry = new THREE.TorusKnotGeometry(10, 3, 128, 32);
     const material = new THREE.MeshStandardMaterial({
-      color: 0x10b981,
+      color: 0x8b5cf6,
       wireframe: true,
-      roughness: 0.2,
-      metalness: 0.8
+      roughness: 0.1,
+      metalness: 0.9
     });
     const torusKnot = new THREE.Mesh(geometry, material);
     scene.add(torusKnot);

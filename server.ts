@@ -56,14 +56,14 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MTL Football Ultra HD Live Feed</title>
+  <title>MTL Football Ultra HD Live Void Feed</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #030712;
+      background: #02040a;
       color: #f9fafb;
       font-family: 'Inter', sans-serif;
       overflow: hidden;
@@ -79,15 +79,15 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
       top: 16px;
       left: 20px;
       z-index: 40;
-      background: rgba(7, 12, 23, 0.88);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      background: rgba(8, 6, 20, 0.88);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(139, 92, 246, 0.4);
       border-radius: 12px;
-      padding: 8px 16px;
+      padding: 8px 18px;
       display: flex;
       align-items: center;
       gap: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 15px rgba(16, 185, 129, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.25);
     }
     
     .team-badge {
@@ -105,17 +105,17 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
       font-size: 22px;
       font-weight: 900;
       color: #00f0ff;
-      background: rgba(0, 240, 255, 0.1);
-      padding: 2px 10px;
+      background: rgba(0, 240, 255, 0.12);
+      padding: 2px 12px;
       border-radius: 6px;
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      text-shadow: 0 0 14px rgba(0, 240, 255, 0.9);
     }
     
     .clock-badge {
       font-family: 'Orbitron', monospace;
       font-size: 13px;
-      color: #10b981;
+      color: #a855f7;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -124,23 +124,23 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
     .live-dot {
       width: 8px;
       height: 8px;
-      background: #ef4444;
+      background: #ec4899;
       border-radius: 50%;
-      box-shadow: 0 0 10px #ef4444;
+      box-shadow: 0 0 12px #ec4899;
       animation: pulse 1s infinite alternate;
     }
     
     @keyframes pulse {
       0% { opacity: 0.4; transform: scale(0.85); }
-      100% { opacity: 1; transform: scale(1.15); }
+      100% { opacity: 1; transform: scale(1.2); }
     }
     
-    /* Pitch Canvas */
-    #pitch-canvas {
+    /* Void Canvas */
+    #void-canvas {
       width: 100vw;
       height: 100vh;
       display: block;
-      background: radial-gradient(circle at center, #062b1e 0%, #03140e 60%, #020b08 100%);
+      background: radial-gradient(circle at center, #0b0726 0%, #03020c 60%, #010005 100%);
     }
     
     /* Telemetry HUD Overlays */
@@ -157,22 +157,22 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
     }
     
     .hud-commentary {
-      background: rgba(10, 17, 32, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(6, 182, 212, 0.35);
+      background: rgba(6, 4, 18, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(168, 85, 247, 0.4);
       border-radius: 12px;
       padding: 12px 18px;
       max-width: 480px;
       pointer-events: auto;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.8), 0 0 15px rgba(168, 85, 247, 0.15);
     }
     
     .hud-title {
       font-family: 'Rajdhani', sans-serif;
       font-size: 11px;
       font-weight: 700;
-      color: #00f0ff;
-      letter-spacing: 0.1em;
+      color: #a855f7;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       margin-bottom: 4px;
       display: flex;
@@ -182,16 +182,16 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
     
     .hud-text {
       font-size: 13px;
-      color: #e2e8f0;
+      color: #f1f5f9;
       line-height: 1.4;
       font-weight: 500;
       min-height: 36px;
     }
     
     .hud-controls {
-      background: rgba(10, 17, 32, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(6, 4, 18, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 240, 255, 0.4);
       border-radius: 12px;
       padding: 10px 16px;
       display: flex;
@@ -201,8 +201,8 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
     }
     
     .btn-hud {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      background: rgba(139, 92, 246, 0.18);
+      border: 1px solid rgba(139, 92, 246, 0.5);
       color: #fff;
       font-family: 'Rajdhani', sans-serif;
       font-weight: 700;
@@ -210,13 +210,13 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
       padding: 6px 14px;
       border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.25s ease;
     }
     
     .btn-hud:hover {
-      background: #10b981;
-      color: #000;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+      background: #8b5cf6;
+      color: #fff;
+      box-shadow: 0 0 18px rgba(139, 92, 246, 0.8);
     }
     
     .quality-badge {
@@ -224,31 +224,18 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
       top: 16px;
       right: 20px;
       z-index: 40;
-      background: rgba(10, 17, 32, 0.85);
-      border: 1px solid rgba(0, 240, 255, 0.4);
+      background: rgba(6, 4, 18, 0.85);
+      border: 1px solid rgba(168, 85, 247, 0.45);
       padding: 6px 14px;
       border-radius: 9999px;
       font-family: 'Orbitron', monospace;
       font-size: 11px;
-      color: #00f0ff;
+      color: #a855f7;
       letter-spacing: 0.1em;
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-    
-    /* Radar Map */
-    .mini-radar {
-      position: absolute;
-      bottom: 24px;
-      right: 20px;
-      width: 140px;
-      height: 90px;
-      background: rgba(4, 9, 20, 0.85);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      border-radius: 8px;
-      pointer-events: none;
-      z-index: 39;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
     }
   </style>
 </head>
@@ -260,8 +247,8 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
       <span>🔵</span> MTL
     </div>
     <div class="score-display" id="score">2 - 1</div>
-    <div class="team-badge" style="color: #f87171;">
-      TOR <span>🔴</span>
+    <div class="team-badge" style="color: #f472b6;">
+      TOR <span>🟣</span>
     </div>
     <div class="clock-badge">
       <div class="live-dot"></div>
@@ -270,33 +257,32 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
   </div>
 
   <div class="quality-badge">
-    <span>4K 60FPS</span> • ${channelName}
+    <span>QUANTUM VOID FEED 4K</span> • ${channelName}
   </div>
 
-  <!-- Live Animated Pitch Simulation -->
-  <canvas id="pitch-canvas"></canvas>
+  <!-- Professional Void Animation Canvas -->
+  <canvas id="void-canvas"></canvas>
 
   <!-- Interactive Telemetry Overlays -->
   <div class="hud-overlay">
     <div class="hud-commentary">
       <div class="hud-title">
-        <span>⚡ LIVE TACTICAL INTEL</span>
-        <span style="color: #10b981;">• HIGH INTENSITY</span>
+        <span>🌌 VOID TACTICAL INTEL</span>
+        <span style="color: #a855f7;">• QUANTUM FIELD ACTIVE</span>
       </div>
       <div class="hud-text" id="commentary-text">
-        CF Montréal pressing high on the transition wing. Ball advanced into final third.
+        CF Montréal pressing high through quantum void field. Ball trajectory calculating xG index.
       </div>
     </div>
 
     <div class="hud-controls">
-      <button class="btn-hud" id="audio-toggle">🔊 CROWD AUDIO: ON</button>
-      <button class="btn-hud" id="cam-toggle">🎥 CAM: TACTICAL 3D</button>
+      <button class="btn-hud" id="audio-toggle">🔊 VOID AUDIO: ON</button>      <button class="btn-hud" id="cam-toggle">🎥 CAM: VOID SINGULARITY</button>
       <button class="btn-hud" onclick="triggerGoal()">⚽ SIMULATE GOAL</button>
     </div>
   </div>
 
   <script>
-    const canvas = document.getElementById('pitch-canvas');
+    const canvas = document.getElementById('void-canvas');
     const ctx = canvas.getContext('2d');
     
     function resize() {
@@ -312,7 +298,7 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
     let scoreTor = 1;
     let audioEnabled = true;
 
-    // Web Audio Sound Synthesizer
+    // Web Audio Void Synthesizer
     let audioCtx = null;
     function playCheer() {
       if (!audioEnabled) return;
@@ -320,38 +306,63 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(320, audioCtx.currentTime + 0.8);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(480, audioCtx.currentTime + 1.0);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.4);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 1.2);
+        osc.stop(audioCtx.currentTime + 1.4);
       } catch (e) {}
     }
 
-    // Ball & Players
-    const ball = { x: canvas.width / 2, y: canvas.height / 2, vx: 3, vy: 1.5, radius: 7 };
+    // Professional Void Particles Engine
+    const PARTICLE_COUNT = 160;
+    const voidParticles = [];
+    const colors = ['#00f0ff', '#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#a855f7'];
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      voidParticles.push({
+        angle: Math.random() * Math.PI * 2,
+        dist: 50 + Math.random() * (Math.min(canvas.width, canvas.height) * 0.55),
+        speed: 0.002 + Math.random() * 0.005,
+        radius: 1 + Math.random() * 2.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 0.2 + Math.random() * 0.8,
+        pulseSpeed: 0.02 + Math.random() * 0.04
+      });
+    }
+
+    // Interactive Void Gravitational Mouse Effect
+    let mouse = { x: canvas.width / 2, y: canvas.height / 2, targetX: canvas.width / 2, targetY: canvas.height / 2 };
+    window.addEventListener('mousemove', (e) => {
+      mouse.targetX = e.clientX;
+      mouse.targetY = e.clientY;
+    });
+
+    // Void Tactical Nodes (Ball & Tactical Players)
+    const ball = { x: canvas.width / 2, y: canvas.height / 2, vx: 2.8, vy: 1.4, radius: 8, glow: '#00f0ff' };
     const players = [];
     for (let i = 0; i < 10; i++) {
       players.push({
-        team: i < 5 ? '#3b82f6' : '#ef4444',
+        team: i < 5 ? '#3b82f6' : '#ec4899',
+        glow: i < 5 ? '#60a5fa' : '#f472b6',
         x: (canvas.width / 11) * (i + 1),
         y: canvas.height * (0.3 + Math.random() * 0.4),
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: (Math.random() - 0.5) * 1.5,
+        vx: (Math.random() - 0.5) * 1.8,
+        vy: (Math.random() - 0.5) * 1.8,
         num: i + 2
       });
     }
 
     const commentary = [
-      "Dangerous attack developing through central midfield!",
-      "Superb interception by CF Montréal defense line.",
-      "Quick switch to the left winger in space.",
-      "Shot from 25 yards out! Blocked out for a corner kick.",
-      "Tactical line shifting towards high defensive block."
+      "Quantum void field analyzing high-intensity press.",
+      "CF Montréal mid-space interception calculated at 88% efficiency.",
+      "Accelerated vector shift into final third.",
+      "Shot trajectory created! Distorting gravitational defense block.",
+      "Tactical void alignment maintaining pressure."
     ];
     let commIndex = 0;
     setInterval(() => {
@@ -371,73 +382,159 @@ function getMtlLiveStreamHtml(matchTitle = 'CF Montréal vs Toronto FC', channel
     function triggerGoal() {
       scoreMtl++;
       document.getElementById('score').innerText = scoreMtl + ' - ' + scoreTor;
-      document.getElementById('commentary-text').innerHTML = '<b style="color:#00f0ff;">GOAAALLLL! Spectacular strike into the top right corner!</b>';
+      document.getElementById('commentary-text').innerHTML = '<b style="color:#00f0ff;">GOAAALLLL! Spectacular quantum strike into the void corner!</b>';
       playCheer();
     }
 
     document.getElementById('audio-toggle').onclick = () => {
       audioEnabled = !audioEnabled;
-      document.getElementById('audio-toggle').innerText = audioEnabled ? '🔊 CROWD AUDIO: ON' : '🔇 CROWD AUDIO: OFF';
+      document.getElementById('audio-toggle').innerText = audioEnabled ? '🔊 VOID AUDIO: ON' : '🔇 VOID AUDIO: OFF';
       if (audioEnabled) playCheer();
     };
 
-    // Animation Loop
+    let rotationAngle = 0;
+
+    // Void Render Loop
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Smooth Mouse Inertia
+      mouse.x += (mouse.targetX - mouse.x) * 0.05;
+      mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      // Draw Pitch lines
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      rotationAngle += 0.003;
+
+      // 1. Draw Void Event Horizon Singularity Rings
+      ctx.save();
+      ctx.translate(centerX, centerY);
+
+      // Rotating Concentric Accretion Rings
+      for (let r = 1; r <= 4; r++) {
+        ctx.save();
+        ctx.rotate(rotationAngle * (r % 2 === 0 ? 1 : -1) * (0.5 + r * 0.2));
+        ctx.strokeStyle = r % 2 === 0 ? 'rgba(139, 92, 246, 0.15)' : 'rgba(0, 240, 255, 0.12)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([15 + r * 10, 10 + r * 5]);
+        ctx.beginPath();
+        ctx.arc(0, 0, 80 + r * 60, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Central Singularity Black Hole Aura
+      ctx.shadowColor = '#8b5cf6';
+      ctx.shadowBlur = 35;
+      ctx.fillStyle = '#03010a';
+      ctx.beginPath();
+      ctx.arc(0, 0, 45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(168, 85, 247, 0.6)';
       ctx.lineWidth = 2;
-      ctx.strokeRect(60, 60, canvas.width - 120, canvas.height - 120);
-
-      // Center Line & Circle
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, 60);
-      ctx.lineTo(canvas.width / 2, canvas.height - 60);
       ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.restore();
 
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2, canvas.height / 2, 70, 0, Math.PI * 2);
-      ctx.stroke();
+      // 2. Render Void Particles & Constellation Vectors
+      for (let i = 0; i < voidParticles.length; i++) {
+        const p = voidParticles[i];
+        p.angle += p.speed;
+        p.alpha += Math.sin(p.angle * 10) * 0.01;
 
-      // Penalty Boxes
-      ctx.strokeRect(60, canvas.height / 2 - 120, 140, 240);
-      ctx.strokeRect(canvas.width - 200, canvas.height / 2 - 120, 140, 240);
+        const px = centerX + Math.cos(p.angle) * p.dist;
+        const py = centerY + Math.sin(p.angle) * p.dist;
 
-      // Update & Draw Players
+        // Gravitational Attraction towards mouse cursor
+        const dx = mouse.x - px;
+        const dy = mouse.y - py;
+        const distToMouse = Math.sqrt(dx * dx + dy * dy);
+        let renderX = px;
+        let renderY = py;
+
+        if (distToMouse < 180) {
+          const force = (180 - distToMouse) / 180;
+          renderX += dx * force * 0.15;
+          renderY += dy * force * 0.15;
+        }
+
+        // Draw particle
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0.1, Math.min(1, p.alpha));
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = p.radius * 4;
+        ctx.beginPath();
+        ctx.arc(renderX, renderY, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+
+        // Draw subtle vector web to nearby particles
+        for (let j = i + 1; j < voidParticles.length; j += 6) {
+          const p2 = voidParticles[j];
+          const p2x = centerX + Math.cos(p2.angle) * p2.dist;
+          const p2y = centerY + Math.sin(p2.angle) * p2.dist;
+          const d = Math.hypot(p2x - renderX, p2y - renderY);
+
+          if (d < 110) {
+            ctx.strokeStyle = p.color;
+            ctx.globalAlpha = (1 - d / 110) * 0.15;
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(renderX, renderY);
+            ctx.lineTo(p2x, p2y);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+
+      // 3. Update & Render Void Tactical Players
       players.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
         if (p.x < 80 || p.x > canvas.width - 80) p.vx *= -1;
         if (p.y < 80 || p.y > canvas.height - 80) p.vy *= -1;
 
+        // Player Void Glow Aura
         ctx.fillStyle = p.team;
+        ctx.shadowColor = p.glow;
+        ctx.shadowBlur = 18;
         ctx.beginPath();
         ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.8;
         ctx.stroke();
 
-        ctx.fillStyle = '#fff';
-        ctx.font = '9px Orbitron';
-        ctx.fillText(p.num, p.x - 3, p.y - 12);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 0;
+        ctx.font = '10px Orbitron';
+        ctx.fillText(p.num, p.x - 3, p.y - 14);
       });
 
-      // Update & Draw Ball
+      // 4. Update & Render Void Quantum Ball
       ball.x += ball.vx;
       ball.y += ball.vy;
       if (ball.x < 70 || ball.x > canvas.width - 70) ball.vx *= -1;
       if (ball.y < 70 || ball.y > canvas.height - 70) ball.vy *= -1;
 
-      // Ball glow & motion trail
+      // Ball Glowing Void Quantum Aura
       ctx.fillStyle = '#ffffff';
       ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 25;
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
+
+      // Ball Trailing Vector Wave
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius + 6, 0, Math.PI * 2);
+      ctx.stroke();
 
       requestAnimationFrame(render);
     }
