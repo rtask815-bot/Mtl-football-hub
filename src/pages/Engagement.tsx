@@ -38,6 +38,7 @@ import {
 import { supabase } from '../config/supabase.ts';
 import UniversalFAB from '../components/UniversalFAB.tsx';
 import FuturisticLoader from '../components/FuturisticLoader.tsx';
+import MatchPolls from '../components/MatchPolls.tsx';
 
 // Colors for Pie & Bar elements
 const CHANNEL_COLORS = ['#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'];
@@ -333,7 +334,7 @@ export default function Engagement() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] pb-24">
+    <div className="min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.07),rgba(0,0,0,0))] text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] pb-24">
       <UniversalFAB showBackToDashboard={true} onRefresh={handleManualRefresh} />
 
       {/* HERO SECTION & BREADCRUMB */}
@@ -791,7 +792,10 @@ export default function Engagement() {
 
         </div>
 
-        {/* 6. GEMINI AI TACTICAL MATCH ANALYST CHAT WIDGET */}
+        {/* 6. MAN OF THE MATCH & TACTICAL POLLS COMPONENT */}
+        <MatchPolls />
+
+        {/* 7. GEMINI AI TACTICAL MATCH ANALYST CHAT WIDGET */}
         <div className="bg-[#091120] border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 mt-8">
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
             <div className="flex items-center gap-3">

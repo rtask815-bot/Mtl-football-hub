@@ -17,48 +17,14 @@ import {
 } from "lucide-react";
 import UniversalFAB from "../components/UniversalFAB.tsx";
 import { supabase } from "../config/supabase.ts";
-import { SyncService } from "../config/SyncService.ts";
-import { openGoogleScout } from "../utils/googleScout.ts";
-import { fetchRealFixtures } from "../config/firebaseStore.ts";
 
 export default function Fixtures() {
   const navigate = useNavigate();
   const location = useLocation();
   const pageName = location.pathname.replace("/", "").toUpperCase() || "FIXTURES";
 
-  const [fixtures, setFixtures] = useState(() => {
-    const cached = SyncService.get('fixtures', []);
-    if (!Array.isArray(cached) || cached.length === 0) return [];
-    return cached.map(f => {
-      let home = "";
-      let away = "";
-      if (f.teams && f.teams.includes(" vs ")) {
-        const parts = f.teams.split(" vs ");
-        home = parts[0]?.trim();
-        away = parts[1]?.trim();
-      } else {
-        home = f.teams || "Home Club";
-        away = "Away Club";
-      }
-
-      return {
-        id: f.id,
-        homeTeam: home,
-        awayTeam: away,
-        league: f.league || "Premier League",
-        date: f.match_date || "Upcoming",
-        time: f.match_time || "20:00",
-        stadium: f.stadium || f.venue || "Stadium",
-        location: f.venue || "UK / Europe",
-        channel: f.broadcast || "Sky Sports",
-        streamUrl: "/tv",
-        badge: f.badge || "⚽",
-        importance: "Matchday Regular",
-        roundStage: f.round || "Regular Round"
-      };
-    });
-  });
-  const [loading, setLoading] = useState(false);
+  const [fixtures, setFixtures] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -101,10 +67,7 @@ export default function Fixtures() {
             profile?.admin === true || 
             email.endsWith("@admin.com") ||
             email.includes("admin") ||
-            email === "lennoxmourice@gmail.com" ||
-            email === "moricetonnylennox@gmail.com" ||
-            session.user.user_metadata?.role === "admin" ||
-            true;
+            session.user.user_metadata?.role === "admin";
 
           setIsAdmin(Boolean(userIsAdmin));
         }
@@ -119,20 +82,15 @@ export default function Fixtures() {
   async function fetchFixtures() {
     setLoading(true);
     try {
-      let rawFixtures = [];
       const { data, error } = await supabase
         .from("fixtures")
         .select("*")
         .order("match_date", { ascending: true });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawFixtures = data;
-      } else {
-        rawFixtures = await fetchRealFixtures();
-      }
+      if (error) throw error;
 
-      if (rawFixtures && rawFixtures.length > 0) {
-        const normalized = rawFixtures.map(item => {
+      if (data && data.length > 0) {
+        const normalized = data.map(item => {
           let home = "";
           let away = "";
           if (item.teams && item.teams.includes(" vs ")) {
@@ -272,7 +230,7 @@ export default function Fixtures() {
   });
 
   return (
-    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-transparent">
+    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.06),rgba(0,0,0,0))]">
       {/* Unified Page Hero Banner */}
       <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#0a1221] border border-slate-800/90 rounded-2xl p-6 shadow-xl">
         <div>
@@ -350,11 +308,7 @@ export default function Fixtures() {
             
             {/* Header info */}
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-              <span 
-                onClick={() => openGoogleScout(`${m.league} football fixtures standings`)}
-                className="font-['Orbitron'] text-xs text-cyan-400 font-extrabold tracking-wider uppercase flex items-center gap-1.5 cursor-pointer hover:underline"
-                title="Search league on Google"
-              >
+              <span className="font-['Orbitron'] text-xs text-cyan-400 font-extrabold tracking-wider uppercase flex items-center gap-1.5">
                 <span>{m.badge || "⚽"}</span>
                 <span>{m.league}</span>
               </span>
@@ -364,26 +318,17 @@ export default function Fixtures() {
               </div>
             </div>
 
-            {/* Teams Matchup - Dialing title opens Google Scout */}
-            <div 
-              onClick={() => openGoogleScout(`${m.home} vs ${m.away} ${m.league} match lineup kickoff details`)}
-              className="flex items-center justify-between py-2 cursor-pointer group/teams"
-              title="Click match title to scout on Google"
-            >
+            {/* Teams Matchup */}
+            <div className="flex items-center justify-between py-2">
               <div className="text-left flex-1">
-                <div className="font-['Orbitron'] text-base sm:text-lg font-black text-white group-hover/teams:text-cyan-300 transition-colors flex items-center gap-1">
-                  <span>{m.home}</span>
-                </div>
+                <div className="font-['Orbitron'] text-base sm:text-lg font-black text-white group-hover:text-emerald-300 transition-colors">{m.home}</div>
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Home Team</div>
               </div>
-              <div className="font-['Orbitron'] text-xs font-black text-slate-400 px-3 py-1 bg-slate-900 border border-slate-800 rounded-xl mx-2 shadow-inner group-hover/teams:border-cyan-500/40 flex items-center gap-1">
-                <span>VS</span>
-                <Search className="w-3 h-3 text-cyan-400 opacity-80" />
+              <div className="font-['Orbitron'] text-xs font-black text-slate-400 px-3 py-1 bg-slate-900 border border-slate-800 rounded-xl mx-2 shadow-inner">
+                VS
               </div>
               <div className="text-right flex-1">
-                <div className="font-['Orbitron'] text-base sm:text-lg font-black text-white group-hover/teams:text-cyan-300 transition-colors flex items-center justify-end gap-1">
-                  <span>{m.away}</span>
-                </div>
+                <div className="font-['Orbitron'] text-base sm:text-lg font-black text-white group-hover:text-emerald-300 transition-colors">{m.away}</div>
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Away Team</div>
               </div>
             </div>

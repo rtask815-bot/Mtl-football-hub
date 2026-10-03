@@ -16,32 +16,14 @@ import {
 import AdBanner from "../components/AdBanner.tsx";
 import UniversalFAB from "../components/UniversalFAB.tsx";
 import { supabase } from "../config/supabase.ts";
-import { SyncService } from "../config/SyncService.ts";
-import { openGoogleScout } from "../utils/googleScout.ts";
-import { fetchRealMatches } from "../config/firebaseStore.ts";
 
 export default function PastPredictions() {
   const navigate = useNavigate();
   const location = useLocation();
   const pageName = location.pathname.replace("/", "").toUpperCase() || "PAST PREDICTIONS";
 
-  const [pastRecords, setPastRecords] = useState(() => {
-    const cachedMatches = SyncService.get('matches', []);
-    if (Array.isArray(cachedMatches) && cachedMatches.length > 0) {
-      return cachedMatches.map(m => ({
-        id: m.id,
-        match: m.teams || "Settled Fixture",
-        pick: m.prediction || "Over 2.5 Goals",
-        outcome: m.status === "LOST" || m.status === "lost" ? "LOST" : "WON",
-        score: m.final_score || m.score || "2 - 1",
-        odds: (Number(m.decimal_odds) || 1.85).toFixed(2),
-        date: m.match_date || "Settled",
-        league: m.league || "Premier League"
-      }));
-    }
-    return [];
-  });
-  const [loading, setLoading] = useState(false);
+  const [pastRecords, setPastRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -96,33 +78,24 @@ export default function PastPredictions() {
   async function fetchPastPredictions() {
     setLoading(true);
     try {
-      let rawMatches = [];
       const { data, error } = await supabase
         .from("matches")
         .select("*")
         .or("final_score.not.is.null,status.eq.FINISHED,status.eq.finished,status.eq.settled")
         .order("match_date", { ascending: false });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawMatches = data;
-      } else {
-        const allMatches = await fetchRealMatches();
-        rawMatches = allMatches.filter(m => m.status === 'FINISHED' || m.status === 'finished' || m.status === 'settled' || m.final_score);
-        if (rawMatches.length === 0 && allMatches.length > 0) {
-          rawMatches = allMatches.slice(0, 3).map(m => ({ ...m, status: 'WON', final_score: m.score || '2 - 1' }));
-        }
-      }
+      if (error) throw error;
 
-      if (rawMatches && rawMatches.length > 0) {
-        const normalized = rawMatches.map(m => ({
+      if (data && data.length > 0) {
+        const normalized = data.map(m => ({
           id: m.id,
           match: m.teams || "Settled Fixture",
           pick: m.prediction || "Over 2.5 Goals",
           outcome: m.status === "LOST" || m.status === "lost" ? "LOST" : "WON",
           score: m.final_score || m.score || "2 - 1",
-          odds: (Number(m.decimal_odds) || 1.85).toFixed(2),
+          odds: (m.decimal_odds || 1.85).toFixed(2),
           date: m.match_date || "Settled",
-          league: m.league || "Premier League"
+          league: m.league || "Championship"
         }));
         setPastRecords(normalized);
       } else {
@@ -243,7 +216,7 @@ export default function PastPredictions() {
   });
 
   return (
-    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-transparent">
+    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(6,182,212,0.06),rgba(0,0,0,0))]">
       {/* Unified Page Hero Banner */}
       <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#0a1221] border border-slate-800/90 rounded-2xl p-6 shadow-xl">
         <div>
@@ -377,14 +350,7 @@ export default function PastPredictions() {
               {filteredRecords.map((r, i) => (
                 <tr key={r.id || i} className="hover:bg-slate-800/40 transition-colors">
                   <td className="py-4 px-4 font-bold text-white">
-                    <span 
-                      onClick={() => openGoogleScout(`${r.match} ${r.league} final score match stats`)}
-                      className="hover:text-cyan-300 cursor-pointer transition-colors inline-flex items-center gap-1.5"
-                      title="Click to search on Google"
-                    >
-                      <span>{r.match}</span>
-                      <Search className="w-3 h-3 text-cyan-400 opacity-75" />
-                    </span>
+                    {r.match}
                     <span className="block text-[11px] text-slate-400 font-normal">{r.league}</span>
                   </td>
                   <td className="py-4 px-4 text-cyan-300 font-semibold">{r.pick}</td>

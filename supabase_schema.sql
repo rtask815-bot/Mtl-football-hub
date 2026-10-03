@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     username TEXT,
     name TEXT,
-    full_name TEXT,
     email TEXT,
     avatar_url TEXT,
     role TEXT DEFAULT 'member',
@@ -29,11 +28,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     is_global_admin BOOLEAN DEFAULT FALSE,
     status_message TEXT DEFAULT 'Active Fan',
     favorite_club TEXT DEFAULT 'Arsenal',
-    favorite_teams JSONB DEFAULT '[]'::jsonb,
     bio TEXT,
-    info TEXT,
-    location TEXT,
-    phone TEXT,
     points INTEGER DEFAULT 100,
     odds_format TEXT DEFAULT 'decimal',
     language TEXT DEFAULT 'en',
@@ -41,13 +36,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-
--- Ensure extended profile columns exist
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS info TEXT;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location TEXT;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone TEXT;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS favorite_teams JSONB DEFAULT '[]'::jsonb;
 
 -- 2.2 MATCHES (Live matches, AI predictions, past results, scores & xG)
 CREATE TABLE IF NOT EXISTS public.matches (
@@ -269,51 +257,6 @@ CREATE TABLE IF NOT EXISTS public.notifications (
     type TEXT DEFAULT 'info',
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 2.15 TEAM ANALYTICS (Recharts team performance trends, xG, win-loss ratios)
-CREATE TABLE IF NOT EXISTS public.team_analytics (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    team_name TEXT UNIQUE NOT NULL,
-    badge TEXT DEFAULT 'MTL',
-    total_matches INTEGER DEFAULT 28,
-    wins INTEGER DEFAULT 16,
-    draws INTEGER DEFAULT 6,
-    losses INTEGER DEFAULT 6,
-    win_rate_percent NUMERIC(5,2) DEFAULT 57.1,
-    avg_xg NUMERIC(4,2) DEFAULT 1.84,
-    clean_sheets INTEGER DEFAULT 9,
-    goal_diff INTEGER DEFAULT 14,
-    trend_data JSONB DEFAULT '[]'::jsonb,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 2.16 USER STATUSES (24h Match Prediction Cards, Reels & Image Updates)
-CREATE TABLE IF NOT EXISTS public.user_statuses (
-    id TEXT PRIMARY KEY,
-    user_id TEXT,
-    user_name TEXT,
-    user_avatar TEXT,
-    status_type TEXT DEFAULT 'match_card',
-    match_fixture TEXT,
-    league TEXT,
-    home_team TEXT,
-    away_team TEXT,
-    predicted_score TEXT,
-    prediction_pick TEXT,
-    decimal_odds NUMERIC(6, 2) DEFAULT 2.00,
-    confidence_stars INTEGER DEFAULT 5,
-    caption TEXT,
-    media_url TEXT,
-    media_type TEXT,
-    theme_color TEXT DEFAULT 'emerald',
-    views_count INTEGER DEFAULT 1,
-    likes_count INTEGER DEFAULT 0,
-    viewers JSONB DEFAULT '[]'::jsonb,
-    likers JSONB DEFAULT '[]'::jsonb,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '24 hours')
 );
 
 -- ============================================================================
@@ -776,31 +719,6 @@ BEGIN
 
     DROP POLICY IF EXISTS "Notifications delete access" ON public.notifications;
     CREATE POLICY "Notifications delete access" ON public.notifications FOR DELETE USING (true);
-
-    -- TEAM ANALYTICS POLICIES (Public Read, Admin Full Write/Edit/Delete Privileges)
-    ALTER TABLE public.team_analytics ENABLE ROW LEVEL SECURITY;
-
-    DROP POLICY IF EXISTS "Team analytics select access for all users" ON public.team_analytics;
-    CREATE POLICY "Team analytics select access for all users" ON public.team_analytics 
-        FOR SELECT USING (true);
-
-    DROP POLICY IF EXISTS "Team analytics insert for admins" ON public.team_analytics;
-    CREATE POLICY "Team analytics insert for admins" ON public.team_analytics 
-        FOR INSERT WITH CHECK (
-            auth.role() = 'authenticated' OR auth.role() = 'service_role'
-        );
-
-    DROP POLICY IF EXISTS "Team analytics update for admins" ON public.team_analytics;
-    CREATE POLICY "Team analytics update for admins" ON public.team_analytics 
-        FOR UPDATE USING (
-            auth.role() = 'authenticated' OR auth.role() = 'service_role'
-        );
-
-    DROP POLICY IF EXISTS "Team analytics delete for admins" ON public.team_analytics;
-    CREATE POLICY "Team analytics delete for admins" ON public.team_analytics 
-        FOR DELETE USING (
-            auth.role() = 'authenticated' OR auth.role() = 'service_role'
-        );
 END $$;
 
 -- ============================================================================
@@ -825,8 +743,7 @@ DECLARE
         'chats',
         'news',
         'profiles',
-        'notifications',
-        'team_analytics'
+        'notifications'
     ];
 BEGIN
     FOREACH tbl IN ARRAY tables LOOP
@@ -868,232 +785,5 @@ INSERT INTO public.chat_groups (name, description, category, type, icon, is_appr
 SELECT 'Tactical & AI Insights', 'Deep xG metric breakdowns, formation shifts, and quantum model analysis', 'tactical', 'public', '🧠', TRUE, FALSE
 WHERE (SELECT COUNT(*) FROM public.chat_groups) = 2;
 
--- Seed default Recharts team analytics profiles if empty
-INSERT INTO public.team_analytics (team_name, badge, total_matches, wins, draws, losses, win_rate_percent, avg_xg, clean_sheets, goal_diff, trend_data)
-SELECT 
-  'CF Montréal', 
-  'MTL', 
-  28, 
-  16, 
-  6, 
-  6, 
-  57.1, 
-  1.84, 
-  9, 
-  14, 
-  '[
-    {"matchday": "M1", "opponent": "vs TOR", "formIndex": 65, "xGCreated": 1.4, "xGConceded": 0.9, "goalsScored": 2, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M2", "opponent": "vs NYC", "formIndex": 72, "xGCreated": 1.9, "xGConceded": 1.1, "goalsScored": 3, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M3", "opponent": "vs CLB", "formIndex": 58, "xGCreated": 1.1, "xGConceded": 1.8, "goalsScored": 0, "goalsConceded": 2, "result": "L"},
-    {"matchday": "M4", "opponent": "vs NE",  "formIndex": 68, "xGCreated": 1.6, "xGConceded": 0.8, "goalsScored": 1, "goalsConceded": 0, "result": "W"},
-    {"matchday": "M5", "opponent": "vs MIA", "formIndex": 82, "xGCreated": 2.3, "xGConceded": 1.4, "goalsScored": 2, "goalsConceded": 2, "result": "D"},
-    {"matchday": "M6", "opponent": "vs CIN", "formIndex": 88, "xGCreated": 2.6, "xGConceded": 1.0, "goalsScored": 3, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M7", "opponent": "vs PHI", "formIndex": 79, "xGCreated": 1.8, "xGConceded": 1.2, "goalsScored": 2, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M8", "opponent": "vs ORL", "formIndex": 85, "xGCreated": 2.1, "xGConceded": 0.7, "goalsScored": 2, "goalsConceded": 0, "result": "W"}
-  ]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM public.team_analytics WHERE team_name = 'CF Montréal');
-
-INSERT INTO public.team_analytics (team_name, badge, total_matches, wins, draws, losses, win_rate_percent, avg_xg, clean_sheets, goal_diff, trend_data)
-SELECT 
-  'FC Cincinnati', 
-  'CIN', 
-  28, 
-  17, 
-  5, 
-  6, 
-  60.7, 
-  1.92, 
-  11, 
-  18, 
-  '[
-    {"matchday": "M1", "opponent": "vs CLB", "formIndex": 70, "xGCreated": 1.7, "xGConceded": 1.0, "goalsScored": 2, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M2", "opponent": "vs MIA", "formIndex": 64, "xGCreated": 1.3, "xGConceded": 1.6, "goalsScored": 1, "goalsConceded": 2, "result": "L"},
-    {"matchday": "M3", "opponent": "vs ORL", "formIndex": 78, "xGCreated": 2.1, "xGConceded": 0.9, "goalsScored": 3, "goalsConceded": 0, "result": "W"},
-    {"matchday": "M4", "opponent": "vs TOR", "formIndex": 84, "xGCreated": 2.4, "xGConceded": 0.6, "goalsScored": 2, "goalsConceded": 0, "result": "W"},
-    {"matchday": "M5", "opponent": "vs NYC", "formIndex": 75, "xGCreated": 1.8, "xGConceded": 1.2, "goalsScored": 1, "goalsConceded": 1, "result": "D"},
-    {"matchday": "M6", "opponent": "vs MTL", "formIndex": 62, "xGCreated": 1.2, "xGConceded": 2.4, "goalsScored": 1, "goalsConceded": 3, "result": "L"},
-    {"matchday": "M7", "opponent": "vs ATL", "formIndex": 80, "xGCreated": 2.0, "xGConceded": 0.8, "goalsScored": 2, "goalsConceded": 0, "result": "W"},
-    {"matchday": "M8", "opponent": "vs DC",  "formIndex": 86, "xGCreated": 2.3, "xGConceded": 0.9, "goalsScored": 3, "goalsConceded": 1, "result": "W"}
-  ]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM public.team_analytics WHERE team_name = 'FC Cincinnati');
-
-INSERT INTO public.team_analytics (team_name, badge, total_matches, wins, draws, losses, win_rate_percent, avg_xg, clean_sheets, goal_diff, trend_data)
-SELECT 
-  'Inter Miami', 
-  'MIA', 
-  28, 
-  18, 
-  4, 
-  6, 
-  64.3, 
-  2.15, 
-  8, 
-  22, 
-  '[
-    {"matchday": "M1", "opponent": "vs LAFC", "formIndex": 80, "xGCreated": 2.2, "xGConceded": 1.3, "goalsScored": 3, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M2", "opponent": "vs CIN",  "formIndex": 75, "xGCreated": 1.6, "xGConceded": 1.2, "goalsScored": 2, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M3", "opponent": "vs ORL",  "formIndex": 88, "xGCreated": 2.8, "xGConceded": 0.9, "goalsScored": 4, "goalsConceded": 1, "result": "W"},
-    {"matchday": "M4", "opponent": "vs NSH",  "formIndex": 70, "xGCreated": 1.5, "xGConceded": 1.5, "goalsScored": 1, "goalsConceded": 1, "result": "D"},
-    {"matchday": "M5", "opponent": "vs MTL",  "formIndex": 78, "xGCreated": 2.0, "xGConceded": 1.9, "goalsScored": 2, "goalsConceded": 2, "result": "D"},
-    {"matchday": "M6", "opponent": "vs CLB",  "formIndex": 92, "xGCreated": 2.9, "xGConceded": 1.1, "goalsScored": 3, "goalsConceded": 2, "result": "W"},
-    {"matchday": "M7", "opponent": "vs NYC",  "formIndex": 85, "xGCreated": 2.3, "xGConceded": 0.8, "goalsScored": 2, "goalsConceded": 0, "result": "W"},
-    {"matchday": "M8", "opponent": "vs ATL",  "formIndex": 68, "xGCreated": 1.4, "xGConceded": 2.1, "goalsScored": 1, "goalsConceded": 3, "result": "L"}
-  ]'::jsonb
-WHERE NOT EXISTS (SELECT 1 FROM public.team_analytics WHERE team_name = 'Inter Miami');
-
--- ============================================================================
--- 6. ADDITIONAL EXTENSIONS & TABLES FOR STATUSES, MEDIA & REACTIONS
--- ============================================================================
-
--- Ensure messages table supports poll data and reactions
-ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS poll JSONB;
-ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS reactions JSONB DEFAULT '{}'::jsonb;
-ALTER TABLE public.matches ADD COLUMN IF NOT EXISTS reactions JSONB DEFAULT '{"fire":0,"heart":0,"dislike":0}'::jsonb;
-
--- 6.1 USER MATCH STATUS CARDS (WhatsApp-style 24-hour match predictions, reels & images)
-CREATE TABLE IF NOT EXISTS public.user_statuses (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    user_name TEXT,
-    user_avatar TEXT,
-    status_type TEXT DEFAULT 'match_card', -- 'match_card', 'reel', 'image'
-    match_fixture TEXT NOT NULL,
-    league TEXT,
-    home_team TEXT,
-    away_team TEXT,
-    predicted_score TEXT,
-    prediction_pick TEXT NOT NULL,
-    decimal_odds NUMERIC(6, 2) DEFAULT 1.95,
-    confidence_stars INTEGER DEFAULT 5,
-    caption TEXT,
-    media_url TEXT,
-    media_type TEXT DEFAULT 'image', -- 'image', 'video'
-    theme_color TEXT DEFAULT 'emerald',
-    views_count INTEGER DEFAULT 1,
-    likes_count INTEGER DEFAULT 0,
-    viewers TEXT[] DEFAULT ARRAY[]::TEXT[],
-    likers TEXT[] DEFAULT ARRAY[]::TEXT[],
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '24 hours')
-);
-
--- 6.2 STATUS LIKES AUDIT
-CREATE TABLE IF NOT EXISTS public.status_likes (
-    id TEXT PRIMARY KEY,
-    status_id TEXT NOT NULL,
-    user_id TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (status_id, user_id)
-);
-
--- 6.3 DIGITAL MEDIA ASSETS (Images and Videos)
-CREATE TABLE IF NOT EXISTS public.digital_media (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    name TEXT NOT NULL,
-    download_url TEXT NOT NULL,
-    storage_path TEXT,
-    content_type TEXT,
-    size BIGINT DEFAULT 0,
-    media_type TEXT DEFAULT 'image', -- 'image', 'video'
-    tags TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 6.4 USER ACTIVITIES TIMELINE
-CREATE TABLE IF NOT EXISTS public.user_activities (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    type TEXT NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT,
-    badge TEXT,
-    timestamp TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 6.5 USER PERSONAL PREDICTIONS
-CREATE TABLE IF NOT EXISTS public.user_predictions (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    fixture TEXT NOT NULL,
-    league TEXT DEFAULT 'Premier League',
-    pick TEXT NOT NULL,
-    predicted_score TEXT,
-    odds NUMERIC(6, 2) DEFAULT 1.85,
-    outcome TEXT DEFAULT 'PENDING', -- 'WON', 'LOST', 'PENDING', 'REFUND'
-    final_score TEXT,
-    match_date DATE DEFAULT CURRENT_DATE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 6.6 MESSAGE REACTIONS
-CREATE TABLE IF NOT EXISTS public.message_reactions (
-    id TEXT PRIMARY KEY,
-    message_id TEXT NOT NULL,
-    emoji TEXT NOT NULL,
-    user_id TEXT NOT NULL,
-    username TEXT DEFAULT 'Fan',
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (message_id, user_id, emoji)
-);
-
--- 6.7 MATCH CARD REACTIONS
-CREATE TABLE IF NOT EXISTS public.match_reactions (
-    id TEXT PRIMARY KEY,
-    match_id TEXT NOT NULL,
-    reaction_type TEXT NOT NULL, -- 'fire', 'heart', 'dislike'
-    user_id TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (match_id, user_id)
-);
-
--- Enable RLS on newly created tables
-ALTER TABLE public.user_statuses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.status_likes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.digital_media ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_activities ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_predictions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.message_reactions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.match_reactions ENABLE ROW LEVEL SECURITY;
-
--- Idempotent RLS Policies
-DROP POLICY IF EXISTS "Public read access to user_statuses" ON public.user_statuses;
-CREATE POLICY "Public read access to user_statuses" ON public.user_statuses FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Anyone can insert user_statuses" ON public.user_statuses;
-CREATE POLICY "Anyone can insert user_statuses" ON public.user_statuses FOR INSERT WITH CHECK (true);
-DROP POLICY IF EXISTS "Anyone can update user_statuses" ON public.user_statuses;
-CREATE POLICY "Anyone can update user_statuses" ON public.user_statuses FOR UPDATE USING (true);
-
-DROP POLICY IF EXISTS "Public read access to status_likes" ON public.status_likes;
-CREATE POLICY "Public read access to status_likes" ON public.status_likes FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Anyone can insert status_likes" ON public.status_likes;
-CREATE POLICY "Anyone can insert status_likes" ON public.status_likes FOR ALL USING (true);
-
-DROP POLICY IF EXISTS "Public read access to digital_media" ON public.digital_media;
-CREATE POLICY "Public read access to digital_media" ON public.digital_media FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Anyone can insert digital_media" ON public.digital_media;
-CREATE POLICY "Anyone can insert digital_media" ON public.digital_media FOR INSERT WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public read access to user_activities" ON public.user_activities;
-CREATE POLICY "Public read access to user_activities" ON public.user_activities FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Anyone can insert user_activities" ON public.user_activities;
-CREATE POLICY "Anyone can insert user_activities" ON public.user_activities FOR INSERT WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Public read access to user_predictions" ON public.user_predictions;
-CREATE POLICY "Public read access to user_predictions" ON public.user_predictions FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Anyone can insert user_predictions" ON public.user_predictions;
-CREATE POLICY "Anyone can insert user_predictions" ON public.user_predictions FOR ALL USING (true);
-
-DROP POLICY IF EXISTS "Public read access to message_reactions" ON public.message_reactions;
-CREATE POLICY "Public read access to message_reactions" ON public.message_reactions FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Anyone can insert message_reactions" ON public.message_reactions;
-CREATE POLICY "Anyone can insert message_reactions" ON public.message_reactions FOR ALL USING (true);
-
-DROP POLICY IF EXISTS "Public read access to match_reactions" ON public.match_reactions;
-CREATE POLICY "Public read access to match_reactions" ON public.match_reactions FOR SELECT USING (true);
-DROP POLICY IF EXISTS "Anyone can insert match_reactions" ON public.match_reactions;
-CREATE POLICY "Anyone can insert match_reactions" ON public.match_reactions FOR ALL USING (true);
-
 -- Done!
 SELECT 'MTL Football Intelligence Hub Database Schema Initialized Successfully.' as status;
-

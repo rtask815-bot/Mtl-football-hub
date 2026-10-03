@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import * as THREE from "three";
 import { supabase } from "../config/supabase.ts";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../config/env.ts";
+import FuturisticLoader from "../components/FuturisticLoader.tsx";
 
 // Allowed Model Priority List
 const ALLOWED_MODELS = [
@@ -120,16 +123,6 @@ const playSound = (type = "ring") => {
     }
 };
 
-// Sanitization utility to strip specific vendor hints
-const sanitizeText = (str) => {
-    if (!str) return "";
-    return String(str)
-        .replace(/supabase/gi, "Identity Service")
-        .replace(/postgres(ql)?/gi, "System Database")
-        .replace(/postgrest/gi, "Database API")
-        .replace(/p2002/gi, "UNIQUE_CONSTRAINT_EXISTS");
-};
-
 export default function Auth() {
     const navigate = useNavigate();
 
@@ -154,13 +147,6 @@ export default function Auth() {
     const [showRegPassword, setShowRegPassword] = useState(false);
     const [passwordScore, setPasswordScore] = useState(0);
 
-    // Diagnostic Error Details State
-    const [authErrorDetails, setAuthErrorDetails] = useState(null);
-
-    // Toast State
-    const [toastMessage, setToastMessage] = useState(null);
-    const [toastType, setToastType] = useState("info");
-
     // Existing Session Prompt States
     const [activeSessionUser, setActiveSessionUser] = useState(null);
     const [showSessionModal, setShowSessionModal] = useState(false);
@@ -169,12 +155,28 @@ export default function Auth() {
     const [isLoading, setIsLoading] = useState(false);
     const [loaderText, setLoaderText] = useState("connecting...");
     const [loadProgress, setLoadProgress] = useState(0);
+    const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+    const [phoneInput, setPhoneInput] = useState("");
+    const [nameInput, setNameInput] = useState("");
+    const [otpInput, setOtpInput] = useState("");
+    const [resendLock, setResendLock] = useState(false);
+    const authStateRef = useRef({ phone: "", name: "" });
 
     // Navigation Pending Route Target
     const pendingTargetRef = useRef(null);
 
+    // Enhanced Features
+    const [rememberDevice, setRememberDevice] = useState(true);
+
     // Dynamic Model Tier Selection State
     const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo");
+
+    // Chat Console States
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [chatQuery, setChatQuery] = useState("");
+    const [chatMessages, setChatMessages] = useState([]);
+    const [isChatProcessing, setIsChatProcessing] = useState(false);
+    const chatFeedRef = useRef(null);
 
     // Voice Input State Management
     const [activeVoiceTarget, setActiveVoiceTarget] = useState(null);
@@ -182,22 +184,17 @@ export default function Auth() {
     const [interimTranscript, setInterimTranscript] = useState("");
     const recognitionRef = useRef(null);
 
+    // Dynamic Mobile Viewport Resizing for Virtual Keyboard
+    const [keyboardPadding, setKeyboardPadding] = useState(0);
+
     // Refs for visual cues and dynamic heights
     const glowRef = useRef(null);
     const formContainerRef = useRef(null);
+    const threeContainerRef = useRef(null);
     const [formHeight, setFormHeight] = useState("auto");
 
     // Synchronized progress tracking ref for 60fps WebGL updates
     const targetProgressRef = useRef(0);
-
-    const showToast = (msg, type = "info") => {
-        setToastMessage(sanitizeText(msg));
-        setToastType(type);
-        playSound(type === "error" ? "error" : "click");
-        setTimeout(() => {
-            setToastMessage(null);
-        }, 5000);
-    };
 
     useEffect(() => {
         targetProgressRef.current = loadProgress;
@@ -228,13 +225,44 @@ export default function Auth() {
 
     // Smooth Form Switch Container Height Measurement
     useEffect(() => {
-        if (formContainerRef.current) {
-            const currentChild = formContainerRef.current.querySelector(".form-fade-pane.active");
-            if (currentChild) {
-                setFormHeight(`${currentChild.scrollHeight}px`);
+        const updateHeight = () => {
+            if (formContainerRef.current) {
+                const currentChild = formContainerRef.current.querySelector(".form-fade-pane.active");
+                if (currentChild && currentChild.scrollHeight > 0) {
+                    setFormHeight(`${currentChild.scrollHeight}px`);
+                } else {
+                    setFormHeight("auto");
+                }
             }
+        };
+        updateHeight();
+        const timer = setTimeout(updateHeight, 50);
+        return () => clearTimeout(timer);
+    }, [authMode, showPassword, showRegPassword, regPassword, checkingSession]);
+
+    // Dynamic Mobile Viewport Resize Handler
+    useEffect(() => {
+        const handleVisualViewportResize = () => {
+            if (window.visualViewport) {
+                const currentHeight = window.visualViewport.height;
+                const innerHeight = window.innerHeight;
+                const offset = innerHeight - currentHeight;
+                setKeyboardPadding(offset > 0 ? offset : 0);
+            }
+        };
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", handleVisualViewportResize);
+            window.visualViewport.addEventListener("scroll", handleVisualViewportResize);
         }
-    }, [authMode, showPassword, showRegPassword, regPassword, checkingSession, authErrorDetails]);
+
+        return () => {
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener("resize", handleVisualViewportResize);
+                window.visualViewport.removeEventListener("scroll", handleVisualViewportResize);
+            }
+        };
+    }, []);
 
     // Resolve Active Model Tier
     useEffect(() => {
@@ -243,7 +271,7 @@ export default function Auth() {
                 const res = await fetch("/api/models", { method: "GET" });
                 if (!res.ok) return;
                 const data = await res.json();
-                const availableModels = new Set(data?.data?.map((m) => m.id) || []);
+                const availableModels = new Set(data?.data?.map(m => m.id) || []);
                 
                 const activeChoice = ALLOWED_MODELS.find(m => availableModels.has(m));
                 if (activeChoice) {
@@ -277,6 +305,287 @@ export default function Auth() {
         return () => window.removeEventListener("mousemove", handleMouseMove);
     }, []);
 
+    // REALISTIC THREE.JS ROBOT SOCCER KICKING & GOAL SCORING SIMULATION
+    useEffect(() => {
+        if (!isLoading || !threeContainerRef.current) return;
+
+        const container = threeContainerRef.current;
+        const width = container.clientWidth || 380;
+        const height = container.clientHeight || 120;
+
+        // Three.js Scene Initialization
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+        camera.position.set(0, 2.5, 9);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+        scene.add(ambientLight);
+
+        const cyanLight = new THREE.PointLight(0x00f5d4, 2.5, 25);
+        cyanLight.position.set(-5, 5, 5);
+        scene.add(cyanLight);
+
+        const purpleLight = new THREE.PointLight(0xa855f7, 2, 25);
+        purpleLight.position.set(5, 5, -5);
+        scene.add(purpleLight);
+
+        // Field Pitch Grid Track
+        const gridHelper = new THREE.GridHelper(30, 20, 0x00f5d4, 0x1e293b);
+        gridHelper.position.y = -0.8;
+        scene.add(gridHelper);
+
+        // --- ROBOT ASSEMBLY ---
+        const robotGroup = new THREE.Group();
+
+        // Materials
+        const cyanMat = new THREE.MeshStandardMaterial({ color: 0x00f5d4, metalness: 0.8, roughness: 0.2 });
+        const darkMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.1 });
+        const purpleMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, metalness: 0.7, roughness: 0.3 });
+
+        // Torso
+        const torsoGeo = new THREE.BoxGeometry(0.8, 1.0, 0.5);
+        const torso = new THREE.Mesh(torsoGeo, darkMat);
+        torso.position.y = 0.5;
+        robotGroup.add(torso);
+
+        // Core Reactor
+        const coreGeo = new THREE.SphereGeometry(0.14, 16, 16);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0x00f5d4 });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        core.position.set(0, 0.6, 0.26);
+        robotGroup.add(core);
+
+        // Head & Visor
+        const headGeo = new THREE.SphereGeometry(0.35, 16, 16);
+        const head = new THREE.Mesh(headGeo, cyanMat);
+        head.position.y = 1.3;
+        robotGroup.add(head);
+
+        const visorGeo = new THREE.BoxGeometry(0.38, 0.1, 0.2);
+        const visorMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+        const visor = new THREE.Mesh(visorGeo, visorMat);
+        visor.position.set(0, 1.3, 0.25);
+        robotGroup.add(visor);
+
+        // Legs
+        const legGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.7);
+        const footGeo = new THREE.BoxGeometry(0.12, 0.1, 0.25);
+
+        // Left Leg Pivot
+        const leftLegPivot = new THREE.Group();
+        leftLegPivot.position.set(-0.25, 0.1, 0);
+        const leftLeg = new THREE.Mesh(legGeo, purpleMat);
+        leftLeg.position.y = -0.35;
+        const leftFoot = new THREE.Mesh(footGeo, cyanMat);
+        leftFoot.position.set(0, -0.7, 0.08);
+        leftLegPivot.add(leftLeg);
+        leftLegPivot.add(leftFoot);
+        robotGroup.add(leftLegPivot);
+
+        // Right Leg Pivot (Kicking Leg)
+        const rightLegPivot = new THREE.Group();
+        rightLegPivot.position.set(0.25, 0.1, 0);
+        const rightLeg = new THREE.Mesh(legGeo, cyanMat);
+        rightLeg.position.y = -0.35;
+        const rightFoot = new THREE.Mesh(footGeo, purpleMat);
+        rightFoot.position.set(0, -0.7, 0.08);
+        rightLegPivot.add(rightLeg);
+        rightLegPivot.add(rightFoot);
+        robotGroup.add(rightLegPivot);
+
+        // Arms
+        const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.65);
+        const leftArmPivot = new THREE.Group();
+        leftArmPivot.position.set(-0.48, 0.8, 0);
+        const leftArm = new THREE.Mesh(armGeo, cyanMat);
+        leftArm.position.y = -0.32;
+        leftArmPivot.add(leftArm);
+        robotGroup.add(leftArmPivot);
+
+        const rightArmPivot = new THREE.Group();
+        rightArmPivot.position.set(0.48, 0.8, 0);
+        const rightArm = new THREE.Mesh(armGeo, purpleMat);
+        rightArm.position.y = -0.32;
+        rightArmPivot.add(rightArm);
+        robotGroup.add(rightArmPivot);
+
+        scene.add(robotGroup);
+
+        // --- REALISTIC SOCCER BALL ---
+        const ballGroup = new THREE.Group();
+        const ballGeo = new THREE.SphereGeometry(0.3, 24, 24);
+        const ballMat = new THREE.MeshStandardMaterial({ 
+            color: 0xffffff, 
+            roughness: 0.3, 
+            metalness: 0.2,
+            wireframe: false 
+        });
+        const ballMesh = new THREE.Mesh(ballGeo, ballMat);
+        
+        // Add Soccer Pentagonal Wire Accent
+        const ballOverlay = new THREE.Mesh(
+            new THREE.IcosahedronGeometry(0.302, 1),
+            new THREE.MeshStandardMaterial({ color: 0x0f172a, wireframe: true })
+        );
+        ballGroup.add(ballMesh);
+        ballGroup.add(ballOverlay);
+        scene.add(ballGroup);
+
+        // --- GOAL POST ASSEMBLY ---
+        const goalGroup = new THREE.Group();
+        const postMat = new THREE.MeshStandardMaterial({ color: 0x00f5d4, metalness: 0.8, roughness: 0.1 });
+        const netMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.4 });
+
+        // Goal Posts
+        const postGeo = new THREE.CylinderGeometry(0.06, 0.06, 2.2);
+        const leftPost = new THREE.Mesh(postGeo, postMat);
+        leftPost.position.set(0, 0.3, -1.2);
+        const rightPost = new THREE.Mesh(postGeo, postMat);
+        rightPost.position.set(0, 0.3, 1.2);
+
+        // Crossbar
+        const barGeo = new THREE.CylinderGeometry(0.06, 0.06, 2.4);
+        const crossbar = new THREE.Mesh(barGeo, postMat);
+        crossbar.rotation.x = Math.PI / 2;
+        crossbar.position.set(0, 1.4, 0);
+
+        // Net Backing
+        const netGeo = new THREE.BoxGeometry(1.0, 2.2, 2.4);
+        const net = new THREE.Mesh(netGeo, netMat);
+        net.position.set(0.5, 0.3, 0);
+
+        goalGroup.add(leftPost);
+        goalGroup.add(rightPost);
+        goalGroup.add(crossbar);
+        goalGroup.add(net);
+        
+        // Place Goal at the Right End of the Track
+        const goalX = 4.2;
+        goalGroup.position.set(goalX, -0.8, 0);
+        scene.add(goalGroup);
+
+        // Synchronized Physical Simulation Logic
+        let animFrameId;
+        let smoothCurrentProgress = targetProgressRef.current;
+
+        const animate3D = () => {
+            smoothCurrentProgress += (targetProgressRef.current - smoothCurrentProgress) * 0.12;
+            const progressRatio = Math.min(1, Math.max(0, smoothCurrentProgress / 100));
+
+            const startX = -4.5;
+            const kickPointX = 0.5; // Robot stops and kicks here
+
+            if (progressRatio < 0.45) {
+                // PHASE 1: ROBOT RUNNING TOWARDS BALL (0% to 45%)
+                const runRatio = progressRatio / 0.45;
+                const robotX = startX + runRatio * (kickPointX - startX);
+                const phase = runRatio * Math.PI * 14;
+
+                robotGroup.position.x = robotX;
+                robotGroup.position.y = -0.1 + Math.abs(Math.sin(phase * 2)) * 0.1;
+                robotGroup.rotation.z = 0.05;
+
+                // Running limb movements
+                leftLegPivot.rotation.z = Math.sin(phase) * 0.7;
+                rightLegPivot.rotation.z = -Math.sin(phase) * 0.7;
+                leftArmPivot.rotation.z = -Math.sin(phase) * 0.6;
+                rightArmPivot.rotation.z = Math.sin(phase) * 0.6;
+
+                // Ball sits waiting at kick point
+                ballGroup.position.set(kickPointX + 0.3, -0.5, 0);
+                ballGroup.rotation.z = 0;
+            } 
+            else if (progressRatio < 0.55) {
+                // PHASE 2: ROBOT KICKING ANIMATION (45% to 55%)
+                const kickPhase = (progressRatio - 0.45) / 0.1;
+                robotGroup.position.x = kickPointX;
+                robotGroup.position.y = -0.1;
+                robotGroup.rotation.z = -0.1; // Leaning back into kick
+
+                // Right leg winds back then snaps forward
+                rightLegPivot.rotation.z = Math.sin(kickPhase * Math.PI) * -1.2;
+                leftLegPivot.rotation.z = 0.3;
+                leftArmPivot.rotation.z = 0.8;
+                rightArmPivot.rotation.z = -0.8;
+
+                // Ball starts moving from kick force
+                const ballProgress = kickPhase * 0.15;
+                ballGroup.position.x = kickPointX + 0.3 + ballProgress * (goalX - kickPointX);
+                ballGroup.position.y = -0.5 + Math.sin(kickPhase * Math.PI) * 0.3;
+                ballGroup.rotation.z -= 0.2;
+            } 
+            else {
+                // PHASE 3: BALL ARCS TO GOAL & FINAL SCORE STATE (55% to 100%)
+                const goalFlightRatio = (progressRatio - 0.55) / 0.45;
+                
+                // Robot relaxes after strike
+                robotGroup.position.x = kickPointX + 0.2;
+                robotGroup.position.y = -0.1;
+                robotGroup.rotation.z = 0;
+                rightLegPivot.rotation.z = 0.2;
+                leftLegPivot.rotation.z = -0.1;
+                leftArmPivot.rotation.z = -0.2;
+                rightArmPivot.rotation.z = 0.2;
+
+                // Ball physics curve into goal
+                const currentBallX = (kickPointX + 0.45) + goalFlightRatio * (goalX - kickPointX - 0.2);
+                
+                // Parabolic Arc reaching net back wall on 100%
+                const arcHeight = Math.sin(goalFlightRatio * Math.PI) * 0.8;
+                const finalY = goalFlightRatio >= 0.9 ? 0.0 : -0.5 + arcHeight;
+
+                ballGroup.position.x = currentBallX;
+                ballGroup.position.y = finalY;
+                ballGroup.rotation.z -= 0.35; // Ball rotation effect
+
+                // Goal Score Flash effect on 100% final state
+                if (progressRatio >= 0.98) {
+                    crossbar.material.color.setHex(0x00f5d4);
+                    net.material.opacity = 0.8;
+                } else {
+                    crossbar.material.color.setHex(0x38bdf8);
+                    net.material.opacity = 0.3;
+                }
+            }
+
+            // Smooth Camera Follow
+            camera.position.x += (robotGroup.position.x * 0.4 - camera.position.x) * 0.08;
+            camera.lookAt(robotGroup.position.x, 0, 0);
+
+            renderer.render(scene, camera);
+            animFrameId = requestAnimationFrame(animate3D);
+        };
+
+        animate3D();
+
+        const handleResize = () => {
+            if (!container) return;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+            cancelAnimationFrame(animFrameId);
+            if (container.contains(renderer.domElement)) {
+                container.removeChild(renderer.domElement);
+            }
+            renderer.dispose();
+        };
+    }, [isLoading]);
+
     // Password Strength Evaluator
     useEffect(() => {
         let score = 0;
@@ -298,148 +607,248 @@ export default function Auth() {
 
             recognition.onerror = () => {
                 setIsListening(false);
+                setActiveVoiceTarget(null);
+                setInterimTranscript("");
             };
 
-            recognition.onresult = (event) => {
-                let current = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    current += event.results[i][0].transcript;
-                }
-                setInterimTranscript(current);
-
-                if (event.results[0].isFinal) {
-                    const cleanVal = current.trim().replace(/\.$/, "");
-                    if (activeVoiceTarget === "email") setEmail(cleanVal.toLowerCase());
-                    else if (activeVoiceTarget === "username") setUsername(cleanVal);
-                    else if (activeVoiceTarget === "regEmail") setRegEmail(cleanVal.toLowerCase());
-                    
-                    setIsListening(false);
-                    setInterimTranscript("");
-                    showToast(`Voice captured: "${cleanVal}"`, "success");
-                }
+            recognition.onend = () => {
+                setIsListening(false);
             };
 
             recognitionRef.current = recognition;
         }
-    }, [activeVoiceTarget]);
+    }, []);
 
-    const toggleVoiceInput = (targetField) => {
+    const toggleVoiceInput = (targetName, onAutoSend = null) => {
         playSound("click");
         if (!recognitionRef.current) {
-            return showToast("Speech recognition is not supported in this browser.", "warning");
+            showToast("Speech recognition is not supported in this browser.", "error");
+            return;
         }
 
-        if (isListening && activeVoiceTarget === targetField) {
+        if (isListening && activeVoiceTarget === targetName) {
             recognitionRef.current.stop();
             setIsListening(false);
-        } else {
-            setActiveVoiceTarget(targetField);
+            setActiveVoiceTarget(null);
             setInterimTranscript("");
-            setIsListening(true);
-            try {
-                recognitionRef.current.start();
-            } catch (e) {
-                // Voice re-start guard
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current.stop();
+        }
+
+        setActiveVoiceTarget(targetName);
+        setInterimTranscript("");
+        setIsListening(true);
+
+        recognitionRef.current.onresult = (event) => {
+            let transcript = "";
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                transcript += event.results[i][0].transcript;
             }
+            setInterimTranscript(transcript);
+            
+            if (targetName === "email") setEmail(transcript);
+            else if (targetName === "password") setPassword(transcript);
+            else if (targetName === "username") setUsername(transcript);
+            else if (targetName === "regEmail") setRegEmail(transcript);
+            else if (targetName === "regPassword") setRegPassword(transcript);
+            else if (targetName === "phoneInput") setPhoneInput(transcript);
+            else if (targetName === "nameInput") setNameInput(transcript);
+            else if (targetName === "otpInput") setOtpInput(transcript);
+            else if (targetName === "chatQuery") {
+                setChatQuery(transcript);
+                if (event.results[0].isFinal && onAutoSend) {
+                    setTimeout(() => {
+                        onAutoSend(transcript);
+                    }, 400);
+                }
+            }
+        };
+
+        try {
+            recognitionRef.current.start();
+        } catch (e) {
+            setIsListening(false);
+            setActiveVoiceTarget(null);
         }
     };
 
-    const triggerSecureTransition = (targetRoute, loaderMessage) => {
-        setIsLoading(true);
-        setLoaderText(loaderMessage);
+    // Strictly Synchronized Transition Gate Engine
+    const triggerSecureTransition = (targetPath, outputText) => {
+        pendingTargetRef.current = targetPath;
+        setLoaderText(outputText);
         setLoadProgress(0);
-        pendingTargetRef.current = targetRoute;
+        setIsLoading(true);
+        playSound("ring");
 
-        let current = 0;
-        const interval = setInterval(() => {
-            current += Math.floor(Math.random() * 14) + 6;
-            if (current >= 100) {
-                current = 100;
-                setLoadProgress(100);
-                clearInterval(interval);
-                playSound("success");
-                setTimeout(() => {
-                    setIsLoading(false);
-                    if (pendingTargetRef.current) {
-                        navigate(pendingTargetRef.current);
-                    }
-                }, 600);
-            } else {
-                setLoadProgress(current);
-            }
-        }, 80);
+        const totalDuration = 1000; // Snappy 1s
+        const intervalTime = 20;   // ms
+        const increment = 100 / (totalDuration / intervalTime);
+
+        const progressInterval = setInterval(() => {
+            setLoadProgress((prev) => {
+                const nextVal = prev + increment;
+                if (nextVal >= 100) {
+                    clearInterval(progressInterval);
+                    
+                    playSound("success");
+                    setTimeout(() => {
+                        setIsLoading(false);
+                        if (pendingTargetRef.current) {
+                            navigate(pendingTargetRef.current);
+                        }
+                    }, 200);
+                    
+                    return 100;
+                }
+                return nextVal;
+            });
+        }, intervalTime);
     };
 
-    // =========================================================================
-    // AUTHENTICATION & REGISTRATION HANDLERS (STRICT CASE-INSENSITIVE EMAIL)
-    // =========================================================================
+    // FUTURISTIC NOTIFICATION TOAST ENGINE
+    const showToast = (message, type = "info") => {
+        if (type === "success") playSound("success");
+        else if (type === "error") playSound("error");
+        else playSound("ring");
+
+        document.querySelectorAll(".mtl-toast").forEach((t) => t.remove());
+        const el = document.createElement("div");
+        el.className = "mtl-toast";
+        
+        const theme = type === "success" 
+            ? { border: "#00f5d4", glow: "rgba(0, 245, 212, 0.4)", icon: "⚡" } 
+            : type === "error" 
+            ? { border: "#f43f5e", glow: "rgba(244, 63, 94, 0.4)", icon: "⚠" } 
+            : { border: "#38bdf8", glow: "rgba(56, 189, 248, 0.4)", icon: "ℹ" };
+
+        Object.assign(el.style, {
+            position: "fixed", top: "28px", right: "28px", width: "360px", maxWidth: "92vw",
+            padding: "16px 20px", borderRadius: "18px", 
+            background: "linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(3, 7, 18, 0.98))",
+            backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+            boxShadow: `0 20px 50px rgba(0,0,0,.8), 0 0 25px ${theme.glow}`,
+            zIndex: "999999", display: "flex", alignItems: "center", gap: "14px",
+            border: `1px solid ${theme.border}`, 
+            animation: "mtlSlideIn .4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            fontFamily: "Inter, sans-serif", color: "#f8fafc"
+        });
+
+        el.innerHTML = `
+            <div style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid ${theme.border}; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                ${theme.icon}
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:10px; font-weight:900; letter-spacing:2px; margin-bottom:3px; color:${theme.border}; font-family: 'Orbitron', sans-serif;">
+                    NOTIFICATION // ${type.toUpperCase()}
+                </div>
+                <div style="font-size:13px; line-height:1.4; color:#e2e8f0; font-weight:500;">${message}</div>
+            </div>
+        `;
+        document.body.appendChild(el);
+        setTimeout(() => {
+            el.style.animation = "mtlSlideOut .3s ease-in forwards";
+            setTimeout(() => el.remove(), 300);
+        }, 5000);
+    };
+
+    const isValidE164 = (phone) => /^\+[1-9]\d{6,14}$/.test(phone);
+    const normalizeOtpError = (error) => {
+        const msg = (error?.message || "").toLowerCase();
+        if (msg.includes("21608") || msg.includes("unverified")) return "This number has not been verified. Use a verified number or standard authorization.";
+        if (msg.includes("invalid")) return "Incorrect token code. Try again.";
+        if (msg.includes("rate") || msg.includes("limit")) return "Too many attempts. Wait a moment.";
+        return "Verification service temporarily unavailable.";
+    };
+
+    const handleStartOtpFlow = async () => {
+        playSound("click");
+        if (!phoneInput || !nameInput) return showToast("Please fill all fields", "warning");
+        if (!isValidE164(phoneInput)) return showToast("Invalid phone format", "error");
+
+        authStateRef.current = { phone: phoneInput, name: nameInput };
+        showToast("Sending OTP token...", "info");
+
+        const { error } = await supabase.auth.signInWithOtp({
+            phone: phoneInput,
+            options: { data: { full_name: nameInput } }
+        });
+        if (error) return showToast(normalizeOtpError(error), "error");
+        showToast("OTP delivered successfully", "success");
+    };
+
+    const handleVerifyOtpFlow = async () => {
+        playSound("click");
+        if (!otpInput) return showToast("Enter verification code", "warning");
+        showToast("Verifying node identity...", "info");
+
+        const { data, error } = await supabase.auth.verifyOtp({
+            phone: authStateRef.current.phone,
+            token: otpInput,
+            type: "sms"
+        });
+        if (error) return showToast(normalizeOtpError(error), "error");
+
+        const verifiedName = data?.session?.user?.user_metadata?.full_name || authStateRef.current.name || "User";
+        if (data?.session?.access_token) {
+            localStorage.setItem("mtl_auth_token", data.session.access_token);
+        }
+        showToast(`Welcome ${verifiedName}`, "success");
+        setTimeout(() => {
+            setIsOtpModalOpen(false);
+            triggerSecureTransition("/dashboard", "Redirecting to Dashboard...");
+        }, 600);
+    };
+
+    const handleResendOtp = async () => {
+        playSound("click");
+        if (resendLock) return showToast("Please wait...", "info");
+        setResendLock(true);
+        showToast("Resending request...", "info");
+
+        const { error } = await supabase.auth.signInWithOtp({
+            phone: authStateRef.current.phone,
+            options: { data: { full_name: authStateRef.current.name } }
+        });
+        if (error) {
+            setResendLock(false);
+            return showToast(normalizeOtpError(error), "error");
+        }
+        showToast("OTP resent successfully", "success");
+        setTimeout(() => setResendLock(false), 15000);
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         playSound("click");
-        setAuthErrorDetails(null);
-
-        const cleanEmail = email.trim().toLowerCase();
-        if (!cleanEmail || !password) {
-            return showToast("REQUIRED IDENTITIES MISSING", "warning");
-        }
-
+        if (!email || !password) return showToast("REQUIRED IDENTITIES MISSING", "warning");
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: cleanEmail,
-                password
-            });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
-
-            if (data?.user) {
-                localStorage.setItem("user", JSON.stringify(data.user));
-            }
-            if (data?.session?.access_token) {
+            localStorage.setItem("user", JSON.stringify(data.user));
+            if (data.session?.access_token) {
                 localStorage.setItem("mtl_auth_token", data.session.access_token);
             }
-
             triggerSecureTransition("/dashboard", "processing connection...");
         } catch (err) {
-            const sanitizedMsg = sanitizeText(err.message || "Invalid authentication credentials");
-            showToast(sanitizedMsg, "error");
-
-            setAuthErrorDetails({
-                title: "AUTHENTICATION FAILURE",
-                message: sanitizedMsg,
-                code: err.status || err.code || 401,
-                isDbError: false,
-                email: cleanEmail,
-                timestamp: new Date().toISOString(),
-                diagnosis: "The central authentication service was unable to verify the provided credentials.",
-                troubleshooting: [
-                    "Ensure email syntax is valid and free of typos.",
-                    "Verify your password corresponds to your registered user profile.",
-                    "If you haven't registered an account yet, switch to the REGISTER tab above."
-                ],
-                rawDetails: sanitizeText(JSON.stringify(err, Object.getOwnPropertyNames(err)))
-            });
+            showToast(err.message, "error");
         }
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
         playSound("click");
-        setAuthErrorDetails(null);
-
-        const cleanRegEmail = regEmail.trim().toLowerCase();
-        const cleanUsername = username.trim();
-
-        if (!cleanUsername || !cleanRegEmail || !regPassword) {
-            return showToast("KINDLY CAPTURE ALL REQUIRED IDENTITY VECTORS", "warning");
-        }
-
+        if (!username || !regEmail || !regPassword) return showToast("KINDLY CAPTURE ALL REQUIRED IDENTITY VECTORS", "warning");
         try {
             const { data, error } = await supabase.auth.signUp({
-                email: cleanRegEmail,
+                email: regEmail,
                 password: regPassword,
-                options: { data: { username: cleanUsername } }
+                options: { data: { username } }
             });
             if (error) throw error;
-
+            
             if (data?.user) {
                 localStorage.setItem("user", JSON.stringify(data.user));
             }
@@ -448,27 +857,9 @@ export default function Auth() {
             }
 
             showToast("Account Created Successfully! Redirecting to dashboard...", "success");
-            triggerSecureTransition("/dashboard", "initializing new user profile...");
+            triggerSecureTransition("/dashboard", "initializing new user node...");
         } catch (err) {
-            const sanitizedMsg = sanitizeText(err.message || "Database error saving new user");
-            showToast(sanitizedMsg, "error");
-
-            setAuthErrorDetails({
-                title: "DATABASE REGISTRATION FAILURE",
-                message: sanitizedMsg,
-                code: err.status || err.code || 500,
-                isDbError: true,
-                email: cleanRegEmail,
-                username: cleanUsername,
-                timestamp: new Date().toISOString(),
-                diagnosis: "The database returned a server or validation error while saving the new user profile.",
-                troubleshooting: [
-                    "Ensure email syntax is valid and password meets minimum character requirements (min 6 characters).",
-                    "Check if this email address is already registered in the user system.",
-                    "Verify network connectivity and retry registration."
-                ],
-                rawDetails: sanitizeText(JSON.stringify(err, Object.getOwnPropertyNames(err)))
-            });
+            showToast(err.message, "error");
         }
     };
 
@@ -478,7 +869,7 @@ export default function Auth() {
             provider: "google",
             options: { redirectTo: window.location.origin }
         });
-        if (error) showToast(sanitizeText(error.message), "error");
+        if (error) showToast(error.message, "error");
     };
 
     const getActiveSessionIdentity = () => {
@@ -500,7 +891,25 @@ export default function Auth() {
                 email: activeSessionUser.email || "No email registered"
             };
         }
-        return { name: "User", email: "developer01@gmail.com" };
+        return { name: "user", email: "developer01@gmail.com" };
+    };
+
+    const openChatConsole = () => {
+        playSound("click");
+        if (!isChatOpen) {
+            const identity = getActiveSessionIdentity();
+            const currentTimestampString = new Date().toLocaleString();
+            setChatMessages([
+                {
+                    role: "system",
+                    text: `You are Mr Mourice, MTL Football Predictions Authorization dashboard technician. Connected User Identity Name: "${identity.name}", Email: "${identity.email}". Use internal dashboard knowledge context layers. Be concise, structured, and helpful. Analysis Temporal Benchmark Timestamp: "${currentTimestampString}". Active System Model Tier: ${selectedModel}.`
+                },
+                { role: "assistant", text: `Hello ${identity.name} (${identity.email}), how are you doing today?` }
+            ]);
+            setIsChatOpen(true);
+        } else {
+            setIsChatOpen(false);
+        }
     };
 
     const aiTexts = ["Welcome to the community", "let's earn together"];
@@ -510,7 +919,7 @@ export default function Auth() {
         if (isListening && activeVoiceTarget === targetName) {
             return (
                 <div className="mtl-toast listening-toast-container">
-                    <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
                         <div>
                             <div style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '2px', marginBottom: '4px', color: 'var(--neon-cyan)', fontFamily: 'Orbitron' }}>
                                 VOICE STREAMING ACTIVE
@@ -537,7 +946,7 @@ export default function Auth() {
             <style>{`
                 :root {
                     --bg-dark: #020617;
-                    --card-bg: linear-gradient(160deg, rgba(15, 23, 42, 0.90), rgba(6, 11, 25, 0.94));
+                    --card-bg: linear-gradient(160deg, rgba(15, 23, 42, 0.92), rgba(6, 11, 25, 0.96));
                     --neon-cyan: #00f5d4;
                     --neon-blue: #38bdf8;
                     --neon-purple: #a855f7;
@@ -546,10 +955,9 @@ export default function Auth() {
                     --border-glow: rgba(56, 189, 248, 0.25);
                     --glass-border: rgba(255, 255, 255, 0.12);
                 }
-                * { box-sizing: border-box; margin: 0; padding: 0; }
-                
                 .auth-page-wrapper {
-                    background: transparent;
+                    box-sizing: border-box;
+                    background: radial-gradient(circle at 50% 0%, #0f172a 0%, #020617 65%, #000208 100%);
                     color: var(--text-main);
                     font-family: 'Inter', sans-serif;
                     min-height: 100dvh;
@@ -564,15 +972,6 @@ export default function Auth() {
                     padding: 24px 0;
                 }
 
-                .fullscreen-stadium-canvas-container {
-                    position: fixed;
-                    inset: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    z-index: 0;
-                    pointer-events: none;
-                }
-
                 .cursor-glow {
                     position: fixed; width: 600px; height: 600px;
                     background: radial-gradient(circle, rgba(0, 245, 212, 0.07), rgba(168, 85, 247, 0.05), transparent 70%);
@@ -581,7 +980,7 @@ export default function Auth() {
                 }
 
                 .auth-container {
-                    position: relative; z-index: 10; width: 100%; max-width: 480px; padding: 20px;
+                    position: relative; z-index: 10; width: 100%; max-width: 460px; padding: 24px;
                     display: flex; flex-direction: column; justify-content: center;
                     perspective: 1000px;
                     animation: containerFloatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -599,7 +998,7 @@ export default function Auth() {
                         0 25px 50px rgba(0, 0, 0, 0.85),
                         0 2px 0 rgba(255, 255, 255, 0.1) inset,
                         0 0 40px rgba(0, 245, 212, 0.06);
-                    border-radius: 28px; padding: 38px 30px; width: 100%; position: relative; overflow: visible;
+                    border-radius: 28px; padding: 42px 34px; width: 100%; position: relative; overflow: visible;
                     transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
                 }
                 .auth-card:hover {
@@ -615,7 +1014,7 @@ export default function Auth() {
                     border-top-left-radius: 28px; border-top-right-radius: 28px;
                 }
                 
-                .auth-header { text-align: center; margin-bottom: 28px; }
+                .auth-header { text-align: center; margin-bottom: 32px; }
                 .auth-header h1 {
                     font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 900; letter-spacing: 2.5px;
                     background: linear-gradient(135deg, #ffffff 30%, var(--neon-cyan) 70%, var(--neon-blue));
@@ -629,7 +1028,7 @@ export default function Auth() {
 
                 .nav-switch {
                     display: flex; background: #030712; padding: 6px;
-                    border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 24px;
+                    border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 28px;
                     position: relative; box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.8);
                 }
                 .nav-switch button {
@@ -658,7 +1057,7 @@ export default function Auth() {
                     position: relative; opacity: 1; pointer-events: auto; transform: translateX(0);
                 }
 
-                .form-group { margin-bottom: 18px; position: relative; }
+                .form-group { margin-bottom: 20px; position: relative; }
                 .form-group label {
                     display: block; font-size: 10.5px; font-weight: 800; text-transform: uppercase;
                     letter-spacing: 1.8px; color: var(--text-muted); margin-bottom: 8px;
@@ -676,18 +1075,6 @@ export default function Auth() {
                     outline: none; border-color: var(--neon-cyan);
                     box-shadow: inset 0 2px 4px rgba(0,0,0,0.9), 0 0 20px rgba(0, 245, 212, 0.25); 
                     background: #020617;
-                }
-                
-                .password-toggle {
-                    background: transparent; border: none; color: var(--neon-cyan);
-                    font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800;
-                    letter-spacing: 1px; cursor: pointer; padding: 0 8px; flex-shrink: 0;
-                }
-                #strengthMeter {
-                    display: flex; gap: 4px; height: 4px; margin-top: 8px; width: 100%;
-                }
-                .strength-bar {
-                    flex: 1; height: 100%; background: rgba(255, 255, 255, 0.1); border-radius: 2px; transition: background-color 0.3s;
                 }
                 
                 .google-voice-btn {
@@ -715,7 +1102,7 @@ export default function Auth() {
                 }
                 
                 .auth-divider {
-                    display: flex; align-items: center; text-align: center; margin: 24px 0;
+                    display: flex; align-items: center; text-align: center; margin: 28px 0;
                     font-size: 10.5px; color: var(--text-muted); letter-spacing: 2.5px; text-transform: uppercase;
                     font-family: 'Orbitron', sans-serif; font-weight: 700;
                 }
@@ -734,73 +1121,6 @@ export default function Auth() {
                     background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
                     border-color: rgba(0, 245, 212, 0.3);
                     transform: translateY(-2px);
-                }
-
-                /* Diagnostic Error Details Console Card */
-                .diagnostic-error-card {
-                    margin-top: 20px;
-                    background: rgba(15, 23, 42, 0.95);
-                    border: 1px solid rgba(239, 68, 68, 0.5);
-                    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);
-                    border-radius: 16px;
-                    padding: 18px;
-                    color: #f8fafc;
-                    animation: mtlSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                .diagnostic-title {
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 12px;
-                    font-weight: 900;
-                    letter-spacing: 1.5px;
-                    color: #f87171;
-                    margin-bottom: 6px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-                .diagnostic-meta {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 12px;
-                    font-size: 11px;
-                    color: #94a3b8;
-                    margin-bottom: 12px;
-                    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-                    padding-bottom: 8px;
-                }
-                .diagnostic-narrative {
-                    font-size: 12.5px;
-                    line-height: 1.5;
-                    color: #cbd5e1;
-                    margin-bottom: 12px;
-                }
-                .diagnostic-list {
-                    margin-left: 16px;
-                    margin-bottom: 14px;
-                    font-size: 12px;
-                    color: #94a3b8;
-                    line-height: 1.6;
-                }
-                .diagnostic-btn-group {
-                    display: flex;
-                    gap: 8px;
-                    flex-wrap: wrap;
-                }
-                .diagnostic-btn {
-                    padding: 8px 12px;
-                    font-size: 11px;
-                    font-weight: 800;
-                    font-family: 'Orbitron', sans-serif;
-                    border-radius: 8px;
-                    border: 1px solid rgba(255, 255, 255, 0.15);
-                    background: #1e293b;
-                    color: #f1f5f9;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .diagnostic-btn:hover {
-                    background: #334155;
-                    border-color: rgba(0, 245, 212, 0.4);
                 }
                 
                 .premium-modal-overlay {
@@ -821,17 +1141,22 @@ export default function Auth() {
                 }
 
                 #globalProcessLoader {
-                    position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(16px);
-                    -webkit-backdrop-filter: blur(16px); z-index: 100000;
-                    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-                    padding-bottom: 40px;
+                    position: fixed; inset: 0; background: rgba(2, 6, 23, 0.97); backdrop-filter: blur(24px);
+                    -webkit-backdrop-filter: blur(24px); z-index: 100000;
+                    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+                    padding: 24px;
                 }
 
-                .stadium-hud-card {
-                    width: 440px; max-width: 90vw; background: rgba(15, 23, 42, 0.92);
-                    border: 1px solid rgba(0, 245, 212, 0.4); border-radius: 24px; padding: 22px;
+                .robot-race-card {
+                    width: 440px; max-width: 90vw; background: rgba(15, 23, 42, 0.9);
+                    border: 1px solid rgba(0, 245, 212, 0.4); border-radius: 24px; padding: 20px;
                     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 245, 212, 0.2); 
-                    display: flex; flex-direction: column; gap: 12px;
+                    display: flex; flex-direction: column; align-items: center; gap: 14px;
+                }
+
+                .robot-3d-canvas-container {
+                    width: 100%; height: 140px; border-radius: 16px; background: #020617;
+                    border: 1px solid rgba(56, 189, 248, 0.2); overflow: hidden; position: relative;
                 }
 
                 .futuristic-progress-track {
@@ -853,35 +1178,15 @@ export default function Auth() {
                     color: var(--neon-blue); text-transform: uppercase;
                 }
 
-                /* Floating Toast Banner */
-                .mtl-toast-floating {
-                    position: fixed; top: 20px; right: 20px; z-index: 999999;
-                    background: #0f172a; border: 1px solid rgba(0, 245, 212, 0.5);
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 245, 212, 0.2);
-                    border-radius: 14px; padding: 14px 20px; color: #ffffff; font-size: 13px;
-                    font-weight: 700; display: flex; align-items: center; gap: 12px;
-                    animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                @keyframes toastSlideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
                 @keyframes mtlSlideIn{ from{ transform: translateX(120px); opacity:0; } to{ transform: translateX(0); opacity:1; } }
+                @keyframes mtlSlideOut{ to{ transform: translateX(120px); opacity:0; } }
                 
                 @media (max-width: 480px) {
-                    .auth-card { padding: 30px 20px; border-radius: 22px; }
+                    .auth-card { padding: 34px 22px; border-radius: 22px; }
                 }
             `}</style>
 
             <div className="cursor-glow" ref={glowRef}></div>
-
-            {/* FLOATING TOAST NOTIFICATION */}
-            {toastMessage && (
-                <div className="mtl-toast-floating" style={{ borderColor: toastType === "error" ? "#ef4444" : toastType === "warning" ? "#f59e0b" : "var(--neon-cyan)" }}>
-                    <span style={{ color: toastType === "error" ? "#ef4444" : toastType === "warning" ? "#f59e0b" : "var(--neon-cyan)" }}>
-                        {toastType === "error" ? "❌" : toastType === "warning" ? "⚠️" : "⚡"}
-                    </span>
-                    <span>{toastMessage}</span>
-                </div>
-            )}
 
             {/* INTELLIGENT SESSION PROMPT MODAL */}
             {showSessionModal && (
@@ -948,49 +1253,35 @@ export default function Auth() {
                 </div>
             )}
 
-            {/* FULL-SCREEN STADIUM PROCESS LOADER */}
-            {isLoading && (
-                <div id="globalProcessLoader">
-                    <div className="stadium-hud-card">
-                        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span id="loaderText">{loaderText}</span>
-                            <span className="loader-counter-text">{Math.round(loadProgress)}%</span>
-                        </div>
+            {/* UNIFIED FUTURISTIC QUANTUM LOADER */}
+            <FuturisticLoader
+                active={isLoading || checkingSession}
+                text={checkingSession ? "VERIFYING QUANTUM SESSION..." : (loaderText || "AUTHENTICATING NODE...")}
+                progress={checkingSession ? 88 : loadProgress}
+                subText={checkingSession ? "AUTHENTICATING NODE SECURITY" : "SECURITY CLEARANCE PROTOCOL"}
+            />
 
-                        <div className="futuristic-progress-track">
-                            <div className="futuristic-progress-fill" style={{ width: `${loadProgress}%` }}></div>
-                        </div>
+            <div className="auth-container">
+                <div className="auth-card">
+                    <div className="auth-header">
+                        <h1>MTL FOOTBALL HUB</h1>
+                        <div id="aiText">{aiTexts[aiTextIndex]}</div>
                     </div>
-                </div>
-            )}
 
-            {/* VERIFYING SESSION STATE */}
-            {checkingSession ? (
-                <div style={{ position: "relative", zIndex: 10, color: "var(--neon-cyan)", fontFamily: "Orbitron", fontSize: "12px", letterSpacing: "3px" }}>
-                    VERIFYING SESSION NODE...
-                </div>
-            ) : (
-                <div className="auth-container">
-                    <div className="auth-card">
-                        <div className="auth-header">
-                            <h1>MTL FOOTBALL HUB</h1>
-                            <div id="aiText">{aiTexts[aiTextIndex]}</div>
-                        </div>
-
-                        <div className="nav-switch">
-                            <button 
-                                className={authMode === "login" ? "active" : ""} 
-                                onClick={() => { playSound("click"); setAuthMode("login"); setAuthErrorDetails(null); }}
-                            >
-                                SIGN IN
-                            </button>
-                            <button 
-                                className={authMode === "register" ? "active" : ""} 
-                                onClick={() => { playSound("click"); setAuthMode("register"); setAuthErrorDetails(null); }}
-                            >
-                                REGISTER
-                            </button>
-                        </div>
+                    <div className="nav-switch">
+                        <button 
+                            className={authMode === "login" ? "active" : ""} 
+                            onClick={() => { playSound("click"); setAuthMode("login"); }}
+                        >
+                            SIGN IN
+                        </button>
+                        <button 
+                            className={authMode === "register" ? "active" : ""} 
+                            onClick={() => { playSound("click"); setAuthMode("register"); }}
+                        >
+                            REGISTER
+                        </button>
+                    </div>
 
                         {/* Animated Smooth Height Container */}
                         <div className="form-switch-wrapper" ref={formContainerRef} style={{ height: formHeight }}>
@@ -1005,7 +1296,7 @@ export default function Auth() {
                                                 className="form-control" 
                                                 placeholder="Type email here"
                                                 value={email}
-                                                onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                                                onChange={(e) => setEmail(e.target.value)}
                                                 required 
                                             />
                                             <button 
@@ -1063,21 +1354,7 @@ export default function Auth() {
                                                 onChange={(e) => setUsername(e.target.value)}
                                                 required 
                                             />
-                                            <button 
-                                                type="button" 
-                                                className={`google-voice-btn ${isListening && activeVoiceTarget === "username" ? "listening" : ""}`}
-                                                onClick={() => toggleVoiceInput("username")}
-                                                title="Google Voice Type"
-                                            >
-                                                <div className="google-voice-bars">
-                                                    <div className="google-voice-bar" style={{height: '6px'}}></div>
-                                                    <div className="google-voice-bar" style={{height: '12px'}}></div>
-                                                    <div className="google-voice-bar" style={{height: '8px'}}></div>
-                                                    <div className="google-voice-bar" style={{height: '14px'}}></div>
-                                                </div>
-                                            </button>
                                         </div>
-                                        {renderListeningOverlay("username")}
                                     </div>
                                     <div className="form-group">
                                         <label>EMAIL ADDRESS</label>
@@ -1087,24 +1364,10 @@ export default function Auth() {
                                                 className="form-control" 
                                                 placeholder="Enter email"
                                                 value={regEmail}
-                                                onChange={(e) => setRegEmail(e.target.value.toLowerCase())}
+                                                onChange={(e) => setRegEmail(e.target.value)}
                                                 required 
                                             />
-                                            <button 
-                                                type="button" 
-                                                className={`google-voice-btn ${isListening && activeVoiceTarget === "regEmail" ? "listening" : ""}`}
-                                                onClick={() => toggleVoiceInput("regEmail")}
-                                                title="Google Voice Type"
-                                            >
-                                                <div className="google-voice-bars">
-                                                    <div className="google-voice-bar" style={{height: '6px'}}></div>
-                                                    <div className="google-voice-bar" style={{height: '12px'}}></div>
-                                                    <div className="google-voice-bar" style={{height: '8px'}}></div>
-                                                    <div className="google-voice-bar" style={{height: '14px'}}></div>
-                                                </div>
-                                            </button>
                                         </div>
-                                        {renderListeningOverlay("regEmail")}
                                     </div>
                                     <div className="form-group">
                                         <label>CREATE PASSWORD</label>
@@ -1138,50 +1401,6 @@ export default function Auth() {
                             </div>
                         </div>
 
-                        {/* DETAILED DIAGNOSTIC ERROR CONSOLE (NO VENDOR SPECIFIC HINTS) */}
-                        {authErrorDetails && (
-                            <div className="diagnostic-error-card">
-                                <div className="diagnostic-title">
-                                    <span>⚠️ {authErrorDetails.title}</span>
-                                    <span style={{ fontSize: '10px', color: '#fca5a5' }}>CODE {authErrorDetails.code}</span>
-                                </div>
-                                <div className="diagnostic-meta">
-                                    <span>User: <strong>{authErrorDetails.email}</strong></span>
-                                    {authErrorDetails.username && <span>Name: <strong>{authErrorDetails.username}</strong></span>}
-                                    <span>Time: {new Date(authErrorDetails.timestamp).toLocaleTimeString()}</span>
-                                </div>
-                                <p className="diagnostic-narrative">{authErrorDetails.diagnosis}</p>
-                                <div style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '1px', color: 'var(--neon-cyan)', marginBottom: '6px', fontFamily: 'Orbitron' }}>
-                                    RECOMMENDED ACTION ITEMS:
-                                </div>
-                                <ul className="diagnostic-list">
-                                    {authErrorDetails.troubleshooting.map((step, idx) => (
-                                        <li key={idx}>{step}</li>
-                                    ))}
-                                </ul>
-                                <div className="diagnostic-btn-group">
-                                    <button 
-                                        type="button" 
-                                        className="diagnostic-btn"
-                                        onClick={() => {
-                                            navigator.clipboard.writeText(JSON.stringify(authErrorDetails, null, 2));
-                                            showToast("Diagnostic payload copied to clipboard", "success");
-                                        }}
-                                    >
-                                        📋 COPY DIAGNOSTIC PAYLOAD
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        className="diagnostic-btn"
-                                        style={{ color: '#ef4444' }}
-                                        onClick={() => setAuthErrorDetails(null)}
-                                    >
-                                        ✕ DISMISS
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
                         <div className="auth-divider">OR CONNECT VIA</div>
 
                         <div className="btn-secondary-group">
@@ -1191,7 +1410,6 @@ export default function Auth() {
                         </div>
                     </div>
                 </div>
-            )}
         </div>
     );
 }

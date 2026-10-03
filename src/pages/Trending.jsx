@@ -15,30 +15,14 @@ import {
 } from "lucide-react";
 import UniversalFAB from "../components/UniversalFAB.tsx";
 import { supabase } from "../config/supabase.ts";
-import { SyncService } from "../config/SyncService.ts";
-import { openGoogleScout } from "../utils/googleScout.ts";
-import { fetchRealTrending } from "../config/firebaseStore.ts";
 
 export default function Trending() {
   const navigate = useNavigate();
   const location = useLocation();
   const pageName = location.pathname.replace("/", "").toUpperCase() || "TRENDING";
 
-  const [trendingTopics, setTrendingTopics] = useState(() => {
-    const cached = SyncService.get('trending', []);
-    if (!Array.isArray(cached) || cached.length === 0) return [];
-    return cached.map((t, idx) => ({
-      id: t.id,
-      rank: t.rank || idx + 1,
-      title: t.title || t.topic || "Football Spike",
-      category: t.category || "Tactical Analysis",
-      heat: t.heat || (t.posts_count ? `${t.posts_count} interactions` : "42.0K interactions"),
-      trend: t.trend || t.growth_rate || "+18%",
-      route: "/group-chats",
-      description: "Trending football discourse across MTL community lounge."
-    }));
-  });
-  const [loading, setLoading] = useState(false);
+  const [trendingTopics, setTrendingTopics] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -89,26 +73,21 @@ export default function Trending() {
   async function fetchTrending() {
     setLoading(true);
     try {
-      let rawTrending = [];
       const { data, error } = await supabase
         .from("trending")
         .select("*")
         .order("rank", { ascending: true });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawTrending = data;
-      } else {
-        rawTrending = await fetchRealTrending();
-      }
+      if (error) throw error;
 
-      if (rawTrending && rawTrending.length > 0) {
-        const normalized = rawTrending.map((t, idx) => ({
+      if (data && data.length > 0) {
+        const normalized = data.map((t, idx) => ({
           id: t.id,
           rank: t.rank || idx + 1,
-          title: t.title || t.topic || "Trending Discussion",
+          title: t.title || "Trending Discussion",
           category: t.category || "Viral Football",
-          heat: t.heat || (t.posts_count ? `${t.posts_count} interactions` : `${t.comments_count ? (t.comments_count * 1.5).toFixed(1) + 'K' : '45.0K'} interactions`),
-          trend: t.trend || t.growth_rate || "+30%",
+          heat: t.heat || `${t.comments_count ? (t.comments_count * 1.5).toFixed(1) + 'K' : '45.0K'} interactions`,
+          trend: t.trend || "+30%",
           route: t.route || "/group-chats"
         }));
         setTrendingTopics(normalized);
@@ -205,7 +184,7 @@ export default function Trending() {
   );
 
   return (
-    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-transparent">
+    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.06),rgba(0,0,0,0))]">
       {/* Unified Page Hero Banner */}
       <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#0a1221] border border-slate-800/90 rounded-2xl p-6 shadow-xl">
         <div>
@@ -271,13 +250,8 @@ export default function Trending() {
                 <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider block">
                   {item.category}
                 </span>
-                <h3 
-                  onClick={() => openGoogleScout(item.title, 'news')}
-                  className="font-['Orbitron'] text-base sm:text-lg font-bold text-white mt-0.5 group-hover:text-amber-300 transition-colors cursor-pointer inline-flex items-center gap-2"
-                  title="Click to search on Google"
-                >
-                  <span>{item.title}</span>
-                  <Search className="w-4 h-4 text-cyan-400 opacity-75" />
+                <h3 className="font-['Orbitron'] text-base sm:text-lg font-bold text-white mt-0.5 group-hover:text-amber-300 transition-colors">
+                  {item.title}
                 </h3>
               </div>
             </div>

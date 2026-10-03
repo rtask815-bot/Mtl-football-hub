@@ -16,11 +16,8 @@ import {
   Menu,
   Shield,
   Bell,
-  Activity,
-  Mic,
-  Bot
+  Activity
 } from 'lucide-react';
-import { VoiceAssistantModal } from './VoiceAssistantModal.tsx';
 
 export interface FABAction {
   id: string;
@@ -53,7 +50,6 @@ export const UniversalFAB: React.FC<UniversalFABProps> = ({
   showBackToDashboard = true,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const navigate = useNavigate();
   const fabRef = useRef<HTMLDivElement>(null);
 
@@ -83,19 +79,7 @@ export const UniversalFAB: React.FC<UniversalFABProps> = ({
   }, []);
 
   // Built-in actions
-  const defaultActions: FABAction[] = [
-    {
-      id: 'gemini_voice',
-      label: 'Gemini Voice AI Analyst',
-      description: 'Speech-to-Text & Google Voice TTS',
-      icon: <Bot className="w-4 h-4 text-cyan-400 animate-pulse" />,
-      color: 'hover:border-cyan-500/50 hover:bg-cyan-950/40',
-      onClick: () => {
-        setIsOpen(false);
-        setIsVoiceModalOpen(true);
-      },
-    }
-  ];
+  const defaultActions: FABAction[] = [];
 
   if (customActions && customActions.length > 0) {
     defaultActions.push(...customActions);
@@ -275,14 +259,6 @@ export const UniversalFAB: React.FC<UniversalFABProps> = ({
           </div>
         )}
       </button>
-
-      {/* Voice Assistant Modal */}
-      {isVoiceModalOpen && (
-        <VoiceAssistantModal
-          isOpen={isVoiceModalOpen}
-          onClose={() => setIsVoiceModalOpen(false)}
-        />
-      )}
     </div>
   );
 };

@@ -1,15 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
+import * as THREE from 'three';
 import { supabase as db } from '../config/supabase.ts';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env.ts';
-import { StorageCache, DEFAULT_MATCHES_BACKUP, DEFAULT_FIXTURES_BACKUP, DEFAULT_TRENDING_BACKUP } from '../config/storageCache.ts';
-import { saveMatchReaction } from '../config/firebaseStore.ts';
 import FuturisticLoader from '../components/FuturisticLoader.tsx';
 import AdBanner from '../components/AdBanner.tsx';
 import AlertBanner from '../components/AlertBanner.tsx';
 import UniversalFAB from '../components/UniversalFAB.tsx';
-import FloatingBackButton from '../components/FloatingBackButton.tsx';
-import { openGoogleScout } from '../utils/googleScout.ts';
-import HorizontalScrollRow from '../components/HorizontalScrollRow.tsx';
 
 // --- Helper Utilities ---
 function safeStringify(obj, indent = 2) {
@@ -151,45 +147,26 @@ function buildLiveMatch(match) {
 export default function PrePage() {
   // --- States ---
   const [currentUser, setCurrentUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(() => {
-    const cached = StorageCache.get('profile');
-    return {
-      role: cached?.is_admin || cached?.is_global_admin ? 'admin' : 'user',
-      username: cached?.username || 'Member',
-      email: cached?.email || '',
-      odds_format: 'decimal',
-      language: 'en',
-      high_contrast: false
-    };
-  });
+  const [userProfile, setUserProfile] = useState({ role: 'user', username: 'not Signed in', email: '', odds_format: 'decimal', language: 'en', high_contrast: false });
   
   // Data States
-  const [matchesData, setMatchesData] = useState(() => {
-    const cached = StorageCache.get('matches', DEFAULT_MATCHES_BACKUP);
-    return Array.isArray(cached) && cached.length > 0 ? cached : DEFAULT_MATCHES_BACKUP;
-  });
-  const [fixturesData, setFixturesData] = useState(() => {
-    const cached = StorageCache.get('fixtures', DEFAULT_FIXTURES_BACKUP);
-    return Array.isArray(cached) && cached.length > 0 ? cached : DEFAULT_FIXTURES_BACKUP;
-  });
-  const [trendingData, setTrendingData] = useState(() => {
-    const cached = StorageCache.get('trending', DEFAULT_TRENDING_BACKUP);
-    return Array.isArray(cached) && cached.length > 0 ? cached : DEFAULT_TRENDING_BACKUP;
-  });
+  const [matchesData, setMatchesData] = useState([]);
+  const [fixturesData, setFixturesData] = useState([]);
+  const [trendingData, setTrendingData] = useState([]);
   const [liveMatchesData, setLiveMatchesData] = useState([]);
   const [globalChatMessages, setGlobalChatMessages] = useState([]);
   const [matchCommentsStore, setMatchCommentsStore] = useState({});
   const [matchChatStore, setMatchChatStore] = useState({});
   const [matchReactionsMap, setMatchReactionsMap] = useState({});
 
-  // Navigation & Controls States (Default: past predictions tab)
-  const [activeMatchTab, setActiveMatchTab] = useState('past');
+  // Navigation & Controls States
+  const [activeMatchTab, setActiveMatchTab] = useState('future');
   const [matchSearchQuery, setMatchSearchQuery] = useState('');
   const [sideNavOpen, setSideNavOpen] = useState(false);
   const [contrastMode, setContrastMode] = useState(false);
 
   // Floating Loader & Toasts State
-  const [loader, setLoader] = useState({ active: false, promptText: 'loading...' });
+  const [loader, setLoader] = useState({ active: true, promptText: 'loading...' });
   const [toasts, setToasts] = useState([]);
   const [dbError, setDbError] = useState(null);
 
@@ -210,6 +187,8 @@ export default function PrePage() {
   const [globalChatInput, setGlobalChatInput] = useState('');
   const [matchChatInput, setMatchChatInput] = useState('');
   const [adminFormFields, setAdminFormFields] = useState({});
+
+  const canvasRef = useRef(null);
 
   // --- Toast Trigger ---
   const showToast = (message, isError = true) => {
@@ -256,6 +235,84 @@ export default function PrePage() {
   const hideFloatingLoader = () => {
     setLoader(prev => ({ ...prev, active: false }));
   };
+
+  // --- Three.js Background Animation ---
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 30;
+
+    const geometry = new THREE.TorusKnotGeometry(10, 3, 128, 32);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x10b981,
+      wireframe: true,
+      roughness: 0.2,
+      metalness: 0.8
+    });
+    const torusKnot = new THREE.Mesh(geometry, material);
+    scene.add(torusKnot);
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 700;
+    const posArray = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 60;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.12,
+      color: 0x00f0ff,
+      transparent: true,
+      opacity: 0.7
+    });
+    const particleMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particleMesh);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+    const pointLight = new THREE.PointLight(0x00f0ff, 2, 50);
+    pointLight.position.set(15, 15, 15);
+    scene.add(pointLight);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    const handleMouseMove = (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
+
+    let animationFrameId;
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      torusKnot.rotation.x += 0.003 + mouseY * 0.1;
+      torusKnot.rotation.y += 0.005 + mouseX * 0.1;
+      particleMesh.rotation.y -= 0.001;
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+      renderer.dispose();
+    };
+  }, []);
 
   // --- Slide-In Observer ---
   useEffect(() => {
@@ -552,7 +609,7 @@ export default function PrePage() {
   };
 
   const openGoogleSearchIframe = (queryText) => {
-    openGoogleScout(queryText || 'Football match odds and intelligence');
+    setGoogleIframeModal({ open: true, query: queryText });
   };
 
   const closeGoogleIframeModal = () => {
@@ -586,17 +643,13 @@ export default function PrePage() {
 
     const updatedMatch = { ...match, reactions: { ...(match.reactions || { fire: 0, heart: 0, dislike: 0 }) } };
 
-    const isValidUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
-
     if (userPrevReaction) {
       if (userPrevReaction.reaction === type) {
         updatedMatch.reactions[type] = Math.max(0, Number(updatedMatch.reactions[type] || 0) - 1);
         currentReactions[mId] = currentReactions[mId].filter(r => r.user_id !== userId);
         
         try { 
-          if (isValidUuid) {
-            await db.from('reactions').delete().eq('match_id', String(matchId)).eq('user_id', userId); 
-          }
+          await db.from('reactions').delete().eq('match_id', matchId).eq('user_id', userId); 
         } catch (e) {}
       } else {
         const oldType = userPrevReaction.reaction;
@@ -605,26 +658,23 @@ export default function PrePage() {
         userPrevReaction.reaction = type;
 
         try {
-          if (isValidUuid) {
-            await db.from('reactions').delete().eq('match_id', String(matchId)).eq('user_id', userId);
-            await db.from('reactions').insert([{ 
-              match_id: String(matchId), 
-              user_id: userId, 
-              username: userProfile?.username || 'Fan', 
-              reaction_type: type 
-            }]);
-          }
+          await db.from('reactions').upsert([{ 
+            match_id: matchId, 
+            user_id: userId, 
+            username: userProfile.username, 
+            reaction_type: type 
+          }], { onConflict: 'match_id,user_id' });
         } catch (e) {}
       }
     } else {
       updatedMatch.reactions[type] = Number(updatedMatch.reactions[type] || 0) + 1;
-      currentReactions[mId].push({ user_id: userId, username: userProfile?.username || 'Fan', reaction: type });
+      currentReactions[mId].push({ user_id: userId, username: userProfile.username, reaction: type });
 
       try {
         await db.from('reactions').insert([{ 
-          match_id: String(matchId), 
-          user_id: isValidUuid ? userId : null, 
-          username: userProfile?.username || 'Fan', 
+          match_id: matchId, 
+          user_id: userId, 
+          username: userProfile.username, 
           reaction_type: type 
         }]);
       } catch (e) {}
@@ -632,11 +682,6 @@ export default function PrePage() {
 
     setMatchReactionsMap(currentReactions);
     setMatchesData(prev => prev.map(m => String(m.id) === String(matchId) ? updatedMatch : m));
-
-    // Save reaction to Firebase Firestore & backend database
-    try {
-      await saveMatchReaction(mId, type, userId);
-    } catch (e) {}
 
     try { 
       await db.from('matches').update({ reactions: updatedMatch.reactions }).eq('id', matchId); 
@@ -1248,7 +1293,10 @@ export default function PrePage() {
   };
 
   return (
-    <div className={`min-h-screen bg-transparent text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black ${contrastMode ? 'contrast-200' : ''}`}>
+    <div className={`min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black ${contrastMode ? 'contrast-200 bg-black' : ''}`}>
+      {/* 4D Background Canvas */}
+      <canvas ref={canvasRef} id="bg-4d-canvas" className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40" />
+
       <div className="app-content-wrapper flex flex-col min-h-screen justify-between relative z-10">
 
         {/* Unified Alert / Toast Prompts */}
@@ -1390,29 +1438,26 @@ export default function PrePage() {
             />
 
             {/* Live Section */}
-            <section id="live-section" className="bg-[#0b101d] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-6">
-              <HorizontalScrollRow
-                title={
+            <section id="live-section" className="bg-[#0b101d] border border-cyan-500/30 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-8">
+              <div className="flex items-center justify-between section-header border-b border-slate-800 pb-4">
+                <div>
                   <h3 className="font-extrabold text-xl uppercase tracking-wider text-white font-mono flex items-center gap-3">
                     <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span> LIVE MATCHES
                   </h3>
-                }
-                subtitle={`${liveMatchesData.length} Matches currently active`}
-              >
+                  <span className="text-xs text-cyan-400 font-semibold">{liveMatchesData.length} Matches currently active</span>
+                </div>
+              </div>
+              <div id="live-matches-container" className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                 {liveMatchesData.length === 0 ? (
-                  <div className="w-full text-center py-8 bg-[#0f172a] rounded-2xl border border-slate-800"><p className="text-xs text-slate-400">No live matches currently in play.</p></div>
+                  <div className="col-span-3 text-center py-12 bg-[#0f172a] rounded-2xl border border-slate-800"><p className="text-xs text-slate-400">No live matches currently in play.</p></div>
                 ) : (
-                  liveMatchesData.map((m, idx) => (
-                    <div key={m.id || idx} className="min-w-[290px] sm:min-w-[340px] max-w-[360px] shrink-0">
-                      {renderLiveMatchCard(m, idx === liveMatchesData.length - 1)}
-                    </div>
-                  ))
+                  liveMatchesData.slice(0, 3).map((m, idx) => renderLiveMatchCard(m, idx === Math.min(2, liveMatchesData.length - 1)))
                 )}
-              </HorizontalScrollRow>
+              </div>
             </section>
 
             {/* Predictions Section */}
-            <section id="db-matches-section" className="bg-[#0b101d] border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-6">
+            <section id="db-matches-section" className="bg-[#0b101d] border border-emerald-500/30 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] space-y-8">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 section-header border-b border-slate-800 pb-4">
                 <div>
                   <h3 
@@ -1455,26 +1500,20 @@ export default function PrePage() {
                 </div>
               </div>
 
-              <HorizontalScrollRow
-                title="Match Cards Slider"
-                subtitle="Scroll left and right to view all match predictions and odds"
-              >
+              <div id="matches-container" className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                 {(() => {
                   const filtered = getFilteredMatches();
                   if (!filtered.length) {
                     return (
-                      <div className="w-full text-center py-12 bg-[#0f172a] rounded-2xl border border-slate-800">
+                      <div className="col-span-3 text-center py-12 bg-[#0f172a] rounded-2xl border border-slate-800">
                         <p className="text-xs text-slate-400">No {activeMatchTab === 'past' ? 'past' : 'upcoming'} matches found matching query "{matchSearchQuery}".</p>
                       </div>
                     );
                   }
-                  return filtered.map((m, idx) => (
-                    <div key={m.id || idx} className="min-w-[340px] sm:min-w-[400px] w-[400px] shrink-0">
-                      {renderMatchPredictionCard(m, idx === filtered.length - 1)}
-                    </div>
-                  ));
+                  const displayItems = filtered.slice(0, 3);
+                  return displayItems.map((m, idx) => renderMatchPredictionCard(m, idx === displayItems.length - 1));
                 })()}
-              </HorizontalScrollRow>
+              </div>
 
               {userProfile.role === 'admin' && (
                 <div className="pt-4 border-t border-slate-800 flex justify-center">
@@ -1580,19 +1619,9 @@ export default function PrePage() {
               </div>
               <button onClick={closeGoogleIframeModal} className="w-8 h-8 rounded-full bg-red-900/40 text-red-300 border border-red-500/30 flex items-center justify-center font-bold text-xs hover:bg-red-800 transition">✕</button>
             </div>
-            <div className="flex-1 rounded-2xl overflow-hidden border border-slate-800 bg-white shadow-2xl relative min-h-0">
-              {googleIframeModal.query && (
-                <iframe id="google-search-iframe" className="w-full h-full border-0 absolute inset-0 block" src={`https://www.google.com/search?q=${encodeURIComponent(googleIframeModal.query)}&udm=14&udm=28&igu=1`}></iframe>
-              )}
+            <div className="flex-1 rounded-2xl overflow-hidden border border-slate-800 bg-white shadow-2xl">
+              <iframe id="google-search-iframe" className="w-full h-full border-0" src={`https://www.google.com/search?q=${encodeURIComponent(googleIframeModal.query)}&udm=14&udm=28&igu=1`}></iframe>
             </div>
-            {/* Floating Back FAB for Google Search Modal */}
-            <FloatingBackButton
-              onClick={closeGoogleIframeModal}
-              label="Close Search"
-              position="bottom-left"
-              zIndex={100}
-              isCloseAction={true}
-            />
           </div>
         )}
 

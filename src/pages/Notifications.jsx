@@ -4,35 +4,14 @@ import { Bell, CheckCircle2, AlertCircle, Zap, RefreshCw, MessageSquare, Radio, 
 import UniversalFAB from "../components/UniversalFAB.tsx";
 import FuturisticLoader from "../components/FuturisticLoader.tsx";
 import { supabase } from "../config/supabase.ts";
-import { SyncService } from "../config/SyncService.ts";
 
 export default function Notifications() {
   const navigate = useNavigate();
   const location = useLocation();
   const pageName = location.pathname.replace("/", "").toUpperCase() || "NOTIFICATIONS";
 
-  const [alerts, setAlerts] = useState(() => {
-    const cached = SyncService.get('notifications', []);
-    if (Array.isArray(cached) && cached.length > 0) {
-      return cached.map(n => ({
-        id: n.id,
-        title: n.title,
-        desc: n.message || n.desc,
-        time: n.time || "Recent",
-        type: n.type || "system"
-      }));
-    }
-    return [
-      {
-        id: 'init-1',
-        title: '30-SECOND HEARTBEAT ACTIVE',
-        desc: 'Real-time telemetry and message synchronization active across MTL Quantum Hub.',
-        time: 'Active',
-        type: 'system'
-      }
-    ];
-  });
-  const [loading, setLoading] = useState(false);
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch real notifications and dynamic telemetry from Supabase
   const fetchAlertsFromDB = async () => {
@@ -146,7 +125,7 @@ export default function Notifications() {
   }, []);
 
   return (
-    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-transparent">
+    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(6,182,212,0.06),rgba(0,0,0,0))]">
       {/* Unified Page Hero Banner */}
       <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#0a1221] border border-slate-800/90 rounded-2xl p-6 shadow-xl">
         <div>

@@ -28,10 +28,6 @@ import AdContainer from '../components/AdContainer.tsx';
 import FuturisticLoader from '../components/FuturisticLoader.tsx';
 import UniversalFAB from '../components/UniversalFAB.tsx';
 import { supabase } from '../config/supabase.ts';
-import { StorageCache } from '../config/storageCache.ts';
-import { openGoogleScout } from '../utils/googleScout.ts';
-import { fetchRealNews } from '../config/firebaseStore.ts';
-import { useToast } from '../context/ToastContext.tsx';
 
 export interface NewsArticle {
   id: string;
@@ -53,54 +49,81 @@ export interface NewsArticle {
   tags: string[];
 }
 
+const FALLBACK_ARTICLES: NewsArticle[] = [
+  {
+    id: 'fallback-1',
+    title: 'Real Madrid Complete Record Signing of Wonderkid Midfielder in €120M Deal',
+    summary: 'The 18-year-old sensation has signed a 6-year contract with a €1B release clause, sealing one of the biggest transfer window moves in European football history.',
+    content: [
+      'Real Madrid have officially announced the signing of the generational midfield talent in a blockbuster €120 million package deal from his boyhood club.',
+      'Club president Florentino Pérez secured the signature ahead of rival bids from Manchester City and Bayern Munich after weeks of intense negotiations.',
+      'The player is scheduled to undergo medical examinations on Tuesday before being unveiled in front of 80,000 fans at the Santiago Bernabéu.'
+    ],
+    category: 'transfers',
+    author: 'Marcus Vance',
+    source: 'MTL Sports Wire',
+    timeAgo: '15m ago',
+    readTime: '3 min read',
+    imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
+    badgeText: 'BREAKING TRANSFER',
+    badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40',
+    likes: 342,
+    commentsCount: 89,
+    featured: true,
+    breaking: true,
+    tags: ['Transfers', 'Real Madrid', 'La Liga', 'Breaking']
+  },
+  {
+    id: 'fallback-2',
+    title: 'Tactical Breakdown: How Arsenal’s High Press Neutralized Manchester City’s Buildup',
+    summary: 'A deep-dive data analysis into Mikel Arteta’s tactical masterclass, examining defensive block shifting and xG suppression.',
+    content: [
+      'In Sunday’s titanic Premier League clash, Arsenal showcased a defensive masterclass that stifled Pep Guardiola’s side from building out from the back.',
+      'By deploying a dynamic 4-4-2 mid-block with Odegaard pressing Rodri man-to-man, the Gunners reduced City to just 0.45 expected goals (xG) from open play.',
+      'This tactical shift signals a new era in Premier League defensive resilience and tactical adaptability.'
+    ],
+    category: 'tactical',
+    author: 'Dr. Julian Aris',
+    source: 'MTL Tactical Lab',
+    timeAgo: '1h ago',
+    readTime: '5 min read',
+    imageUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80',
+    badgeText: 'TACTICAL DEEP DIVE',
+    badgeColor: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40',
+    likes: 215,
+    commentsCount: 44,
+    featured: false,
+    breaking: false,
+    tags: ['Tactics', 'Arsenal', 'Man City', 'xG Analysis']
+  },
+  {
+    id: 'fallback-3',
+    title: 'Champions League Quarter-Final Draw: Heavyweights Collide in Europe',
+    summary: 'The road to Munich is set as Bayern Munich draw reigning champions in the most anticipated knockout fixture of the season.',
+    content: [
+      'Football fans around the world tuned in as the UEFA Champions League quarter-final pairings were drawn in Nyon on Friday afternoon.',
+      'The standout fixture pits Bayern Munich against Manchester City in a repeat of last year’s thriller, while Barcelona face PSG in an explosive clash of philosophies.'
+    ],
+    category: 'match_reports',
+    author: 'Elena Rostova',
+    source: 'UEFA Wire',
+    timeAgo: '3h ago',
+    readTime: '4 min read',
+    imageUrl: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=1200&q=80',
+    badgeText: 'UCL DRAW',
+    badgeColor: 'bg-purple-500/20 text-purple-400 border-purple-500/40',
+    likes: 512,
+    commentsCount: 128,
+    featured: false,
+    breaking: false,
+    tags: ['Champions League', 'Bayern', 'PSG', 'Draw']
+  }
+];
+
 export default function NewsPage() {
   const navigate = useNavigate();
-  const { showSuccess, showError } = useToast();
-  const [articles, setArticles] = useState<NewsArticle[]>(() => {
-    const cached = StorageCache.get('news_articles');
-    if (Array.isArray(cached) && cached.length > 0) {
-      return cached.map((n: any) => {
-        let contentArray: string[] = [];
-        if (Array.isArray(n.content)) contentArray = n.content;
-        else if (typeof n.content === 'string') contentArray = n.content.split('\n\n').filter(Boolean);
-        else if (n.summary) contentArray = [n.summary];
-
-        let tagArray: string[] = [];
-        if (Array.isArray(n.tags)) tagArray = n.tags;
-        else if (typeof n.tags === 'string') tagArray = n.tags.split(',').map((t: string) => t.trim()).filter(Boolean);
-        else tagArray = ['Football', 'Wire'];
-
-        const badgeColor =
-          n.category === 'transfers'
-            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-            : n.category === 'tactical'
-            ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40'
-            : 'bg-purple-500/20 text-purple-400 border-purple-500/40';
-
-        return {
-          id: n.id,
-          title: n.title,
-          summary: n.summary || '',
-          content: contentArray.length > 0 ? contentArray : [n.summary || ''],
-          category: (n.category as any) || 'transfers',
-          author: n.author || 'MTL Editorial',
-          source: n.source || 'MTL Sports Wire',
-          timeAgo: n.created_at || n.createdAt ? new Date(n.created_at || n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent',
-          readTime: n.read_time || '3 min read',
-          imageUrl: n.image_url || n.imageUrl || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
-          badgeText: n.badge || 'NEWS WIRE',
-          badgeColor,
-          likes: n.likes || 0,
-          commentsCount: 0,
-          featured: Boolean(n.is_featured || n.featured),
-          breaking: Boolean(n.is_breaking || n.breaking),
-          tags: tagArray
-        };
-      });
-    }
-    return [];
-  });
-  const [loading, setLoading] = useState<boolean>(false);
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
@@ -140,21 +163,16 @@ export default function NewsPage() {
   const fetchArticlesFromDB = async () => {
     setLoading(true);
     try {
-      let rawData: any[] = [];
       const { data, error } = await supabase
         .from('news')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawData = data;
+      if (error || !data || data.length === 0) {
+        console.warn('Error fetching news from database or empty result, using resilient fallback:', error?.message);
+        setArticles(FALLBACK_ARTICLES);
       } else {
-        // Fetch from Firebase Firestore & backend database
-        rawData = await fetchRealNews();
-      }
-
-      if (rawData.length > 0) {
-        const normalized: NewsArticle[] = rawData.map((n) => {
+        const normalized: NewsArticle[] = data.map((n) => {
           let contentArray: string[] = [];
           if (Array.isArray(n.content)) {
             contentArray = n.content;
@@ -188,22 +206,23 @@ export default function NewsPage() {
             category: (n.category as any) || 'transfers',
             author: n.author || 'MTL Editorial',
             source: n.source || 'MTL Sports Wire',
-            timeAgo: n.created_at || n.createdAt ? new Date(n.created_at || n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent',
-            readTime: n.read_time || n.readTime || '3 min read',
-            imageUrl: n.image_url || n.imageUrl || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
-            badgeText: n.badge || n.badgeText || 'NEWS WIRE',
+            timeAgo: n.created_at ? new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent',
+            readTime: n.read_time || '3 min read',
+            imageUrl: n.image_url || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
+            badgeText: n.badge || 'NEWS WIRE',
             badgeColor,
             likes: n.likes || 0,
             commentsCount: 0,
-            featured: Boolean(n.is_featured || n.featured),
-            breaking: Boolean(n.is_breaking || n.breaking),
+            featured: Boolean(n.is_featured),
+            breaking: Boolean(n.is_breaking),
             tags: tagArray
           };
         });
         setArticles(normalized);
       }
     } catch (err) {
-      console.error('Failed to load news articles:', err);
+      console.error('Failed to load news articles from Supabase:', err);
+      setArticles(FALLBACK_ARTICLES);
     } finally {
       setLoading(false);
     }
@@ -256,10 +275,7 @@ export default function NewsPage() {
             profile?.admin === true || 
             email.endsWith('@admin.com') ||
             email.includes('admin') ||
-            email === 'lennoxmourice@gmail.com' ||
-            email === 'moricetonnylennox@gmail.com' ||
-            session.user.user_metadata?.role === 'admin' ||
-            true;
+            session.user.user_metadata?.role === 'admin';
 
           setIsAdmin(Boolean(userIsAdmin));
         }
@@ -348,7 +364,7 @@ export default function NewsPage() {
   const handlePublishArticle = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.summary.trim()) {
-      showError('Please fill out the headline and summary.');
+      alert('Please fill out the headline and summary.');
       return;
     }
 
@@ -377,9 +393,8 @@ export default function NewsPage() {
       }]).select();
 
       if (error) {
-        showError('Database error publishing article: ' + error.message);
+        alert('Database error publishing article: ' + error.message);
       } else {
-        showSuccess('✨ Article published to real news wire!');
         setShowAddModal(false);
         setFormData({
           title: '',
@@ -398,7 +413,7 @@ export default function NewsPage() {
         fetchArticlesFromDB();
       }
     } catch (err: any) {
-      showError('Failed to publish article to database: ' + err.message);
+      alert('Failed to publish article to database: ' + err.message);
     } finally {
       setSubmitting(false);
     }
@@ -411,14 +426,13 @@ export default function NewsPage() {
     try {
       const { error } = await supabase.from('news').delete().eq('id', id);
       if (error) {
-        showError('Database error deleting article: ' + error.message);
+        alert('Database error deleting article: ' + error.message);
       } else {
-        showSuccess('Article removed from database.');
         setArticles(prev => prev.filter(a => a.id !== id));
         if (selectedArticle?.id === id) setSelectedArticle(null);
       }
     } catch (err: any) {
-      showError('Failed to delete article: ' + err.message);
+      alert('Failed to delete article: ' + err.message);
     }
   };
 
@@ -435,7 +449,7 @@ export default function NewsPage() {
   const featuredArticle = articles.find((a) => a.featured) || articles[0];
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] pb-24">
+    <div className="min-h-screen bg-[#070b14] text-slate-100 font-['Plus_Jakarta_Sans',sans-serif] pb-24">
       {/* Universal Floating Action Button */}
       <UniversalFAB
         showBackToDashboard={true}
@@ -451,7 +465,7 @@ export default function NewsPage() {
       />
 
       {/* HEADER HERO TICKER & BANNER */}
-      <div className="bg-gradient-to-b from-[#0b1326] to-[#070b14] border-b border-slate-800/80 pt-3 sm:pt-4 pb-8 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-b from-[#0b1326] to-[#070b14] border-b border-slate-800/80 pt-6 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
           
           {/* Breaking News Marquee Banner */}
@@ -655,16 +669,8 @@ export default function NewsPage() {
                     <span>{article.timeAgo}</span>
                   </div>
 
-                  <h3 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openGoogleScout(article.title, 'news');
-                    }}
-                    className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug line-clamp-2 cursor-pointer flex items-center gap-1.5"
-                    title="Click to search on Google"
-                  >
-                    <span>{article.title}</span>
-                    <Search className="w-3 h-3 text-cyan-400 opacity-75 shrink-0" />
+                  <h3 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug line-clamp-2">
+                    {article.title}
                   </h3>
 
                   <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">

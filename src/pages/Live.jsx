@@ -14,71 +14,18 @@ import {
   Clock, 
   Zap,
   Shield,
-  BarChart3,
-  Search
+  BarChart3
 } from "lucide-react";
 import UniversalFAB from "../components/UniversalFAB.tsx";
 import { supabase } from "../config/supabase.ts";
-import { openGoogleScout } from "../utils/googleScout.ts";
-import { StorageCache } from "../config/storageCache.ts";
-import { fetchRealMatches, saveMatchReaction } from "../config/firebaseStore.ts";
 
 export default function Live() {
   const navigate = useNavigate();
   const location = useLocation();
   const pageName = location.pathname.replace("/", "").toUpperCase() || "LIVE MATCHES";
 
-  const [liveMatches, setLiveMatches] = useState(() => {
-    const cached = StorageCache.get('matches', []);
-    if (!Array.isArray(cached) || cached.length === 0) return [];
-    return cached.map(m => {
-      let home = "";
-      let away = "";
-      if (m.teams && m.teams.includes(" vs ")) {
-        const parts = m.teams.split(" vs ");
-        home = parts[0]?.trim();
-        away = parts[1]?.trim();
-      } else {
-        home = m.teams || "Home Club";
-        away = "Away Club";
-      }
-
-      let hScore = m.home_score ?? 0;
-      let aScore = m.away_score ?? 0;
-      if (m.score && m.score.includes("-")) {
-        const sc = m.score.split("-");
-        hScore = parseInt(sc[0], 10) || 0;
-        aScore = parseInt(sc[1], 10) || 0;
-      }
-
-      const minuteStr = m.minute ? `${m.minute}'` : "LIVE";
-
-      return {
-        id: m.id,
-        homeTeam: home,
-        awayTeam: away,
-        league: m.league || "Premier League",
-        minute: minuteStr,
-        status: m.status || "LIVE",
-        homeScore: hScore,
-        awayScore: aScore,
-        stadium: m.stadium || "Elite Arena",
-        attendance: "42,500",
-        homePossession: 52,
-        awayPossession: 48,
-        homeShots: 7,
-        awayShots: 5,
-        homexG: "1.12",
-        awayxG: "0.84",
-        homeAttacks: 36,
-        awayAttacks: 29,
-        prediction: m.prediction || "Home Win",
-        decimalOdds: parseFloat(m.decimal_odds) || 1.95,
-        reactions: m.reactions || { fire: 0, heart: 0, dislike: 0 }
-      };
-    });
-  });
-  const [loading, setLoading] = useState(false);
+  const [liveMatches, setLiveMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -140,22 +87,16 @@ export default function Live() {
   async function fetchLiveMatches() {
     setLoading(true);
     try {
-      let rawMatches = [];
       const { data, error } = await supabase
         .from("matches")
         .select("*")
         .or("status.eq.LIVE,status.eq.live,status.eq.PENDING,status.eq.pending")
         .order("created_at", { ascending: false });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawMatches = data;
-      } else {
-        // Fallback to Firebase Firestore & backend database
-        rawMatches = await fetchRealMatches();
-      }
+      if (error) throw error;
 
-      if (rawMatches && rawMatches.length > 0) {
-        const normalized = rawMatches.map(m => {
+      if (data && data.length > 0) {
+        const normalized = data.map(m => {
           let home = "";
           let away = "";
           if (m.teams && m.teams.includes(" vs ")) {
@@ -186,7 +127,7 @@ export default function Live() {
             minute: minuteStr,
             homeScore: hScore,
             awayScore: aScore,
-            stadium: m.details?.stadium || m.stadium || "National Stadium",
+            stadium: m.details?.stadium || "National Stadium",
             attendance: m.details?.attendance || "42,000",
             homePossession: m.prob_home || 55,
             awayPossession: m.prob_away || 45,
@@ -196,8 +137,7 @@ export default function Live() {
             awayxG: m.details?.awayxG || "0.92",
             homeAttacks: m.details?.homeAttacks || 48,
             awayAttacks: m.details?.awayAttacks || 36,
-            status: m.status || "LIVE",
-            reactions: m.reactions || { fire: 0, heart: 0, dislike: 0 }
+            status: m.status || "LIVE"
           };
         });
         setLiveMatches(normalized);
@@ -337,25 +277,8 @@ export default function Live() {
     }
   }
 
-  // React to Live Match Card (Saved to Firebase Firestore)
-  async function handleReactToMatch(matchId, type) {
-    const mId = String(matchId);
-    setLiveMatches(prev => prev.map(m => {
-      if (String(m.id) === mId) {
-        const reactions = { ...(m.reactions || { fire: 0, heart: 0, dislike: 0 }) };
-        reactions[type] = (reactions[type] || 0) + 1;
-        return { ...m, reactions };
-      }
-      return m;
-    }));
-
-    try {
-      await saveMatchReaction(mId, type, 'live_fan_' + Math.random().toString(36).substring(2, 6));
-    } catch (e) {}
-  }
-
   return (
-    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-transparent">
+    <div className="page-container font-['Plus_Jakarta_Sans',sans-serif] min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(239,68,68,0.06),rgba(0,0,0,0))]">
       {/* Unified Page Hero Banner */}
       <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#0a1221] border border-slate-800/90 rounded-2xl p-6 shadow-xl">
         <div>
@@ -412,13 +335,8 @@ export default function Live() {
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
                   {m.minute}
                 </span>
-                <span 
-                  onClick={() => openGoogleScout(`${m.home} vs ${m.away} ${m.league} live match score commentary`)}
-                  className="font-['Orbitron'] text-xs font-extrabold text-slate-300 tracking-wider hover:text-cyan-400 cursor-pointer transition-colors inline-flex items-center gap-1.5"
-                  title="Click to search on Google"
-                >
-                  <span>{m.league}</span>
-                  <Search className="w-3 h-3 text-cyan-400 opacity-75" />
+                <span className="font-['Orbitron'] text-xs font-extrabold text-slate-300 tracking-wider">
+                  {m.league}
                 </span>
               </div>
 
@@ -446,14 +364,7 @@ export default function Live() {
             {/* Scoreboard Display */}
             <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 text-center">
               <div className="space-y-1.5">
-                <div 
-                  onClick={() => openGoogleScout(`${m.home} football club live score squad stats`)}
-                  className="font-['Orbitron'] text-2xl sm:text-3xl font-black text-white hover:text-cyan-300 cursor-pointer transition-colors inline-flex items-center gap-2"
-                  title="Click to search on Google"
-                >
-                  <span>{m.home}</span>
-                  <Search className="w-4 h-4 text-cyan-400 opacity-75" />
-                </div>
+                <div className="font-['Orbitron'] text-2xl sm:text-3xl font-black text-white">{m.home}</div>
                 <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
                   Possession: {m.homePossession}%
                 </div>
@@ -468,11 +379,7 @@ export default function Live() {
               </div>
 
               <div className="space-y-2">
-                <div 
-                  onClick={() => openGoogleScout(`${m.home} vs ${m.away} match stats highlights result`)}
-                  className="font-['Orbitron'] text-5xl sm:text-6xl font-black text-cyan-400 tracking-wider drop-shadow-[0_0_25px_rgba(6,182,212,0.6)] hover:scale-105 cursor-pointer transition-transform"
-                  title="Click score to search match highlights on Google"
-                >
+                <div className="font-['Orbitron'] text-5xl sm:text-6xl font-black text-cyan-400 tracking-wider drop-shadow-[0_0_25px_rgba(6,182,212,0.6)]">
                   {m.homeScore} - {m.awayScore}
                 </div>
                 <div className="text-xs font-mono text-slate-400">
@@ -481,14 +388,7 @@ export default function Live() {
               </div>
 
               <div className="space-y-1.5">
-                <div 
-                  onClick={() => openGoogleScout(`${m.away} football club live score squad stats`)}
-                  className="font-['Orbitron'] text-2xl sm:text-3xl font-black text-white hover:text-cyan-300 cursor-pointer transition-colors inline-flex items-center gap-2"
-                  title="Click to search on Google"
-                >
-                  <span>{m.away}</span>
-                  <Search className="w-4 h-4 text-cyan-400 opacity-75" />
-                </div>
+                <div className="font-['Orbitron'] text-2xl sm:text-3xl font-black text-white">{m.away}</div>
                 <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
                   Possession: {m.awayPossession}%
                 </div>
@@ -516,34 +416,6 @@ export default function Live() {
               <div className="bg-[#060d18] p-4 rounded-2xl border border-slate-800/80 text-center shadow-inner">
                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Dangerous Attacks</div>
                 <div className="font-['Orbitron'] text-xl font-black text-emerald-400 mt-1">{m.homeAttacks} - {m.awayAttacks}</div>
-              </div>
-            </div>
-
-            {/* Reactions Bar - Saved to Firebase */}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-800/60">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Match Reactions</span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleReactToMatch(m.id, 'fire')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-500/50 text-xs font-bold text-slate-300 hover:text-amber-400 transition-all cursor-pointer"
-                >
-                  <span>🔥</span>
-                  <span>{m.reactions?.fire || 0}</span>
-                </button>
-                <button
-                  onClick={() => handleReactToMatch(m.id, 'heart')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-500/50 text-xs font-bold text-slate-300 hover:text-rose-400 transition-all cursor-pointer"
-                >
-                  <span>❤️</span>
-                  <span>{m.reactions?.heart || 0}</span>
-                </button>
-                <button
-                  onClick={() => handleReactToMatch(m.id, 'dislike')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-red-500/50 text-xs font-bold text-slate-300 hover:text-red-400 transition-all cursor-pointer"
-                >
-                  <span>👎</span>
-                  <span>{m.reactions?.dislike || 0}</span>
-                </button>
               </div>
             </div>
           </div>

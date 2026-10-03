@@ -18,15 +18,11 @@ import {
   Bell,
   Sun,
   Moon,
-  BarChart2,
-  Fingerprint
+  BarChart2
 } from 'lucide-react';
 import { supabase } from '../config/supabase.ts';
-import { useAuthSession } from '../App.tsx';
 import GoogleSearchModal from './GoogleSearchModal.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
-import { GoogleScoutTab } from '../utils/googleScout.ts';
-import WebAuthnBiometricService from '../config/webauthn.ts';
 
 interface NavItem {
   name: string;
@@ -49,17 +45,12 @@ export const StickyHeader: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme, isDay } = useTheme();
-  const { isAdmin } = useAuthSession();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchInitialQuery, setSearchInitialQuery] = useState('CF Montreal football scores');
-  const [searchInitialTab, setSearchInitialTab] = useState<GoogleScoutTab>('gemini');
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [hasBiometrics, setHasBiometrics] = useState<boolean>(false);
 
   // Monitor scroll position with smooth threshold transition
   useEffect(() => {
@@ -88,14 +79,7 @@ export const StickyHeader: React.FC = () => {
       }
     };
 
-    const handleCustomSearchEvent = (e: Event) => {
-      const customEvent = e as CustomEvent<{ query?: string; tab?: any }>;
-      if (customEvent.detail?.query) {
-        setSearchInitialQuery(customEvent.detail.query);
-      }
-      if (customEvent.detail?.tab) {
-        setSearchInitialTab(customEvent.detail.tab);
-      }
+    const handleCustomSearchEvent = () => {
       setIsSearchOpen(true);
     };
 
@@ -112,30 +96,14 @@ export const StickyHeader: React.FC = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserEmail(session?.user?.email || null);
-      setUserId(session?.user?.id || null);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user?.email || null);
-      setUserId(session?.user?.id || null);
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  // Listen for WebAuthn biometric status updates
-  useEffect(() => {
-    const checkBio = () => {
-      if (userId) {
-        setHasBiometrics(WebAuthnBiometricService.isBiometricsActive(userId));
-      } else {
-        setHasBiometrics(false);
-      }
-    };
-    checkBio();
-    window.addEventListener('mtl_biometrics_updated', checkBio);
-    return () => window.removeEventListener('mtl_biometrics_updated', checkBio);
-  }, [userId]);
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -272,19 +240,13 @@ export const StickyHeader: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(prev => !prev)}
-                  className="relative flex items-center gap-2 p-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer"
+                  className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer"
                   aria-expanded={isUserMenuOpen}
                   title={userEmail}
                 >
                   <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-xs">
                     {userEmail.charAt(0).toUpperCase()}
                   </div>
-                  {hasBiometrics && (
-                    <span 
-                      className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-md shadow-emerald-500/50 animate-pulse" 
-                      title="WebAuthn Passkey Active"
-                    />
-                  )}
                 </button>
 
                 {/* Dropdown Profile Popup */}
@@ -294,30 +256,11 @@ export const StickyHeader: React.FC = () => {
                       className="fixed inset-0 z-40" 
                       onClick={() => setIsUserMenuOpen(false)} 
                     />
-                    <div className="absolute right-0 mt-2 w-60 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 p-2 text-xs">
-                      <div className="px-3 py-2 border-b border-slate-800 mb-1 flex items-center justify-between">
-                        <div>
-                          <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Signed in as</div>
-                          <div className="font-semibold text-white truncate max-w-[140px]">{userEmail}</div>
-                        </div>
-                        {hasBiometrics ? (
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[9px] font-mono font-bold flex items-center gap-1">
-                            <Fingerprint className="w-3 h-3 text-emerald-400" /> PASSKEY
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 text-[9px] font-mono">
-                            PASSKEY OFF
-                          </span>
-                        )}
+                    <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 p-2 text-xs">
+                      <div className="px-3 py-2 border-b border-slate-800 mb-1">
+                        <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Signed in as</div>
+                        <div className="font-semibold text-white truncate">{userEmail}</div>
                       </div>
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-slate-800 transition-colors font-bold"
-                      >
-                        <Fingerprint className="w-4 h-4 text-emerald-400" />
-                        My Profile & Biometrics
-                      </Link>
                       <Link
                         to="/dashboard"
                         onClick={() => setIsUserMenuOpen(false)}
@@ -342,16 +285,14 @@ export const StickyHeader: React.FC = () => {
                         <BarChart2 className="w-4 h-4 text-cyan-400" />
                         Engagement Analytics
                       </Link>
-                      {isAdmin && (
-                        <Link
-                          to="/admin"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition-colors font-bold"
-                        >
-                          <Shield className="w-4 h-4 text-emerald-400" />
-                          Admin Control Panel
-                        </Link>
-                      )}
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition-colors font-bold"
+                      >
+                        <Shield className="w-4 h-4 text-emerald-400" />
+                        Admin Control Panel
+                      </Link>
                       <button
                         onClick={handleSignOut}
                         className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-red-400 hover:bg-red-950/40 hover:text-red-300 transition-colors text-left cursor-pointer mt-1"
@@ -438,15 +379,6 @@ export const StickyHeader: React.FC = () => {
             </button>
 
             <Link
-              to="/profile"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs font-bold text-emerald-400 hover:text-white cursor-pointer"
-            >
-              <User className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Profile</span>
-            </Link>
-
-            <Link
               to="/engagement"
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs font-bold text-cyan-400 hover:text-white cursor-pointer"
@@ -455,16 +387,14 @@ export const StickyHeader: React.FC = () => {
               <span>Engagement</span>
             </Link>
 
-            {isAdmin && (
-              <Link
-                to="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs font-bold text-emerald-400 hover:text-white cursor-pointer"
-              >
-                <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Admin Panel</span>
-              </Link>
-            )}
+            <Link
+              to="/admin"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs font-bold text-emerald-400 hover:text-white cursor-pointer"
+            >
+              <Shield className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Admin Panel</span>
+            </Link>
 
             {userEmail && (
               <button 
@@ -479,12 +409,13 @@ export const StickyHeader: React.FC = () => {
         </div>
       </header>
 
+      {/* Header height placeholder spacer to prevent content overlap */}
+      <div className="h-16 w-full shrink-0" aria-hidden="true" />
+
       {/* Global Quick Search Modal */}
       <GoogleSearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        initialQuery={searchInitialQuery}
-        initialTab={searchInitialTab}
       />
     </>
   );

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import * as THREE from 'three';
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../config/supabase.ts";
 
@@ -9,9 +10,226 @@ export default function Gateway() {
     const [isTerminalFading, setIsTerminalFading] = useState(false);
     const [hasActiveSession, setHasActiveSession] = useState(false);
 
+    const threeContainerRef = useRef(null);
     const ambientAudioRef = useRef(null);
     const goalAudioRef = useRef(null);
     const pulseTriggerRef = useRef(null);
+
+    // Three.js 3D Backdrop & Interactive Experience
+    useEffect(() => {
+        const container = threeContainerRef.current;
+        if (!container) return;
+
+        let isMounted = true;
+        let animationFrameId;
+
+        // Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 6;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Group for 3D Tactical Sphere & Nodes
+        const globeGroup = new THREE.Group();
+        scene.add(globeGroup);
+
+        // 1. Geodesic Football Wireframe Lattice
+        const sphereGeo = new THREE.IcosahedronGeometry(2.4, 2);
+        const wireframeGeo = new THREE.WireframeGeometry(sphereGeo);
+        const wireframeMat = new THREE.LineBasicMaterial({
+            color: 0x10b981,
+            transparent: true,
+            opacity: 0.45,
+            linewidth: 1
+        });
+        const sphereLines = new THREE.LineSegments(wireframeGeo, wireframeMat);
+        globeGroup.add(sphereLines);
+
+        // 2. Vertex Points (Tactical Stadium Coordinates)
+        const vertices = sphereGeo.attributes.position.array;
+        const ptsGeo = new THREE.BufferGeometry();
+        ptsGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        const ptsMat = new THREE.PointsMaterial({
+            color: 0x00f5d4,
+            size: 0.08,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending
+        });
+        const spherePoints = new THREE.Points(ptsGeo, ptsMat);
+        globeGroup.add(spherePoints);
+
+        // 3. Inner Core Geodesic Wireframe
+        const innerGeo = new THREE.IcosahedronGeometry(1.6, 1);
+        const innerWireframe = new THREE.WireframeGeometry(innerGeo);
+        const innerMat = new THREE.LineBasicMaterial({
+            color: 0x38bdf8,
+            transparent: true,
+            opacity: 0.35
+        });
+        const innerCore = new THREE.LineSegments(innerWireframe, innerMat);
+        globeGroup.add(innerCore);
+
+        // 4. Tactical Orbit Rings
+        const ringGeo1 = new THREE.TorusGeometry(3.2, 0.015, 16, 100);
+        const ringMat1 = new THREE.MeshBasicMaterial({
+            color: 0x00f5d4,
+            transparent: true,
+            opacity: 0.4,
+            side: THREE.DoubleSide
+        });
+        const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+        ring1.rotation.x = Math.PI / 3;
+        ring1.rotation.y = Math.PI / 6;
+        globeGroup.add(ring1);
+
+        const ringGeo2 = new THREE.TorusGeometry(3.6, 0.012, 16, 100);
+        const ringMat2 = new THREE.MeshBasicMaterial({
+            color: 0x3b82f6,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide
+        });
+        const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+        ring2.rotation.x = -Math.PI / 4;
+        ring2.rotation.y = Math.PI / 3;
+        globeGroup.add(ring2);
+
+        // 5. Starfield / Floating Stadium Particles
+        const particleCount = 450;
+        const particlePositions = new Float32Array(particleCount * 3);
+        const particleScales = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            particlePositions[i] = (Math.random() - 0.5) * 22;
+            particlePositions[i + 1] = (Math.random() - 0.5) * 22;
+            particlePositions[i + 2] = (Math.random() - 0.5) * 16 - 2;
+            particleScales[i / 3] = Math.random() * 0.04 + 0.02;
+        }
+
+        const particleGeo = new THREE.BufferGeometry();
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        const particleMat = new THREE.PointsMaterial({
+            color: 0x10b981,
+            size: 0.05,
+            transparent: true,
+            opacity: 0.65,
+            blending: THREE.AdditiveBlending
+        });
+        const particleSystem = new THREE.Points(particleGeo, particleMat);
+        scene.add(particleSystem);
+
+        // Interactive Mouse/Touch Parallax
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotX = 0;
+        let targetRotY = 0;
+
+        const handlePointerMove = (e) => {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            mouseX = (clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(clientY / window.innerHeight) * 2 + 1;
+            targetRotY = mouseX * 0.45;
+            targetRotX = -mouseY * 0.45;
+        };
+
+        window.addEventListener('pointermove', handlePointerMove, { passive: true });
+        window.addEventListener('touchmove', handlePointerMove, { passive: true });
+
+        // Pulse trigger on click / tap
+        let pulseIntensity = 0;
+        pulseTriggerRef.current = () => {
+            pulseIntensity = 1.0;
+        };
+
+        // Resize handler
+        const handleResize = () => {
+            if (!isMounted || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Animation Loop
+        let clock = new THREE.Clock();
+        const animate = () => {
+            if (!isMounted) return;
+            const delta = clock.getDelta();
+            const elapsed = clock.getElapsedTime();
+
+            // Smooth damping rotation
+            globeGroup.rotation.y += (targetRotY - globeGroup.rotation.y) * 0.05 + 0.003;
+            globeGroup.rotation.x += (targetRotX - globeGroup.rotation.x) * 0.05;
+            
+            // Rings secondary rotation
+            ring1.rotation.z += 0.004;
+            ring2.rotation.z -= 0.003;
+            innerCore.rotation.y -= 0.006;
+            innerCore.rotation.x += 0.004;
+
+            // Background floating particles slow drift
+            particleSystem.rotation.y = elapsed * 0.02;
+            particleSystem.rotation.x = Math.sin(elapsed * 0.03) * 0.05;
+
+            // Handle pulse shockwave
+            if (pulseIntensity > 0) {
+                const scale = 1 + pulseIntensity * 0.25;
+                globeGroup.scale.set(scale, scale, scale);
+                wireframeMat.color.setHex(0x00f5d4);
+                wireframeMat.opacity = 0.45 + pulseIntensity * 0.4;
+                ptsMat.size = 0.08 + pulseIntensity * 0.1;
+                pulseIntensity -= delta * 1.5;
+                if (pulseIntensity <= 0) {
+                    pulseIntensity = 0;
+                    wireframeMat.color.setHex(0x10b981);
+                    wireframeMat.opacity = 0.45;
+                    ptsMat.size = 0.08;
+                    globeGroup.scale.set(1, 1, 1);
+                }
+            }
+
+            renderer.render(scene, camera);
+            animationFrameId = requestAnimationFrame(animate);
+        };
+
+        animate();
+
+        return () => {
+            isMounted = false;
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('touchmove', handlePointerMove);
+            window.removeEventListener('resize', handleResize);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+            // Cleanup Three.js geometries and materials
+            sphereGeo.dispose();
+            wireframeGeo.dispose();
+            wireframeMat.dispose();
+            ptsGeo.dispose();
+            ptsMat.dispose();
+            innerGeo.dispose();
+            innerWireframe.dispose();
+            innerMat.dispose();
+            ringGeo1.dispose();
+            ringMat1.dispose();
+            ringGeo2.dispose();
+            ringMat2.dispose();
+            particleGeo.dispose();
+            particleMat.dispose();
+            renderer.dispose();
+
+            if (container.contains(renderer.domElement)) {
+                container.removeChild(renderer.domElement);
+            }
+        };
+    }, []);
 
     // Session check sequence
     useEffect(() => {
@@ -133,7 +351,7 @@ export default function Gateway() {
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    background-color: transparent;
+                    background-color: #010307;
                     color: #f8fafc;
                     font-family: 'Plus Jakarta Sans', sans-serif;
                     perspective: 1400px;
@@ -152,7 +370,7 @@ export default function Gateway() {
                     position: absolute;
                     inset: 0;
                     z-index: -5;
-                    background: transparent;
+                    background: radial-gradient(circle at 50% 50%, #071736 0%, #010307 100%);
                 }
 
                 .cyber-matrix-overlay {
@@ -470,6 +688,9 @@ export default function Gateway() {
 
                 <div className="nebula alpha"></div>
                 <div className="nebula beta"></div>
+
+                {/* Interactive Three.js 3D Backdrop Canvas Container */}
+                <div ref={threeContainerRef} className="three-bg-canvas" />
 
                 <audio id="ambientStadium" ref={ambientAudioRef} loop>
                     <source src="/stadium_crowd.mp3" type="audio/mpeg" />
