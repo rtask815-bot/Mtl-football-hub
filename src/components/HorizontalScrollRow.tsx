@@ -11,6 +11,7 @@ interface HorizontalScrollRowProps {
   actionButton?: React.ReactNode;
   className?: string;
   scrollAmount?: number;
+  showDots?: boolean;
 }
 
 export function HorizontalScrollRow({
@@ -21,16 +22,30 @@ export function HorizontalScrollRow({
   actionButton,
   className = '',
   scrollAmount = 380,
+  showDots = true,
 }: HorizontalScrollRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const childrenArray = React.Children.toArray(children).filter(Boolean);
+  const itemCount = childrenArray.length;
 
   const checkScroll = () => {
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setCanScrollLeft(scrollLeft > 5);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+    const maxScroll = scrollWidth - clientWidth;
+    
+    setCanScrollLeft(scrollLeft > 8);
+    setCanScrollRight(scrollLeft < maxScroll - 8);
+
+    if (maxScroll > 0) {
+      const progress = Math.min(100, Math.max(0, (scrollLeft / maxScroll) * 100));
+      setScrollProgress(progress);
+    } else {
+      setScrollProgress(0);
+    }
   };
 
   useEffect(() => {
@@ -58,6 +73,17 @@ export function HorizontalScrollRow({
     const delta = direction === 'left' ? -scrollAmount : scrollAmount;
     scrollRef.current.scrollBy({ left: delta, behavior: 'smooth' });
   };
+
+  const scrollToRatio = (ratio: number) => {
+    if (!scrollRef.current) return;
+    const { scrollWidth, clientWidth } = scrollRef.current;
+    const maxScroll = scrollWidth - clientWidth;
+    scrollRef.current.scrollTo({ left: maxScroll * ratio, behavior: 'smooth' });
+  };
+
+  // Determine dot indicators (max 8 dots)
+  const maxDots = Math.min(itemCount, 8);
+  const activeDotIndex = maxDots > 1 ? Math.round((scrollProgress / 100) * (maxDots - 1)) : 0;
 
   return (
     <div className={`horizontal-scroll-wrapper relative w-full mb-6 ${className}`}>
@@ -118,31 +144,69 @@ export function HorizontalScrollRow({
 
       {/* Horizontal Scroll Area */}
       <div className="relative group">
-        {/* Floating Gradient Edges for scroll hint */}
+        {/* Floating Gradient Edge Overlay - Left */}
         {canScrollLeft && (
-          <div className="absolute left-0 top-0 bottom-3 w-10 bg-gradient-to-r from-[#0a1422] via-[#0a1422]/80 to-transparent z-10 pointer-events-none" />
+          <div
+            onClick={() => handleScroll('left')}
+            className="absolute left-0 top-0 bottom-3 w-14 bg-gradient-to-r from-[#070a13] via-[#070a13]/80 to-transparent z-10 cursor-pointer flex items-center justify-start pl-1 transition-all duration-300 hover:from-[#070a13] hover:via-[#070a13]"
+            title="Scroll left"
+          >
+            <div className="w-7 h-7 rounded-full bg-emerald-500/30 border border-emerald-400/60 text-emerald-300 flex items-center justify-center backdrop-blur-md shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse hover:scale-110 transition-transform">
+              <ChevronLeft className="w-4 h-4" />
+            </div>
+          </div>
         )}
+
+        {/* Floating Gradient Edge Overlay - Right */}
         {canScrollRight && (
-          <div className="absolute right-0 top-0 bottom-3 w-10 bg-gradient-to-l from-[#0a1422] via-[#0a1422]/80 to-transparent z-10 pointer-events-none" />
+          <div
+            onClick={() => handleScroll('right')}
+            className="absolute right-0 top-0 bottom-3 w-14 bg-gradient-to-l from-[#070a13] via-[#070a13]/80 to-transparent z-10 cursor-pointer flex items-center justify-end pr-1 transition-all duration-300 hover:from-[#070a13] hover:via-[#070a13]"
+            title="Scroll right"
+          >
+            <div className="w-7 h-7 rounded-full bg-emerald-500/30 border border-emerald-400/60 text-emerald-300 flex items-center justify-center backdrop-blur-md shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse hover:scale-110 transition-transform">
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </div>
         )}
 
         <div
           ref={scrollRef}
           className="horizontal-scroll-container flex flex-row items-stretch gap-4 overflow-x-auto scroll-smooth snap-x snap-proximity py-2 px-1 scrollbar-thin scrollbar-thumb-emerald-500/40 scrollbar-track-slate-900/50 touch-pan-x cursor-grab active:cursor-grabbing select-none"
         >
-          {React.Children.map(children, (child, index) => {
-            if (!child) return null;
-            return (
-              <AnimatedCard
-                key={index}
-                delayMs={Math.min(index * 40, 250)}
-                className="horizontal-scroll-item snap-start shrink-0"
-              >
-                {child}
-              </AnimatedCard>
-            );
-          })}
+          {childrenArray.map((child, index) => (
+            <AnimatedCard
+              key={index}
+              delayMs={Math.min(index * 40, 250)}
+              className="horizontal-scroll-item snap-start shrink-0"
+            >
+              {child}
+            </AnimatedCard>
+          ))}
         </div>
+
+        {/* Dots / Progress Bar Indicator underneath */}
+        {showDots && maxDots > 1 && (
+          <div className="flex items-center justify-center gap-1.5 mt-2.5">
+            {Array.from({ length: maxDots }).map((_, idx) => {
+              const isActive = idx === activeDotIndex;
+              const dotRatio = idx / (maxDots - 1);
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => scrollToRatio(dotRatio)}
+                  aria-label={`Go to slide group ${idx + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    isActive
+                      ? 'w-6 bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.8)]'
+                      : 'w-1.5 bg-slate-700/80 hover:bg-slate-500 hover:w-3'
+                  }`}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
