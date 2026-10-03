@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { enableSwipeToScroll } from '../utils/touchGestures.ts';
+import AnimatedCard from './AnimatedCard.tsx';
 
 interface HorizontalScrollRowProps {
   children: React.ReactNode;
@@ -129,9 +130,17 @@ export function HorizontalScrollRow({
           ref={scrollRef}
           className="horizontal-scroll-container flex flex-row items-stretch gap-4 overflow-x-auto scroll-smooth snap-x snap-proximity py-2 px-1 scrollbar-thin scrollbar-thumb-emerald-500/40 scrollbar-track-slate-900/50 touch-pan-x cursor-grab active:cursor-grabbing select-none"
         >
-          {React.Children.map(children, (child) => {
+          {React.Children.map(children, (child, index) => {
             if (!child) return null;
-            return <div className="horizontal-scroll-item snap-start shrink-0">{child}</div>;
+            return (
+              <AnimatedCard
+                key={index}
+                delayMs={Math.min(index * 40, 250)}
+                className="horizontal-scroll-item snap-start shrink-0"
+              >
+                {child}
+              </AnimatedCard>
+            );
           })}
         </div>
       </div>

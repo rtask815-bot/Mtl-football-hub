@@ -33,6 +33,7 @@ import FloatingBackButton from "./components/FloatingBackButton.tsx";
 import Stadium3DBackground from "./components/Stadium3DBackground.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { ToastProvider } from "./context/ToastContext.tsx";
+import { initViewportAnimationObserver } from "./utils/scrollObserver.ts";
 export { supabase };
 
 // Fast Global Auth Context for zero-latency page transitions
@@ -109,6 +110,9 @@ function AuthSessionProvider({ children }: { children: React.ReactNode }) {
         // Initialize 30s background data sync engine across whole app
         startGlobalBackgroundSync();
 
+        // Initialize IntersectionObserver for scroll-triggered card entrance animations
+        const cleanupObserver = initViewportAnimationObserver();
+
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (!isMounted) return;
             if (session?.user) {
@@ -147,6 +151,7 @@ function AuthSessionProvider({ children }: { children: React.ReactNode }) {
         return () => {
             isMounted = false;
             subscription.unsubscribe();
+            cleanupObserver();
         };
     }, []);
 
