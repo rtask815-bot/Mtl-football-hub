@@ -727,13 +727,13 @@ export default function Dashboard() {
           padding: 0;
           width: 100%;
           min-height: 100vh;
-          background: #0a1422;
+          background: transparent !important;
           overflow-x: hidden;
         }
 
         .dashboard-root {
           box-sizing: border-box;
-          --bg: #0a1422;
+          --bg: transparent;
           --bg-2: #101d2e;
           --surface: rgba(23, 38, 57, 0.95);
           --border: rgba(255, 255, 255, 0.12);
@@ -749,7 +749,7 @@ export default function Dashboard() {
           width: 100%;
           color: var(--text);
           position: relative;
-          background: #0a1422;
+          background: transparent;
         }
 
         #bg-4d-canvas {

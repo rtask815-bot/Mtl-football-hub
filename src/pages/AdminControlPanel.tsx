@@ -423,7 +423,7 @@ export default function AdminControlPanel() {
 
   if (isAdminAuthorized === false) {
     return (
-      <div className="min-h-screen bg-[#060b14] flex items-center justify-center p-4 font-['Plus_Jakarta_Sans',sans-serif]">
+      <div className="min-h-screen bg-transparent flex items-center justify-center p-4 font-['Plus_Jakarta_Sans',sans-serif]">
         <div className="w-full max-w-md bg-[#0a1221] border border-red-500/40 rounded-3xl p-7 sm:p-8 space-y-6 shadow-2xl shadow-red-950/40 text-center relative overflow-hidden">
           <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto shadow-inner">
             <ShieldAlert className="w-8 h-8 text-red-500 animate-pulse" />
