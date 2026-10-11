@@ -1,0 +1,50 @@
+[
+  {
+    "id": "trend-1",
+    "rank": 1,
+    "topic": "#ChampionsLeagueDraw",
+    "title": "Quarter-Final Draw Reactions & Tactical Simulator",
+    "posts_count": "54.8K",
+    "comments_count": 890,
+    "category": "Champions League",
+    "heat": "54.8K interactions",
+    "growth_rate": "+38%",
+    "badge": "🔥 HOT"
+  },
+  {
+    "id": "trend-2",
+    "rank": 2,
+    "topic": "#ArsenalVsManCity",
+    "title": "Emirates Title Decider Tactical Formations & Expected Goals",
+    "posts_count": "41.2K",
+    "comments_count": 645,
+    "category": "Premier League",
+    "heat": "41.2K interactions",
+    "growth_rate": "+29%",
+    "badge": "⚡ SPIKE"
+  },
+  {
+    "id": "trend-3",
+    "rank": 3,
+    "topic": "#ElClasicoCountdown",
+    "title": "Bernabéu Showdown Odds & Starting XI Team News",
+    "posts_count": "38.6K",
+    "comments_count": 512,
+    "category": "La Liga",
+    "heat": "38.6K interactions",
+    "growth_rate": "+24%",
+    "badge": "📈 TRENDING"
+  },
+  {
+    "id": "trend-4",
+    "rank": 4,
+    "topic": "#BallonDorRace",
+    "title": "Mid-Season Voting Power Rankings & Performance Indices",
+    "posts_count": "28.3K",
+    "comments_count": 420,
+    "category": "International",
+    "heat": "28.3K interactions",
+    "growth_rate": "+15%",
+    "badge": "⭐ NOTABLE"
+  }
+]

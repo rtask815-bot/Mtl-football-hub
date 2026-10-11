@@ -1,0 +1,278 @@
+{
+  "entities": {
+    "UserStatus": {
+      "title": "UserStatus",
+      "description": "Real match prediction card status updates published by users",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "userAvatar": { "type": "string", "maxLength": 1000 },
+        "matchFixture": { "type": "string", "maxLength": 200 },
+        "league": { "type": "string", "maxLength": 100 },
+        "homeTeam": { "type": "string", "maxLength": 100 },
+        "awayTeam": { "type": "string", "maxLength": 100 },
+        "predictedScore": { "type": "string", "maxLength": 20 },
+        "predictionPick": { "type": "string", "maxLength": 100 },
+        "decimalOdds": { "type": "number" },
+        "confidenceStars": { "type": "number" },
+        "caption": { "type": "string", "maxLength": 500 },
+        "mediaUrl": { "type": "string", "maxLength": 1000 },
+        "mediaType": { "type": "string", "maxLength": 20 },
+        "themeColor": { "type": "string", "maxLength": 50 },
+        "viewsCount": { "type": "number" },
+        "likesCount": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "expiresAt": { "type": "string" }
+      },
+      "required": ["userId", "matchFixture", "predictionPick", "createdAt"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "Real match data records including lineups, live commentary, odds and scores",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "teams": { "type": "string", "maxLength": 200 },
+        "league": { "type": "string", "maxLength": 100 },
+        "score": { "type": "string", "maxLength": 20 },
+        "minute": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "maxLength": 30 },
+        "prediction": { "type": "string", "maxLength": 100 },
+        "decimal_odds": { "type": "number" },
+        "analysis_text": { "type": "string", "maxLength": 2000 },
+        "match_date": { "type": "string" },
+        "banner_url": { "type": "string", "maxLength": 1000 },
+        "reactions": { "type": "object" }
+      },
+      "required": ["teams", "league"]
+    },
+    "NewsArticle": {
+      "title": "NewsArticle",
+      "description": "Football news and transfer intelligence articles with high-res media",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 300 },
+        "summary": { "type": "string", "maxLength": 1000 },
+        "content": { "type": "string", "maxLength": 10000 },
+        "category": { "type": "string", "maxLength": 50 },
+        "author": { "type": "string", "maxLength": 100 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "summary"]
+    },
+    "VideoItem": {
+      "title": "VideoItem",
+      "description": "Match stream feeds, tactical breakdowns and video highlight clips",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "videoUrl": { "type": "string", "maxLength": 1000 },
+        "thumbnailUrl": { "type": "string", "maxLength": 1000 },
+        "duration": { "type": "string", "maxLength": 50 },
+        "category": { "type": "string", "maxLength": 50 },
+        "fileSize": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "videoUrl"]
+    },
+    "MediaAsset": {
+      "title": "MediaAsset",
+      "description": "Digital image and video uploads stored in Firebase Storage with download URLs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 255 },
+        "downloadUrl": { "type": "string", "maxLength": 1000 },
+        "storagePath": { "type": "string", "maxLength": 500 },
+        "contentType": { "type": "string", "maxLength": 100 },
+        "size": { "type": "number" },
+        "mediaType": { "type": "string", "enum": ["image", "video"] },
+        "tags": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "downloadUrl", "mediaType", "createdAt"]
+    },
+    "UserActivity": {
+      "title": "UserActivity",
+      "description": "Timeline event logging real user activities",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "maxLength": 50 },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 500 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "type", "title", "timestamp"]
+    },
+    "UserPrediction": {
+      "title": "UserPrediction",
+      "description": "User personal match prediction records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "fixture": { "type": "string", "maxLength": 200 },
+        "league": { "type": "string", "maxLength": 100 },
+        "pick": { "type": "string", "maxLength": 100 },
+        "predictedScore": { "type": "string", "maxLength": 20 },
+        "odds": { "type": "number" },
+        "outcome": { "type": "string", "maxLength": 20 },
+        "finalScore": { "type": "string", "maxLength": 20 },
+        "matchDate": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "fixture", "pick", "createdAt"]
+    },
+    "MessageReaction": {
+      "title": "MessageReaction",
+      "description": "Emoji reactions on community chat messages saved in Firebase",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "messageId": { "type": "string", "maxLength": 128 },
+        "emoji": { "type": "string", "maxLength": 20 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "username": { "type": "string", "maxLength": 100 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["messageId", "emoji", "userId", "timestamp"]
+    },
+    "MatchReaction": {
+      "title": "MatchReaction",
+      "description": "Match card and prediction reactions saved in Firebase",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "matchId": { "type": "string", "maxLength": 128 },
+        "reactionType": { "type": "string", "maxLength": 50 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["matchId", "reactionType", "userId", "timestamp"]
+    },
+    "StatusLike": {
+      "title": "StatusLike",
+      "description": "Like audits on user match card statuses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "statusId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["statusId", "userId", "timestamp"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Community and encrypted group messages with live poll data and reactions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sender_id": { "type": "string", "maxLength": 128 },
+        "group_id": { "type": "string", "maxLength": 128 },
+        "recipient_id": { "type": "string", "maxLength": 128 },
+        "content": { "type": "string", "maxLength": 5000 },
+        "created_at": { "type": "string" },
+        "reactions": { "type": "object" },
+        "poll": { "type": "object" },
+        "media_url": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["sender_id", "content", "created_at"]
+    },
+    "Fixture": {
+      "title": "Fixture",
+      "description": "Scheduled fixture match and broadcast telemetry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "teams": { "type": "string", "maxLength": 200 },
+        "league": { "type": "string", "maxLength": 100 },
+        "match_date": { "type": "string" },
+        "match_time": { "type": "string" },
+        "venue": { "type": "string", "maxLength": 200 },
+        "broadcast": { "type": "string", "maxLength": 200 },
+        "round": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["teams", "match_date"]
+    },
+    "TrendingTopic": {
+      "title": "TrendingTopic",
+      "description": "Trending topics and discussions across football hubs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "rank": { "type": "number" },
+        "topic": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 100 },
+        "heat": { "type": "string", "maxLength": 50 },
+        "growth_rate": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["title", "category"]
+    }
+  },
+  "firestore": {
+    "/user_statuses/{statusId}": {
+      "schema": "UserStatus",
+      "description": "Real community match card status updates published by users"
+    },
+    "/matches/{matchId}": {
+      "schema": "Match",
+      "description": "Match statistics, lineups, and live scores"
+    },
+    "/news/{newsId}": {
+      "schema": "NewsArticle",
+      "description": "Football intelligence news and media articles"
+    },
+    "/videos/{videoId}": {
+      "schema": "VideoItem",
+      "description": "Football highlight clips and video streams"
+    },
+    "/media/{mediaId}": {
+      "schema": "MediaAsset",
+      "description": "Uploaded digital images and videos storage records"
+    },
+    "/user_activities/{activityId}": {
+      "schema": "UserActivity",
+      "description": "User history timeline records"
+    },
+    "/user_predictions/{predictionId}": {
+      "schema": "UserPrediction",
+      "description": "Personal past match predictions"
+    },
+    "/message_reactions/{reactionId}": {
+      "schema": "MessageReaction",
+      "description": "Message emoji reactions saved to Firebase"
+    },
+    "/match_reactions/{reactionId}": {
+      "schema": "MatchReaction",
+      "description": "Match card and prediction reactions saved to Firebase"
+    },
+    "/status_likes/{likeId}": {
+      "schema": "StatusLike",
+      "description": "Status like records saved to Firebase"
+    },
+    "/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Chat messages and polls stored in Firebase"
+    },
+    "/fixtures/{fixtureId}": {
+      "schema": "Fixture",
+      "description": "Fixtures schedule stored in Firebase"
+    },
+    "/trending/{trendingId}": {
+      "schema": "TrendingTopic",
+      "description": "Trending topics stored in Firebase"
+    }
+  }
+}

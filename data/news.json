@@ -1,0 +1,62 @@
+[
+  {
+    "id": "news-cl-quarterfinals",
+    "title": "UEFA Champions League Quarter-Final Tactical Draw & Odds Analysis",
+    "summary": "Full analytical breakdown of the European quarter-final matchups, tactical clash simulations, and historical probability models.",
+    "content": "The draw for the UEFA Champions League quarter-finals has generated unprecedented excitement across European football. Reigning champions and domestic pace-setters are set for titanic collisions. Our tactical simulations reveal razor-thin margins, especially with high pressing formations testing deep defensive structures.",
+    "category": "Champions League",
+    "author": "Markus Lindqvist, Senior UEFA Analyst",
+    "imageUrl": "/src/assets/images/crest_euro_shield_1791727580565.jpg",
+    "badgeText": "EURO SHIELD",
+    "likes": 420,
+    "createdAt": "2026-10-01T07:30:00.000Z"
+  },
+  {
+    "id": "news-title-race",
+    "title": "Premier League Title Race: Expected Goals (xG) & Metric Projections",
+    "summary": "Deep dive into underlying performance metrics, squad depth indices, and remaining calendar difficulty for the top three contenders.",
+    "content": "As the Premier League season enters its decisive final months, the difference between title triumph and heartbreak narrows to fine margins. High-turnover attacking transitions and set-piece efficiency are proving to be the statistical determinants of late season form.",
+    "category": "Premier League",
+    "author": "David Henderson, Data Intelligence",
+    "imageUrl": "/src/assets/images/news_tactical_mastery_1791727591916.jpg",
+    "badgeText": "TACTICAL xG",
+    "likes": 315,
+    "createdAt": "2026-10-01T08:00:00.000Z"
+  },
+  {
+    "id": "news-transfer-wire",
+    "title": "Global Transfer Intelligence: Midfield Anchors & Next-Gen Strikers",
+    "summary": "Scouting dossiers and contract telemetry tracking Europe's most coveted emerging talents ahead of the upcoming market window.",
+    "content": "Top European scouting departments have shifted focus toward versatile hybrid midfielders capable of operating as box-to-box progressors and deep ball distributors. With several blockbuster buyouts lined up, contract talks are intensifying.",
+    "category": "Transfers",
+    "author": "Elena Rostova, Scouting Network",
+    "imageUrl": "/src/assets/images/news_transfer_breaking_1791727603290.jpg",
+    "badgeText": "BREAKING WIRE",
+    "likes": 288,
+    "createdAt": "2026-10-01T08:45:00.000Z"
+  },
+  {
+    "id": "news-mtl-classique",
+    "title": "CF Montréal Derby Intelligence: Tactical Blueprint & Form Surge",
+    "summary": "Comprehensive analytical breakdown of the Montreal frontline attack, high-block transitions, and rivalry match simulation.",
+    "content": "CF Montréal showcases a dominant tactical resurgence with an aggressive transition model. The team's expected goals per 90 have reached elite standards, powered by precision counter-pressing and fluid inside forwards.",
+    "category": "MTL Exclusive",
+    "author": "Marc-André Moreau, MTL Chief Scout",
+    "imageUrl": "/src/assets/images/crest_mtl_gold_1791727567919.jpg",
+    "badgeText": "MTL SOVEREIGN",
+    "likes": 512,
+    "createdAt": "2026-10-05T09:15:00.000Z"
+  },
+  {
+    "id": "news-matchday-volleys",
+    "title": "Weekend Strikers Spotlight: Electric Matchday Goals & Golden Boot Chase",
+    "summary": "Visual recap and probability metrics from this round's most sensational volleys, set-piece strikes, and clutch finishes.",
+    "content": "A high-octane weekend of domestic action delivered jaw-dropping finishes from outside the box. Statistical metrics demonstrate historic shot-stopping difficulty for goalkeepers against dip-and-swerve strikes.",
+    "category": "Match Reports",
+    "author": "Liam Vance, Matchday Correspondent",
+    "imageUrl": "/src/assets/images/status_matchday_electric_1791727612787.jpg",
+    "badgeText": "STRIKE REEL",
+    "likes": 389,
+    "createdAt": "2026-10-07T11:00:00.000Z"
+  }
+]

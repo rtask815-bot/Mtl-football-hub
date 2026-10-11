@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Community User Statuses (Real Match Card Stories)
+    match /user_statuses/{statusId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isSignedIn();
+    }
+
+    // Status Likes & Viewer Audits
+    match /status_likes/{likeId} {
+      allow read, write: if true;
+    }
+
+    // Message Reactions (Emoji reactions on chat messages)
+    match /message_reactions/{reactionId} {
+      allow read, write: if true;
+    }
+
+    // Match Card Reactions (🔥, ❤️, 👎, etc.)
+    match /match_reactions/{reactionId} {
+      allow read, write: if true;
+    }
+
+    // Chat Messages & Polls
+    match /messages/{messageId} {
+      allow read, write: if true;
+    }
+
+    // Matches & Larger Fixture Data
+    match /matches/{matchId} {
+      allow read, write: if true;
+    }
+
+    // Fixtures Schedule
+    match /fixtures/{fixtureId} {
+      allow read, write: if true;
+    }
+
+    // Trending Topics
+    match /trending/{trendingId} {
+      allow read, write: if true;
+    }
+
+    // Football News & Articles
+    match /news/{newsId} {
+      allow read, write: if true;
+    }
+
+    // Videos & Highlight Streams
+    match /videos/{videoId} {
+      allow read, write: if true;
+    }
+
+    // Digital Media Assets (Uploaded Images and Videos)
+    match /media/{mediaId} {
+      allow read, write: if true;
+    }
+
+    // User Activities Timeline
+    match /user_activities/{activityId} {
+      allow read, write: if true;
+    }
+
+    // User Past Predictions
+    match /user_predictions/{predictionId} {
+      allow read, write: if true;
+    }
+
+    // User Profiles
+    match /profiles/{profileId} {
+      allow read, write: if true;
+    }
+  }
+}
