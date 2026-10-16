@@ -1305,7 +1305,11 @@ export default function PrePage() {
       <div key={item.id} className="bg-[#0f172a] rounded-xl p-4 border border-slate-800 flex flex-col space-y-3 cursor-pointer transition-all duration-300 hover:border-amber-500/50 hover:bg-slate-900/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-black text-amber-400 font-mono">#{item.rank}</span>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 font-['Orbitron'] ${
+              item.rank === 1 ? 'rank-badge-gold' : item.rank === 2 ? 'rank-badge-silver' : item.rank === 3 ? 'rank-badge-bronze' : 'rank-badge-neon'
+            }`}>
+              {String(item.rank).padStart(2, '0')}
+            </div>
             <div>
               <h4 className="font-bold text-xs text-white hover:text-amber-400 transition" onClick={(e) => { e.stopPropagation(); openGoogleSearchIframe(item.title); }}>{item.title}</h4>
               <span className="text-[10px] text-slate-500">💬 {Number(item.comments_count) || 6237} discussions</span>

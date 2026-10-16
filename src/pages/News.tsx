@@ -960,8 +960,9 @@ export default function NewsPage() {
             {/* Tags List */}
             <div className="flex items-center gap-2 flex-wrap pt-2">
               {selectedArticle.tags.map((tag) => (
-                <span key={tag} className="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-semibold text-slate-400">
-                  #{tag}
+                <span key={tag} className="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-semibold text-slate-300 flex items-center gap-1.5 hover:border-emerald-500/40 transition-colors">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  {tag}
                 </span>
               ))}
             </div>

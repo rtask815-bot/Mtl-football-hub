@@ -47,6 +47,7 @@ import {
   PlayerComparisonRecord,
   PitchFormAlignmentRecord,
   INITIAL_PREMIER_PLAYERS,
+  DEFAULT_PITCH_FORM_ALIGNMENT,
   fetchRealPlayers,
   savePlayerToFirebase,
   fetchSavedPlayerComparisons,
@@ -55,20 +56,42 @@ import {
   fetchPitchFormAlignment,
   updatePitchFormAlignmentInFirebase
 } from '../config/firebaseStore.ts';
+import { soundEngine } from '../utils/soundEngine.ts';
 
 export default function PlayerComparison() {
   const navigate = useNavigate();
   const { user, isAdmin, userProfile } = useAuthSession();
 
-  // Data States
-  const [players, setPlayers] = useState<PlayerStats[]>(INITIAL_PREMIER_PLAYERS);
+  // Instant Cached Data States - Prevents empty space scrolling & layout jumps
+  const [players, setPlayers] = useState<PlayerStats[]>(() => {
+    try {
+      const raw = localStorage.getItem('mtl_real_players_v4');
+      return raw ? JSON.parse(raw) : INITIAL_PREMIER_PLAYERS;
+    } catch {
+      return INITIAL_PREMIER_PLAYERS;
+    }
+  });
   const [selectedP1Id, setSelectedP1Id] = useState<string>('haaland-erling');
   const [selectedP2Id, setSelectedP2Id] = useState<string>('mbappe-kylian');
-  const [savedComparisons, setSavedComparisons] = useState<PlayerComparisonRecord[]>([]);
-  const [pitchAlignment, setPitchAlignment] = useState<PitchFormAlignmentRecord | null>(null);
+  const [savedComparisons, setSavedComparisons] = useState<PlayerComparisonRecord[]>(() => {
+    try {
+      const raw = localStorage.getItem('mtl_saved_comparisons_v4');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [pitchAlignment, setPitchAlignment] = useState<PitchFormAlignmentRecord>(() => {
+    try {
+      const raw = localStorage.getItem('mtl_pitch_alignment_v4');
+      return raw ? JSON.parse(raw) : DEFAULT_PITCH_FORM_ALIGNMENT;
+    } catch {
+      return DEFAULT_PITCH_FORM_ALIGNMENT;
+    }
+  });
 
-  // UI States
-  const [loading, setLoading] = useState<boolean>(true);
+  // UI States (Instant Zero-Delay Hydration)
+  const [loading, setLoading] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'scoring' | 'playmaking' | 'defense' | 'physical'>('all');
   const [searchP1, setSearchP1] = useState<string>('');
   const [searchP2, setSearchP2] = useState<string>('');
@@ -438,21 +461,21 @@ export default function PlayerComparison() {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setIsSaveModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-950/50 transition-all hover:scale-102 active:scale-98"
+              className="btn-dial min-h-[44px] px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-950/50 transition-all hover:scale-102 active:scale-95"
             >
               <Bookmark className="w-4 h-4" />
               Save Comparison
             </button>
             <button
               onClick={() => setIsSavedDrawerOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs sm:text-sm flex items-center gap-2 transition-all"
+              className="btn-dial min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs sm:text-sm flex items-center gap-2 transition-all active:scale-95"
             >
               <Clock className="w-4 h-4 text-amber-400" />
               History ({savedComparisons.length})
             </button>
             <button
               onClick={() => setIsAddPlayerModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-indigo-900/60 hover:bg-indigo-800/70 text-indigo-200 border border-indigo-700/60 font-semibold text-xs sm:text-sm flex items-center gap-2 transition-all"
+              className="btn-dial min-h-[44px] px-4 py-2.5 rounded-xl bg-indigo-900/60 hover:bg-indigo-800/70 text-indigo-200 border border-indigo-700/60 font-semibold text-xs sm:text-sm flex items-center gap-2 transition-all active:scale-95"
             >
               <Plus className="w-4 h-4 text-indigo-400" />
               Add Custom Player

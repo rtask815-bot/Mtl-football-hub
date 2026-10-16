@@ -264,9 +264,18 @@ export default function Trending() {
         {filteredTopics.map((item) => (
           <div key={item.id} className="group bg-gradient-to-b from-[#0e182a] to-[#0a1221] border border-slate-800/90 hover:border-amber-500/40 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl shadow-black/40 transition-all duration-200 hover:-translate-y-0.5">
             <div className="flex items-start sm:items-center gap-4">
-              <span className="font-['Orbitron'] text-2xl sm:text-3xl font-black text-amber-400 min-w-10 group-hover:scale-105 transition-transform">
-                #{item.rank}
-              </span>
+              {/* Modern Colored Metallic Rank Numbering (Replacing Outdated #) */}
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-['Orbitron'] font-black text-sm shrink-0 transition-transform group-hover:scale-110 shadow-lg ${
+                item.rank === 1
+                  ? 'rank-badge-gold'
+                  : item.rank === 2
+                  ? 'rank-badge-silver'
+                  : item.rank === 3
+                  ? 'rank-badge-bronze'
+                  : 'rank-badge-neon'
+              }`}>
+                {String(item.rank).padStart(2, '0')}
+              </div>
               <div>
                 <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider block">
                   {item.category}

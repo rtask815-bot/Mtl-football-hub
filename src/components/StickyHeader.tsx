@@ -19,13 +19,16 @@ import {
   Sun,
   Moon,
   BarChart2,
-  Users
+  Users,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { supabase } from '../config/supabase.ts';
 import { useAuthSession } from '../App.tsx';
 import GoogleSearchModal from './GoogleSearchModal.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { GoogleScoutTab } from '../utils/googleScout.ts';
+import { soundEngine } from '../utils/soundEngine.ts';
 
 interface NavItem {
   name: string;
@@ -58,6 +61,7 @@ export const StickyHeader: React.FC = () => {
   const [searchInitialTab, setSearchInitialTab] = useState<GoogleScoutTab>('gemini');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(() => soundEngine.getSoundEnabled());
 
   // Monitor scroll position with smooth threshold transition
   useEffect(() => {
@@ -233,6 +237,29 @@ export const StickyHeader: React.FC = () => {
               )}
             </button>
 
+            {/* Tactical Audio Toggle Button */}
+            <button
+              onClick={() => {
+                const nextState = soundEngine.toggleMute();
+                setIsSoundEnabled(nextState);
+              }}
+              aria-label={isSoundEnabled ? "Mute Tactical Audio" : "Enable Tactical Audio"}
+              title={isSoundEnabled ? "Tactical Audio: Active (Click to Mute)" : "Tactical Audio: Muted (Click to Enable)"}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-b from-[#1e293b] to-[#0f172a] border border-[#334155] hover:border-emerald-500/50 text-slate-300 hover:text-white transition-all cursor-pointer text-xs font-semibold shadow-[0_1px_0_rgba(255,255,255,0.1)_inset,0_2px_4px_rgba(0,0,0,0.6)] active:scale-95"
+            >
+              {isSoundEnabled ? (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                  <span className="hidden sm:inline text-[11px] font-bold text-emerald-400">Audio ON</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="hidden sm:inline text-[11px] font-bold text-slate-500">Muted</span>
+                </>
+              )}
+            </button>
+
             {/* Quick Search Trigger */}
             <button
               onClick={() => setIsSearchOpen(true)}
@@ -395,6 +422,27 @@ export const StickyHeader: React.FC = () => {
                 <>
                   <Moon className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Midnight Mode</span>
+                </>
+              )}
+            </button>
+
+            {/* Mobile Audio Toggle Button */}
+            <button
+              onClick={() => {
+                const nextState = soundEngine.toggleMute();
+                setIsSoundEnabled(nextState);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white cursor-pointer active:scale-95"
+            >
+              {isSoundEnabled ? (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 font-bold">Sound ON</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Muted</span>
                 </>
               )}
             </button>

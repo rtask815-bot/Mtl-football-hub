@@ -33,6 +33,7 @@ import OfflineIndicator from "./components/OfflineIndicator.tsx";
 import FloatingBackButton from "./components/FloatingBackButton.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { SpotlightProvider } from "./components/physical/SpotlightProvider.tsx";
+import { soundEngine } from "./utils/soundEngine.ts";
 export { supabase };
 
 // Fast Global Auth Context for zero-latency page transitions
@@ -253,24 +254,84 @@ function AdminRoute({ children }: { children: React.ReactElement }) {
     return children;
 }
 
+function RouteTransitionManager() {
+    const location = useLocation();
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    useEffect(() => {
+        setIsTransitioning(true);
+        soundEngine.playDialBeep(920);
+
+        const timer = setTimeout(() => {
+            setIsTransitioning(false);
+        }, 260);
+
+        return () => clearTimeout(timer);
+    }, [location.pathname]);
+
+    if (!isTransitioning) return null;
+
+    return (
+        <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-slate-900/60 pointer-events-none">
+            <div className="h-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-indigo-500 animate-[pulse_0.5s_ease-in-out_infinite] shadow-[0_0_15px_rgba(6,182,212,0.9)] w-full"></div>
+        </div>
+    );
+}
+
 function MainContentWrapper({ children }: { children: React.ReactNode }) {
     const location = useLocation();
     const isFullBleed = location.pathname === '/' || location.pathname === '/auth';
 
     return (
-        <main className={`relative min-h-[calc(100vh-64px)] w-full transition-opacity duration-150 ease-out ${isFullBleed ? 'pt-0' : 'pt-16'}`}>
+        <main
+            key={location.pathname}
+            className={`relative min-h-[calc(100vh-64px)] w-full transition-all duration-200 ease-out animate-in fade-in zoom-in-[0.99] ${
+                isFullBleed ? 'pt-0' : 'pt-16'
+            }`}
+        >
             {children}
         </main>
     );
 }
 
 export default function App() {
+    useEffect(() => {
+        // App opening sound on initial visit
+        const hasOpened = sessionStorage.getItem('mtl_opened_sound_played');
+        if (!hasOpened) {
+            sessionStorage.setItem('mtl_opened_sound_played', 'true');
+            const triggerOpenSound = () => {
+                soundEngine.playAppOpeningSound();
+                window.removeEventListener('click', triggerOpenSound);
+                window.removeEventListener('touchstart', triggerOpenSound);
+            };
+            window.addEventListener('click', triggerOpenSound, { once: true });
+            window.addEventListener('touchstart', triggerOpenSound, { once: true });
+        }
+
+        // Global tactile click & dial touch sound listener for buttons and dial controls
+        const handleGlobalClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement | null;
+            if (!target) return;
+            const interactiveEl = target.closest('button, a, input[type="range"], input[type="checkbox"], select, [role="button"], [data-tactile]');
+            if (interactiveEl) {
+                soundEngine.playTactileClick();
+            }
+        };
+
+        window.addEventListener('click', handleGlobalClick, { capture: true, passive: true });
+        return () => {
+            window.removeEventListener('click', handleGlobalClick, { capture: true });
+        };
+    }, []);
+
     return (
         <ThemeProvider>
             <AuthSessionProvider>
                 <SpotlightProvider>
                     <BrowserRouter>
                         <SecurityHeadManager />
+                        <RouteTransitionManager />
                         <StickyHeader />
                         <OfflineIndicator />
                         <FloatingBackButton />

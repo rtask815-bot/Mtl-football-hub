@@ -1683,8 +1683,10 @@ export default function Dashboard() {
                 ) : (
                   trendingData.slice(0, 4).map(news => (
                     <PhysicalCard key={news.id} variant="obsidian" interactive={true} className="p-2.5 mb-2 flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded-lg bg-[#070b14] border border-[#1e293b] flex items-center justify-center text-xs font-black text-amber-400 shrink-0 shadow-inner">
-                        #{news.rank}
+                      <div className={`w-7 h-7 rounded-xl flex items-center justify-center text-[11px] font-black shrink-0 font-['Orbitron'] shadow-md ${
+                        news.rank === 1 ? 'rank-badge-gold' : news.rank === 2 ? 'rank-badge-silver' : news.rank === 3 ? 'rank-badge-bronze' : 'rank-badge-neon'
+                      }`}>
+                        {String(news.rank).padStart(2, '0')}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div 

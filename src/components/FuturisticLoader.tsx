@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Sparkles, Clock, Cpu } from 'lucide-react';
+import { soundEngine } from '../utils/soundEngine.ts';
 
 export interface FuturisticLoaderProps {
   active: boolean;
@@ -40,6 +41,9 @@ export const FuturisticLoader: React.FC<FuturisticLoaderProps> = ({
       setTimeLeftMs(durationMs);
       setVisible(true);
 
+      // Trigger mechanical computing sound loop
+      soundEngine.startMechanicalLoaderMusic();
+
       // Clear any existing interval
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -54,6 +58,7 @@ export const FuturisticLoader: React.FC<FuturisticLoaderProps> = ({
               clearInterval(intervalRef.current);
               intervalRef.current = null;
             }
+            soundEngine.stopMechanicalLoaderMusic();
             // Close ONLY when countdown reaches zero
             setTimeout(() => {
               setVisible(false);
@@ -64,12 +69,19 @@ export const FuturisticLoader: React.FC<FuturisticLoaderProps> = ({
           return next;
         });
       }, stepMs);
+    } else {
+      soundEngine.stopMechanicalLoaderMusic();
     }
+
+    return () => {
+      soundEngine.stopMechanicalLoaderMusic();
+    };
   }, [active, estimatedSeconds, dataSize]);
 
   // Handle eventual unmount cleanup
   useEffect(() => {
     return () => {
+      soundEngine.stopMechanicalLoaderMusic();
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
