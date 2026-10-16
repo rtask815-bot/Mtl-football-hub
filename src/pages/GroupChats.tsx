@@ -2621,6 +2621,28 @@ export default function GroupChats() {
                 <p className="text-xs text-slate-300 leading-relaxed">{currentOpenGroup.description || 'Public channel for match tactics & discussion.'}</p>
               </div>
 
+              <div className="bg-[#060d18] border border-cyan-500/30 rounded-2xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    OpenWA Protocol Link
+                  </span>
+                  <button
+                    onClick={() => {
+                      const link = `https://chat.mtlhub.com/join/openwa-${currentOpenGroup.id}`;
+                      navigator.clipboard.writeText(link);
+                      addLocalNotification("OPENWA LINK COPIED", "Secure invite URL copied to clipboard.");
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 font-bold text-[10px] transition-colors cursor-pointer border border-cyan-500/40"
+                  >
+                    Copy OpenWA Link
+                  </button>
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono truncate bg-slate-950 p-2 rounded-lg border border-slate-800">
+                  https://chat.mtlhub.com/join/openwa-{currentOpenGroup.id.substring(0, 8)}
+                </div>
+              </div>
+
               <div className="flex gap-2">
                 {isMember(currentOpenGroup, currentUser?.id) ? (
                   <>
