@@ -12,6 +12,45 @@ export const APP_GENERATED_IMAGES = {
   heroPhysicalShowcase: '/src/assets/images/hero_physical_showcase_1791684418843.jpg'
 };
 
+export interface CyberFootballBackground {
+  id: string;
+  url: string;
+  onlineUrl: string;
+  sourceIbb: string;
+  title: string;
+}
+
+export const CYBER_FOOTBALL_BACKGROUNDS: CyberFootballBackground[] = [
+  {
+    id: 'cyber-striker-1',
+    url: '/src/assets/images/bg_cyber_football_1.jpg',
+    onlineUrl: 'https://i.ibb.co/PsRdnrm0/images-16.jpg',
+    sourceIbb: 'https://ibb.co/Q7Z4RJbt',
+    title: 'Cyber Striker Motion'
+  },
+  {
+    id: 'cyber-striker-2',
+    url: '/src/assets/images/bg_cyber_football_2.jpg',
+    onlineUrl: 'https://i.ibb.co/LzkxxcfS/images-26.jpg',
+    sourceIbb: 'https://ibb.co/DDV99vn4',
+    title: 'Neon Pitch Dynamo'
+  },
+  {
+    id: 'cyber-striker-3',
+    url: '/src/assets/images/bg_cyber_football_3.jpg',
+    onlineUrl: 'https://i.ibb.co/zVP0z819/futuristic-football-soccer-player-with-glowing-lights-23-2151153061.jpg',
+    sourceIbb: 'https://ibb.co/SwV9zQ2Y',
+    title: 'Futuristic Football Player Glowing Lights'
+  },
+  {
+    id: 'cyber-striker-4',
+    url: '/src/assets/images/bg_cyber_football_4.jpg',
+    onlineUrl: 'https://i.ibb.co/VcJBSbPp/futuristic-football-game-player-23-2151152988.jpg',
+    sourceIbb: 'https://ibb.co/21WKtRfY',
+    title: 'Futuristic Football Game Player'
+  }
+];
+
 export interface TeamVisual {
   name: string;
   shortCode: string;

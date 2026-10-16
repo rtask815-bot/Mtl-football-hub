@@ -11,6 +11,7 @@ import UniversalFAB from '../components/UniversalFAB.tsx';
 import FloatingBackButton from '../components/FloatingBackButton.tsx';
 import { openGoogleScout } from '../utils/googleScout.ts';
 import { getTeamVisual, getFixtureTeamsVisuals } from '../assets/visualsRegistry.ts';
+import FadingBackgroundAnimation from '../components/FadingBackgroundAnimation.tsx';
 
 // --- Helper Utilities ---
 function safeStringify(obj, indent = 2) {
@@ -1291,16 +1292,8 @@ export default function PrePage() {
 
   return (
     <div className={`min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black ${contrastMode ? 'contrast-200 bg-black' : ''}`}>
-      {/* High-Performance Static Background Image & Video Backdrop */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#060a12] via-[#09111e] to-[#04070d] opacity-95" />
-        <img 
-          src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1920&auto=format&fit=crop" 
-          alt="Stadium Atmosphere" 
-          className="absolute inset-0 w-full h-full object-cover opacity-20 filter contrast-125"
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950/20 via-transparent to-black/80" />
-      </div>
+      {/* Cyberpunk Fading & Changing Football Background Animation */}
+      <FadingBackgroundAnimation overlayOpacity={0.82} intervalMs={7000} fadeDurationMs={1800} />
 
       <div className="app-content-wrapper flex flex-col min-h-screen justify-between relative z-10">
 

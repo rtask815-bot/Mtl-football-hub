@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import * as THREE from 'three';
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../config/supabase.ts";
+import FadingBackgroundAnimation from "../components/FadingBackgroundAnimation.tsx";
 
 export default function Gateway() {
     const navigate = useNavigate();
@@ -478,16 +479,8 @@ export default function Gateway() {
                 <div className="nebula alpha"></div>
                 <div className="nebula beta"></div>
 
-                {/* High-Performance Static Background Image & Video Backdrop */}
-                <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#060a12] via-[#09111e] to-[#04070d] opacity-95" />
-                    <img 
-                        src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1920&auto=format&fit=crop" 
-                        alt="Stadium Atmosphere" 
-                        className="absolute inset-0 w-full h-full object-cover opacity-25 filter contrast-125"
-                    />
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950/20 via-transparent to-black/80" />
-                </div>
+                {/* Cyberpunk Fading & Changing Football Background Animation */}
+                <FadingBackgroundAnimation overlayOpacity={0.68} intervalMs={6500} fadeDurationMs={1800} />
 
                 <audio id="ambientStadium" ref={ambientAudioRef} loop>
                     <source src="/stadium_crowd.mp3" type="audio/mpeg" />

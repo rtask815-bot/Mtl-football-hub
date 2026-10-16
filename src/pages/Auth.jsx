@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { supabase } from "../config/supabase.ts";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../config/env.ts";
 import FuturisticLoader from "../components/FuturisticLoader.tsx";
+import FadingBackgroundAnimation from "../components/FadingBackgroundAnimation.tsx";
 
 // Allowed Model Priority List
 const ALLOWED_MODELS = [
@@ -919,6 +920,9 @@ export default function Auth() {
                     .auth-card { padding: 34px 22px; border-radius: 22px; }
                 }
             `}</style>
+
+            {/* Cyberpunk Fading & Changing Football Background Animation */}
+            <FadingBackgroundAnimation overlayOpacity={0.78} intervalMs={7000} fadeDurationMs={1800} />
 
             <div className="cursor-glow" ref={glowRef}></div>
 
