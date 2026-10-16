@@ -142,15 +142,19 @@ export default function Live() {
     setLoading(true);
     try {
       let rawMatches = [];
-      const { data, error } = await supabase
-        .from("matches")
-        .select("*")
-        .or("status.eq.LIVE,status.eq.live,status.eq.PENDING,status.eq.pending")
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("matches")
+          .select("*")
+          .or("status.eq.LIVE,status.eq.live,status.eq.PENDING,status.eq.pending")
+          .order("created_at", { ascending: false });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawMatches = data;
-      } else {
+        if (!error && Array.isArray(data) && data.length > 0) {
+          rawMatches = data;
+        }
+      } catch (e) {}
+
+      if (!rawMatches || rawMatches.length === 0) {
         // Fallback to Firebase Firestore & backend database
         rawMatches = await fetchRealMatches();
       }

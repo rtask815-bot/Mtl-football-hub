@@ -121,14 +121,18 @@ export default function Fixtures() {
     setLoading(true);
     try {
       let rawFixtures = [];
-      const { data, error } = await supabase
-        .from("fixtures")
-        .select("*")
-        .order("match_date", { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from("fixtures")
+          .select("*")
+          .order("match_date", { ascending: true });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawFixtures = data;
-      } else {
+        if (!error && Array.isArray(data) && data.length > 0) {
+          rawFixtures = data;
+        }
+      } catch (e) {}
+
+      if (!rawFixtures || rawFixtures.length === 0) {
         rawFixtures = await fetchRealFixtures();
       }
 

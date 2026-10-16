@@ -90,14 +90,18 @@ export default function Trending() {
     setLoading(true);
     try {
       let rawTrending = [];
-      const { data, error } = await supabase
-        .from("trending")
-        .select("*")
-        .order("rank", { ascending: true });
+      try {
+        const { data, error } = await supabase
+          .from("trending")
+          .select("*")
+          .order("rank", { ascending: true });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawTrending = data;
-      } else {
+        if (!error && Array.isArray(data) && data.length > 0) {
+          rawTrending = data;
+        }
+      } catch (e) {}
+
+      if (!rawTrending || rawTrending.length === 0) {
         rawTrending = await fetchRealTrending();
       }
 

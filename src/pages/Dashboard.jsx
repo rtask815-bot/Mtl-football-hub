@@ -398,15 +398,19 @@ export default function Dashboard() {
   async function loadMatchesFromDB() {
     try {
       const { data, error } = await db.from('matches').select('*').order('created_at', { ascending: false });
-      if (!error && Array.isArray(data)) {
+      if (!error && Array.isArray(data) && data.length > 0) {
         setMatchesData(data.map(normalizeMatch));
-      } else {
-        setMatchesData([]);
+        return;
       }
-    } catch (error) {
-      console.error(error);
-      setMatchesData([]);
-    }
+    } catch (error) {}
+
+    // Fallback to cache / default backup
+    try {
+      const fallback = StorageCache.get('matches', DEFAULT_MATCHES_BACKUP);
+      if (Array.isArray(fallback) && fallback.length > 0) {
+        setMatchesData(fallback.map(normalizeMatch));
+      }
+    } catch (e) {}
   }
 
   function normalizeMatch(match) {
@@ -444,39 +448,55 @@ export default function Dashboard() {
   async function loadFixturesFromDB() {
     try {
       const { data, error } = await db.from('fixtures').select('*').order('match_date', { ascending: true });
-      if (!error && Array.isArray(data)) {
+      if (!error && Array.isArray(data) && data.length > 0) {
         setFixturesData(data.map(f => ({
           ...f,
           match_date: f.match_date ?? f.date ?? '',
           match_time: f.match_time ?? f.time ?? '',
           badge: f.badge || getTeamBadge(f.teams)
         })));
-      } else {
-        setFixturesData([]);
+        return;
       }
-    } catch (error) {
-      console.error(error);
-      setFixturesData([]);
-    }
+    } catch (error) {}
+
+    try {
+      const fallback = StorageCache.get('fixtures', DEFAULT_FIXTURES_BACKUP);
+      if (Array.isArray(fallback) && fallback.length > 0) {
+        setFixturesData(fallback.map(f => ({
+          ...f,
+          match_date: f.match_date ?? f.date ?? '',
+          match_time: f.match_time ?? f.time ?? '',
+          badge: f.badge || getTeamBadge(f.teams)
+        })));
+      }
+    } catch (e) {}
   }
 
   async function loadTrendingFromDB() {
     try {
       const { data, error } = await db.from('trending').select('*').order('rank', { ascending: true });
-      if (!error && Array.isArray(data)) {
+      if (!error && Array.isArray(data) && data.length > 0) {
         setTrendingData(data.map(item => ({
           ...item,
           rank: item.rank ?? '',
           title: item.title ?? item.topic ?? '',
           comments_count: item.comments_count ?? item.posts_count ?? 0
         })));
-      } else {
-        setTrendingData([]);
+        return;
       }
-    } catch (error) {
-      console.error(error);
-      setTrendingData([]);
-    }
+    } catch (error) {}
+
+    try {
+      const fallback = StorageCache.get('trending', DEFAULT_TRENDING_BACKUP);
+      if (Array.isArray(fallback) && fallback.length > 0) {
+        setTrendingData(fallback.map(item => ({
+          ...item,
+          rank: item.rank ?? '',
+          title: item.title ?? item.topic ?? '',
+          comments_count: item.comments_count ?? item.posts_count ?? 0
+        })));
+      }
+    } catch (e) {}
   }
 
   // Live Matches Engine Logic

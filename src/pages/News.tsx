@@ -160,14 +160,18 @@ export default function NewsPage() {
     setLoading(true);
     try {
       let rawData: any[] = [];
-      const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('news')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
-        rawData = data;
-      } else {
+        if (!error && Array.isArray(data) && data.length > 0) {
+          rawData = data;
+        }
+      } catch (e) {}
+
+      if (!rawData || rawData.length === 0) {
         // Fetch from Firebase Firestore & backend database
         rawData = await fetchRealNews();
       }
