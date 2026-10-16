@@ -493,7 +493,7 @@ export default function AdminControlPanel() {
       )}
 
       {/* SIDEBAR NAVIGATION MENU */}
-      <aside className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 w-72 bg-[#091120] border-r border-slate-800/90 flex flex-col justify-between p-5 transform transition-transform duration-300 shadow-2xl lg:translate-x-0 ${
+      <aside className={`fixed lg:sticky top-16 bottom-0 left-0 z-50 w-72 bg-[#091120] border-r border-slate-800/90 flex flex-col justify-between p-5 transform transition-transform duration-300 shadow-2xl lg:translate-x-0 ${
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="space-y-6">
@@ -589,7 +589,7 @@ export default function AdminControlPanel() {
       </aside>
 
       {/* MAIN ADMIN WORKSPACE */}
-      <main className="flex-1 min-h-screen overflow-y-auto px-4 pt-2 pb-6 sm:px-6 sm:pt-3 lg:px-8 lg:pt-4 space-y-6">
+      <main className="flex-1 min-h-screen overflow-y-auto px-4 pt-0 pb-6 sm:px-6 sm:pt-0 lg:px-8 lg:pt-0 space-y-6">
 
         {/* TOP BAR WITH MOBILE MENU TOGGLE & ACTION SHORTCUTS */}
         <div className="flex items-center justify-between gap-4 bg-[#0a1221] border border-slate-800/90 rounded-2xl p-4 shadow-xl">

@@ -415,7 +415,7 @@ export default function PlayerComparison() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pb-28 pt-4 px-3 sm:px-6 max-w-7xl mx-auto relative font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pb-28 pt-0 px-3 sm:px-6 max-w-7xl mx-auto relative font-sans">
       {/* Toast Notification Banner */}
       {notification && (
         <div className={`fixed top-20 right-4 z-50 px-5 py-3.5 rounded-xl border backdrop-blur-xl shadow-2xl flex items-center gap-3 transition-all transform animate-in slide-in-from-top-4 ${

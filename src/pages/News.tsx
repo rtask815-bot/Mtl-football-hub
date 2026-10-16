@@ -459,7 +459,7 @@ export default function NewsPage() {
       />
 
       {/* HEADER HERO TICKER & BANNER */}
-      <div className="bg-gradient-to-b from-[#0b1326] to-[#070b14] border-b border-slate-800/80 pt-2 pb-6 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-b from-[#0b1326] to-[#070b14] border-b border-slate-800/80 pt-0 pb-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
           
           {/* Breaking News Marquee Banner */}

@@ -281,14 +281,11 @@ function RouteTransitionManager() {
 
 function MainContentWrapper({ children }: { children: React.ReactNode }) {
     const location = useLocation();
-    const isFullBleed = location.pathname === '/' || location.pathname === '/auth';
 
     return (
         <main
             key={location.pathname}
-            className={`relative min-h-[calc(100vh-64px)] w-full transition-all duration-200 ease-out animate-in fade-in zoom-in-[0.99] ${
-                isFullBleed ? 'pt-0' : 'pt-16'
-            }`}
+            className="relative min-h-[calc(100vh-64px)] w-full transition-all duration-200 ease-out animate-in fade-in zoom-in-[0.99] pt-0"
         >
             {children}
         </main>

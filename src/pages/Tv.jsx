@@ -111,14 +111,14 @@ export default function TvPage() {
   }, []);
 
   return (
-    <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-black select-none font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-black select-none font-['Plus_Jakarta_Sans',sans-serif] flex flex-col">
       
       {/* ------------------------------------------------------------- */}
       {/* 1. OUR CUSTOM MTL TV TITLE BAR (COVERS & HIDES FAMELACK TITLE) */}
       {/* ------------------------------------------------------------- */}
       <header 
-        className={`fixed top-0 inset-x-0 h-14 bg-[#080d17]/95 backdrop-blur-md border-b border-[#1e293b] z-40 transition-transform duration-300 flex items-center justify-between px-3 sm:px-5 shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_8px_30px_rgba(0,0,0,0.85)] ${
-          showTitleBar ? 'translate-y-0' : '-translate-y-full'
+        className={`w-full h-14 shrink-0 bg-[#080d17]/95 backdrop-blur-md border-b border-[#1e293b] z-40 transition-all duration-300 flex items-center justify-between px-3 sm:px-5 shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_8px_30px_rgba(0,0,0,0.85)] ${
+          showTitleBar ? 'flex' : 'hidden'
         }`}
       >
         {/* Precision Milled Top Chamfer Highlight */}
@@ -220,7 +220,7 @@ export default function TvPage() {
       {!showTitleBar && (
         <button
           onClick={() => setShowTitleBar(true)}
-          className="fixed top-0 left-1/2 -translate-x-1/2 z-40 bg-slate-950/80 hover:bg-slate-900 text-slate-300 hover:text-white border border-t-0 border-emerald-500/40 rounded-b-xl px-4 py-1 flex items-center gap-1.5 text-[10px] font-bold shadow-lg transition-all"
+          className="absolute top-2 left-1/2 -translate-x-1/2 z-40 bg-slate-950/90 hover:bg-slate-900 text-slate-300 hover:text-white border border-emerald-500/40 rounded-xl px-4 py-1.5 flex items-center gap-1.5 text-[10px] font-bold shadow-lg transition-all"
         >
           <ChevronDown className="w-3.5 h-3.5 text-emerald-400" />
           <span>Show MTL TV Bar</span>
@@ -230,7 +230,7 @@ export default function TvPage() {
       {/* ------------------------------------------------------------- */}
       {/* 3. FULLSCREEN FAMELACK IFRAME CONTAINER                       */}
       {/* ------------------------------------------------------------- */}
-      <div className={`w-full h-full bg-black relative flex flex-col ${showTitleBar ? 'pt-14' : 'pt-0'} transition-all duration-300`}>
+      <div className="w-full flex-1 min-h-0 bg-black relative flex flex-col">
         {isLoading && (
           <div className="absolute inset-0 z-30 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center gap-3 text-white">
             <div className="w-12 h-12 rounded-2xl border-2 border-emerald-500/30 border-t-emerald-400 animate-spin flex items-center justify-center">

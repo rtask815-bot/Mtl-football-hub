@@ -337,7 +337,7 @@ export default function Engagement() {
       <UniversalFAB showBackToDashboard={true} onRefresh={handleManualRefresh} />
 
       {/* HERO SECTION & BREADCRUMB */}
-      <div className="relative border-b border-slate-800/80 bg-gradient-to-b from-[#091120] to-[#060b14] px-4 sm:px-8 pt-2 pb-6">
+      <div className="relative border-b border-slate-800/80 bg-gradient-to-b from-[#091120] to-[#060b14] px-4 sm:px-8 pt-0 pb-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">

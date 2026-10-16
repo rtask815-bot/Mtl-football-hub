@@ -1400,7 +1400,7 @@ export default function PrePage() {
 
         <div id="app-root" className="space-y-12 pb-16">
           {/* Banner */}
-          <section className="relative overflow-hidden pt-3 pb-6 px-6 border-b border-slate-800/80 bg-gradient-to-b from-[#0f172a] to-[#090d16] animate-slide-in">
+          <section className="relative overflow-hidden pt-0 pb-6 px-6 border-b border-slate-800/80 bg-gradient-to-b from-[#0f172a] to-[#090d16] animate-slide-in">
             <div className="max-w-7xl mx-auto text-center relative z-10 space-y-3">
               <span className="text-xs uppercase tracking-[0.25em] text-emerald-400 font-bold bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">Sports Analytics & Intelligence</span>
               <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight uppercase font-mono text-white">FOOTBALL <span className="text-emerald-400">INTELLIGENCE</span></h2>

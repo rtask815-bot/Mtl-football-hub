@@ -813,7 +813,7 @@ export default function Dashboard() {
           z-index: 10;
           max-width: 1280px;
           margin: 0 auto;
-          padding: 8px 16px 24px 16px;
+          padding: 0 16px 24px 16px;
         }
 
         /* UPDATED MINIMAL APP BAR */
