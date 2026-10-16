@@ -34,6 +34,7 @@ import FloatingBackButton from "./components/FloatingBackButton.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { SpotlightProvider } from "./components/physical/SpotlightProvider.tsx";
 import { soundEngine } from "./utils/soundEngine.ts";
+import FadingBackgroundAnimation from "./components/FadingBackgroundAnimation.tsx";
 export { supabase };
 
 // Fast Global Auth Context for zero-latency page transitions
@@ -330,6 +331,8 @@ export default function App() {
             <AuthSessionProvider>
                 <SpotlightProvider>
                     <BrowserRouter>
+                        {/* Global Translucent Changing Background Animation Visible Across All Pages */}
+                        <FadingBackgroundAnimation overlayOpacity={0.38} blurPx={2} intervalMs={6500} fadeDurationMs={1800} />
                         <SecurityHeadManager />
                         <RouteTransitionManager />
                         <StickyHeader />

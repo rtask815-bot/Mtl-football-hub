@@ -157,8 +157,8 @@ export const StickyHeader: React.FC = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-200 font-['Plus_Jakarta_Sans',sans-serif] ${
           isScrolled
-            ? 'bg-[#0a0f1d]/95 backdrop-blur-md border-b border-slate-800/90 shadow-xl shadow-black/80'
-            : 'bg-[#0a0f1d]/90 backdrop-blur-md border-b border-slate-800/60 shadow-md'
+            ? 'bg-[#0a0f1d]/80 backdrop-blur-xl border-b border-slate-800/80 shadow-xl shadow-black/80'
+            : 'bg-[#0a0f1d]/65 backdrop-blur-lg border-b border-slate-800/50 shadow-md'
         }`}
       >
         {/* Fixed 64px Height Main Navigation Bar */}

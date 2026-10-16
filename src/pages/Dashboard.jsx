@@ -23,7 +23,6 @@ import {
 } from '../components/physical/index.ts';
 import heroPhysicalShowcase from '../assets/images/hero_physical_showcase_1791684418843.jpg';
 import { getTeamVisual, getFixtureTeamsVisuals } from '../assets/visualsRegistry.ts';
-import FadingBackgroundAnimation from '../components/FadingBackgroundAnimation.tsx';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -744,15 +743,15 @@ export default function Dashboard() {
           padding: 0;
           width: 100%;
           min-height: 100vh;
-          background: #0a1422;
+          background: transparent;
           overflow-x: hidden;
         }
 
         .dashboard-root {
           box-sizing: border-box;
-          --bg: #0a1422;
-          --bg-2: #101d2e;
-          --surface: rgba(23, 38, 57, 0.95);
+          --bg: transparent;
+          --bg-2: rgba(16, 29, 46, 0.72);
+          --surface: rgba(16, 29, 46, 0.75);
           --border: rgba(255, 255, 255, 0.12);
           --border-green: rgba(16, 185, 129, 0.6);
           --text: #ffffff;
@@ -1082,8 +1081,6 @@ export default function Dashboard() {
         }
       `}</style>
 
-      {/* Cyberpunk Fading & Changing Football Background Animation */}
-      <FadingBackgroundAnimation overlayOpacity={0.82} intervalMs={7000} fadeDurationMs={1800} />
       <div className="background-grid" />
 
       {/* Main Dashboard Layout */}

@@ -639,4 +639,61 @@ button:active, [role="button"]:active, .tactile-click:active {
   transition: transform 0.08s ease-out !important;
 }
 
+/* ============================================================
+   TRANSLUCENT BACKGROUND FILTER SYSTEM ACROSS ALL PAGES
+   Ensures fading football images are clearly visible across every route
+   with high-tech frosted glass layers and contrast preservation.
+   ============================================================ */
+:root {
+  --glass-surface-translucent: rgba(10, 18, 33, 0.72);
+  --glass-border-translucent: rgba(56, 189, 248, 0.22);
+}
+
+/* Translucent Page Shells */
+.gateway-viewport,
+.auth-page-wrapper,
+.dashboard-root,
+.page-container,
+.cyber-page-container,
+.cyber-container,
+div[class*="min-h-screen"] {
+  background-color: transparent !important;
+}
+
+/* Translucent Frosted Glass Cards, Banners, and Panels */
+.pro-card,
+.cyber-card,
+.futuristic-card,
+.hud-panel,
+.dashboard-card,
+.bg-\[\#0a1221\],
+.bg-\[\#091120\],
+.bg-\[\#091222\],
+.bg-\[\#070b14\],
+.bg-\[\#0b1326\],
+.bg-\[\#060d18\] {
+  background-color: rgba(9, 16, 30, 0.78) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* Translucent Header and Navigation Shelves */
+.page-header,
+.cyber-page-header,
+.sticky-header,
+header {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  background-color: rgba(5, 11, 24, 0.8) !important;
+}
+
+/* Frosted glass modal overlays */
+.modal-content,
+.premium-modal-card {
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  background-color: rgba(9, 17, 34, 0.88) !important;
+}
+
+
 

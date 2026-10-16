@@ -11,7 +11,6 @@ import UniversalFAB from '../components/UniversalFAB.tsx';
 import FloatingBackButton from '../components/FloatingBackButton.tsx';
 import { openGoogleScout } from '../utils/googleScout.ts';
 import { getTeamVisual, getFixtureTeamsVisuals } from '../assets/visualsRegistry.ts';
-import FadingBackgroundAnimation from '../components/FadingBackgroundAnimation.tsx';
 
 // --- Helper Utilities ---
 function safeStringify(obj, indent = 2) {
@@ -1291,10 +1290,7 @@ export default function PrePage() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black ${contrastMode ? 'contrast-200 bg-black' : ''}`}>
-      {/* Cyberpunk Fading & Changing Football Background Animation */}
-      <FadingBackgroundAnimation overlayOpacity={0.82} intervalMs={7000} fadeDurationMs={1800} />
-
+    <div className={`min-h-screen bg-transparent text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-black ${contrastMode ? 'contrast-200' : ''}`}>
       <div className="app-content-wrapper flex flex-col min-h-screen justify-between relative z-10">
 
         {/* Unified Alert / Toast Prompts */}
