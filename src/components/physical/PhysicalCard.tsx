@@ -15,6 +15,8 @@ interface PhysicalCardProps extends React.HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
   withBolts?: boolean;
   withSpecularEdge?: boolean;
+  bgImage?: string;
+  backgroundImage?: string;
   className?: string;
 }
 
@@ -25,6 +27,8 @@ export const PhysicalCard: React.FC<PhysicalCardProps> = ({
   interactive = false,
   withBolts = false,
   withSpecularEdge = true,
+  bgImage,
+  backgroundImage,
   className = '',
   ...props
 }) => {
@@ -145,6 +149,21 @@ export const PhysicalCard: React.FC<PhysicalCardProps> = ({
           <div className="absolute bottom-2.5 right-2.5 w-2 h-2 rounded-full bg-[#1e293b] border border-[#334155] shadow-[inset_0_1px_1px_rgba(0,0,0,0.9),0_1px_0_rgba(255,255,255,0.1)] z-10 pointer-events-none flex items-center justify-center">
             <div className="w-0.5 h-0.5 rounded-full bg-slate-900" />
           </div>
+        </>
+      )}
+
+      {/* Background Graphic Overlay */}
+      {(bgImage || backgroundImage) && (
+        <>
+          <div 
+            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-25 mix-blend-luminosity filter contrast-125"
+            style={{ backgroundImage: `url(${bgImage || backgroundImage})` }}
+            aria-hidden="true"
+          />
+          <div 
+            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-[#0a0e17] via-[#0a0e17]/80 to-[#0a0e17]/50"
+            aria-hidden="true"
+          />
         </>
       )}
 

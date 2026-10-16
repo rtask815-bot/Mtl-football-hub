@@ -18,7 +18,7 @@ import {
   Info
 } from 'lucide-react';
 import { saveUserMatchStatus, MatchCardStatus, uploadDigitalMedia, StatusType } from '../config/firebaseStore.ts';
-import { STATUS_VISUALS_PRESETS, FOOTBALL_GIFS_CATALOG, APP_GENERATED_IMAGES } from '../assets/visualsRegistry.ts';
+import { STATUS_VISUALS_PRESETS, FOOTBALL_GIFS_CATALOG, APP_GENERATED_IMAGES, HUB_INTELLIGENT_ASSETS } from '../assets/visualsRegistry.ts';
 
 interface CreateStatusModalProps {
   isOpen: boolean;
@@ -54,9 +54,9 @@ const THEME_OPTIONS = [
   { id: 'rose', label: 'Crimson Fire', bg: 'bg-rose-500', border: 'border-rose-400' },
 ];
 
-// Sample media presets so users can test Reel & Image statuses instantly
+// Sample media presets using high-definition assets
 const SAMPLE_REEL_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-soccer-player-kicking-ball-in-stadium-41126-large.mp4';
-const SAMPLE_IMAGE_PHOTO = 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80';
+const SAMPLE_IMAGE_PHOTO = HUB_INTELLIGENT_ASSETS.statusSquare.url;
 
 export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
   isOpen,

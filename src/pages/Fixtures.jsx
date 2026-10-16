@@ -20,7 +20,7 @@ import { supabase } from "../config/supabase.ts";
 import { SyncService } from "../config/SyncService.ts";
 import { openGoogleScout } from "../utils/googleScout.ts";
 import { fetchRealFixtures } from "../config/firebaseStore.ts";
-import { getTeamVisual } from "../assets/visualsRegistry.ts";
+import { getTeamVisual, getFixtureCardBg } from "../assets/visualsRegistry.ts";
 
 export default function Fixtures() {
   const navigate = useNavigate();
@@ -350,8 +350,18 @@ export default function Fixtures() {
 
       {/* Fixtures Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredFixtures.map((m) => (
-          <div key={m.id} className="group bg-gradient-to-b from-[#0e182a] to-[#0a1221] border border-slate-800/90 hover:border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl shadow-black/40 transition-all duration-200 hover:-translate-y-0.5 relative">
+        {filteredFixtures.map((m) => {
+          const cardBg = getFixtureCardBg(m.id || `${m.home} ${m.away}`);
+          return (
+            <div key={m.id} className="group bg-gradient-to-b from-[#0e182a] to-[#0a1221] border border-slate-800/90 hover:border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl shadow-black/40 transition-all duration-200 hover:-translate-y-0.5 relative overflow-hidden">
+              {/* Background Match Image Overlay */}
+              <div 
+                className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-20 mix-blend-luminosity filter contrast-125 transition-transform duration-500 group-hover:scale-105"
+                style={{ backgroundImage: `url(${cardBg})` }}
+                aria-hidden="true"
+              />
+              <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-[#0a1221] via-[#0a1221]/90 to-[#0e182a]/75" aria-hidden="true" />
+              <div className="relative z-10 space-y-4">
             
             {/* Header info */}
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
@@ -438,7 +448,9 @@ export default function Fixtures() {
               </div>
             </div>
           </div>
-        ))}
+        </div>
+      );
+    })}
       </div>
 
       {filteredFixtures.length === 0 && !loading && (

@@ -9,8 +9,7 @@ import AdBanner from '../components/AdBanner.tsx';
 import AlertBanner from '../components/AlertBanner.tsx';
 import UniversalFAB from '../components/UniversalFAB.tsx';
 import FloatingBackButton from '../components/FloatingBackButton.tsx';
-import { openGoogleScout } from '../utils/googleScout.ts';
-import { getTeamVisual, getFixtureTeamsVisuals } from '../assets/visualsRegistry.ts';
+import { getTeamVisual, getFixtureTeamsVisuals, getMatchCardBg, getFixtureCardBg } from '../assets/visualsRegistry.ts';
 
 // --- Helper Utilities ---
 function safeStringify(obj, indent = 2) {
@@ -1047,9 +1046,18 @@ export default function PrePage() {
     const probDraw = Number(match.prob_draw) || 0;
     const probAway = Number(match.prob_away) || 0;
 
+    const matchBg = getMatchCardBg(match.id || match.teams);
     return (
-      <div key={match.id} className="bg-[#0f172a] rounded-2xl p-5 border border-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-[0_15px_30px_rgba(16,185,129,0.15)]">
-        <div className="space-y-2">
+      <div key={match.id} className="bg-[#0f172a] rounded-2xl p-5 border border-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-[0_15px_30px_rgba(16,185,129,0.15)] relative overflow-hidden group">
+        {/* Background Graphic Overlay */}
+        <div 
+          className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-20 mix-blend-luminosity filter contrast-125 transition-transform duration-500 group-hover:scale-105"
+          style={{ backgroundImage: `url(${matchBg})` }}
+          aria-hidden="true"
+        />
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/90 to-[#0f172a]/75" aria-hidden="true" />
+        <div className="relative z-10 flex flex-col justify-between space-y-4 h-full">
+          <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeClass}`}>{type} Match</span>
             <div className="flex items-center gap-2">
@@ -1177,13 +1185,23 @@ export default function PrePage() {
             </div>
           )}
         </div>
+        </div>
       </div>
     );
   };
 
   const renderFixtureCard = (fix, isLastCard = false) => {
+    const fixBg = getFixtureCardBg(fix.id || fix.teams);
     return (
-      <div key={fix.id} className="bg-[#0f172a] rounded-xl p-4 border border-slate-800 flex flex-col space-y-3 cursor-pointer transition-all duration-300 hover:border-cyan-500/50 hover:bg-slate-900/50">
+      <div key={fix.id} className="bg-[#0f172a] rounded-xl p-4 border border-slate-800 flex flex-col space-y-3 cursor-pointer transition-all duration-300 hover:border-cyan-500/50 hover:bg-slate-900/50 relative overflow-hidden group">
+        {/* Background Graphic Overlay */}
+        <div 
+          className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-20 mix-blend-luminosity filter contrast-125 transition-transform duration-500 group-hover:scale-105"
+          style={{ backgroundImage: `url(${fixBg})` }}
+          aria-hidden="true"
+        />
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/90 to-[#0f172a]/75" aria-hidden="true" />
+        <div className="relative z-10 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {(() => {
@@ -1223,6 +1241,7 @@ export default function PrePage() {
             </button>
           </div>
         )}
+        </div>
       </div>
     );
   };

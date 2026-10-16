@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, ArrowRight, X, ExternalLink, ShieldCheck } from 'lucide-react';
+import { HUB_INTELLIGENT_ASSETS, getAdvertBgImage } from '../assets/visualsRegistry.ts';
 
 export interface DynamicAdCampaign {
   id: string;
@@ -13,6 +14,7 @@ export interface DynamicAdCampaign {
   internalRoute?: string;
   sponsorName: string;
   verified: boolean;
+  backgroundImage?: string;
 }
 
 // Official Google AdMob Banner Inventory (App ID: ca-app-pub-8672251077600763~3212778192)
@@ -28,6 +30,7 @@ export const ADMOB_INVENTORY: Record<string, DynamicAdCampaign[]> = {
       internalRoute: '/tv',
       sponsorName: 'MTL Sports Network',
       verified: true,
+      backgroundImage: HUB_INTELLIGENT_ASSETS.advertVip.url
     },
     {
       id: 'ad-mob-02',
@@ -39,6 +42,7 @@ export const ADMOB_INVENTORY: Record<string, DynamicAdCampaign[]> = {
       targetUrl: 'https://www.betika.com.gh',
       sponsorName: 'Betika Pro Global',
       verified: true,
+      backgroundImage: HUB_INTELLIGENT_ASSETS.advertPartner.url
     },
     {
       id: 'ad-mob-03',
@@ -50,6 +54,7 @@ export const ADMOB_INVENTORY: Record<string, DynamicAdCampaign[]> = {
       internalRoute: '/group-chats',
       sponsorName: 'EA Sports Cup',
       verified: true,
+      backgroundImage: HUB_INTELLIGENT_ASSETS.statusReelStory.url
     }
   ]
 };
@@ -60,6 +65,7 @@ export interface AdContainerProps {
   subtitle?: string;
   badge?: string;
   ctaText?: string;
+  backgroundImage?: string;
   onAction?: () => void;
   autoRotateInterval?: number;
   className?: string;
@@ -71,6 +77,7 @@ export const AdContainer: React.FC<AdContainerProps> = ({
   subtitle,
   badge,
   ctaText,
+  backgroundImage,
   onAction,
   autoRotateInterval = 12000,
   className = '',
@@ -103,6 +110,7 @@ export const AdContainer: React.FC<AdContainerProps> = ({
   const displaySubtitle = subtitle || currentAd.subtitle;
   const displayBadge = badge || currentAd.badge;
   const displayCta = ctaText || currentAd.ctaText;
+  const activeBg = backgroundImage || currentAd.backgroundImage || getAdvertBgImage(currentAd.id);
 
   const handleCtaClick = () => {
     if (onAction) {
@@ -123,6 +131,20 @@ export const AdContainer: React.FC<AdContainerProps> = ({
       data-admob-unit-id={adUnitId}
       data-admob-campaign={currentAd.id}
     >
+      {/* Background Advert Graphic Overlay */}
+      {activeBg && (
+        <>
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-30 mix-blend-luminosity filter contrast-125 transition-all duration-700"
+            style={{ backgroundImage: `url(${activeBg})` }}
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-[#0c1424] via-[#0c1424]/90 to-[#0c1424]/65"
+            aria-hidden="true"
+          />
+        </>
+      )}
       {/* Dismiss Button */}
       <button
         type="button"

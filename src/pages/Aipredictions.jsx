@@ -38,8 +38,8 @@ import UniversalFAB from "../components/UniversalFAB.tsx";
 import FuturisticLoader from "../components/FuturisticLoader.tsx";
 import { supabase } from "../config/supabase.ts";
 import { SyncService } from "../config/SyncService.ts";
-import { fetchRealMatches } from "../config/firebaseStore.ts";
 import { openGoogleScout } from "../utils/googleScout.ts";
+import { getMatchCardBg } from "../assets/visualsRegistry.ts";
 
 // Sample / Backup Historical Team Performance Dataset
 const DEFAULT_TEAM_HISTORICAL = {
@@ -728,11 +728,21 @@ export default function Aipredictions() {
           <span className="text-[11px] font-mono text-cyan-400">DATABASE SOURCE: PUBLIC.MATCHES</span>
         </div>
 
-        {matches.map((m) => (
-          <div
-            key={m.id}
-            className="p-5 rounded-2xl bg-gradient-to-b from-[#0e182a] to-[#0a1221] border border-slate-800/90 hover:border-emerald-500/40 shadow-xl transition-all space-y-3"
-          >
+        {matches.map((m) => {
+          const matchBg = getMatchCardBg(m.id || m.teams);
+          return (
+            <div
+              key={m.id}
+              className="p-5 rounded-2xl bg-gradient-to-b from-[#0e182a] to-[#0a1221] border border-slate-800/90 hover:border-emerald-500/40 shadow-xl transition-all space-y-3 relative overflow-hidden group"
+            >
+              {/* Background Match Image Overlay */}
+              <div 
+                className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-20 mix-blend-luminosity filter contrast-125 transition-transform duration-500 group-hover:scale-105"
+                style={{ backgroundImage: `url(${matchBg})` }}
+                aria-hidden="true"
+              />
+              <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-[#0a1221] via-[#0a1221]/90 to-[#0e182a]/75" aria-hidden="true" />
+              <div className="relative z-10 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
               <div>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-400 uppercase mr-2">
@@ -795,8 +805,10 @@ export default function Aipredictions() {
                 {m.analysis_text}
               </p>
             )}
-          </div>
-        ))}
+              </div>
+            </div>
+          );
+        })}
 
         {matches.length === 0 && !loading && (
           <div className="p-12 text-center text-slate-500 bg-[#091120] border border-slate-800 rounded-2xl">

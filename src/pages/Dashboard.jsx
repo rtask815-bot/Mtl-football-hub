@@ -21,8 +21,7 @@ import {
   PhysicalOptionGrid,
   MaterialPanel 
 } from '../components/physical/index.ts';
-import heroPhysicalShowcase from '../assets/images/hero_physical_showcase_1791684418843.jpg';
-import { getTeamVisual, getFixtureTeamsVisuals } from '../assets/visualsRegistry.ts';
+import { getTeamVisual, getFixtureTeamsVisuals, getMatchCardBg, getFixtureCardBg } from '../assets/visualsRegistry.ts';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -1464,7 +1463,7 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   getFilteredMatches().slice(0, 3).map(match => (
-                    <PhysicalCard key={match.id} variant="obsidian" withSpecularEdge={true} className="p-4">
+                    <PhysicalCard key={match.id} variant="obsidian" bgImage={getMatchCardBg(match.id || match.teams)} withSpecularEdge={true} className="p-4">
                       <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
                         <span className="text-amber-400 font-extrabold tracking-wider uppercase">{match.league || 'LEAGUE'}</span>
                         <span className="font-mono tabular-nums text-slate-400">{match.match_date} • {match.match_time}</span>
@@ -1567,7 +1566,7 @@ export default function Dashboard() {
                   <div style={{ fontSize: '11px', color: 'var(--muted)', textAlign: 'center', padding: '12px' }}>No upcoming fixtures.</div>
                 ) : (
                   fixturesData.slice(0, 4).map(fix => (
-                    <PhysicalCard key={fix.id} variant="obsidian" interactive={true} className="p-2.5 mb-2 flex items-center justify-between">
+                    <PhysicalCard key={fix.id} variant="obsidian" bgImage={getFixtureCardBg(fix.id || fix.teams)} interactive={true} className="p-2.5 mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2.5 min-w-0">
                         {(() => {
                           const vis = getTeamVisual(fix.teams);

@@ -31,26 +31,13 @@ import { supabase } from '../config/supabase.ts';
 import { StorageCache } from '../config/storageCache.ts';
 import { openGoogleScout } from '../utils/googleScout.ts';
 import { fetchRealNews } from '../config/firebaseStore.ts';
-import { APP_GENERATED_IMAGES, NEWS_VISUALS_PRESETS } from '../assets/visualsRegistry.ts';
+import { APP_GENERATED_IMAGES, NEWS_VISUALS_PRESETS, HUB_INTELLIGENT_ASSETS, getDefaultNewsImage } from '../assets/visualsRegistry.ts';
 
 export function resolveNewsImage(category?: string, existingUrl?: string): string {
   if (existingUrl && !existingUrl.includes('unsplash.com') && existingUrl.length > 5) {
     return existingUrl;
   }
-  switch (category) {
-    case 'transfers':
-      return APP_GENERATED_IMAGES.newsTransferBreaking;
-    case 'tactical':
-      return APP_GENERATED_IMAGES.newsTacticalMastery;
-    case 'match_reports':
-      return APP_GENERATED_IMAGES.statusMatchdayElectric;
-    case 'official':
-      return APP_GENERATED_IMAGES.crestMtlGold;
-    case 'rumors':
-      return APP_GENERATED_IMAGES.crestEuroShield;
-    default:
-      return APP_GENERATED_IMAGES.newsTacticalMastery;
-  }
+  return getDefaultNewsImage(category);
 }
 
 export interface NewsArticle {
