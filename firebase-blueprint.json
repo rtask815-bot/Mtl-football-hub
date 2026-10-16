@@ -219,6 +219,75 @@
         "growth_rate": { "type": "string", "maxLength": 50 }
       },
       "required": ["title", "category"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "Football player profile and comprehensive career statistics across scoring, playmaking, and defense",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "club": { "type": "string", "maxLength": 100 },
+        "league": { "type": "string", "maxLength": 100 },
+        "nationality": { "type": "string", "maxLength": 100 },
+        "position": { "type": "string", "maxLength": 20 },
+        "photoUrl": { "type": "string", "maxLength": 1000 },
+        "age": { "type": "number" },
+        "matchesPlayed": { "type": "number" },
+        "careerGoals": { "type": "number" },
+        "careerAssists": { "type": "number" },
+        "goalsPerMatch": { "type": "number" },
+        "assistsPerMatch": { "type": "number" },
+        "minutesPerGoal": { "type": "number" },
+        "passAccuracy": { "type": "number" },
+        "keyPasses": { "type": "number" },
+        "defensiveRating": { "type": "number" },
+        "tacklesWon": { "type": "number" },
+        "interceptions": { "type": "number" },
+        "cleanSheets": { "type": "number" },
+        "aerialDuelsWonRate": { "type": "number" },
+        "dribbleSuccessRate": { "type": "number" },
+        "shotConversionRate": { "type": "number" },
+        "formRating": { "type": "number" },
+        "overallRating": { "type": "number" },
+        "pitchZones": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "club", "position"]
+    },
+    "PlayerComparison": {
+      "title": "PlayerComparison",
+      "description": "Saved head-to-head player comparison sessions with career statistics analysis and verdict",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "player1Id": { "type": "string", "maxLength": 128 },
+        "player2Id": { "type": "string", "maxLength": 128 },
+        "player1Name": { "type": "string", "maxLength": 100 },
+        "player2Name": { "type": "string", "maxLength": 100 },
+        "comparisonNote": { "type": "string", "maxLength": 1000 },
+        "verdict": { "type": "string", "maxLength": 500 },
+        "savedAt": { "type": "string" }
+      },
+      "required": ["player1Id", "player2Id", "savedAt"]
+    },
+    "PitchFormAlignment": {
+      "title": "PitchFormAlignment",
+      "description": "Tactical pitch form alignment index, zone ratings, and formation telemetry editable strictly by verified admins",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "formation": { "type": "string", "maxLength": 50 },
+        "alignmentIndex": { "type": "number" },
+        "pitchStatus": { "type": "string", "maxLength": 50 },
+        "zoneRatings": { "type": "object" },
+        "tacticalNotes": { "type": "string", "maxLength": 2000 },
+        "updatedBy": { "type": "string", "maxLength": 100 },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["alignmentIndex", "formation", "pitchStatus", "updatedAt"]
     }
   },
   "firestore": {
@@ -273,6 +342,18 @@
     "/trending/{trendingId}": {
       "schema": "TrendingTopic",
       "description": "Trending topics stored in Firebase"
+    },
+    "/players/{playerId}": {
+      "schema": "Player",
+      "description": "Football players and career stats records"
+    },
+    "/player_comparisons/{comparisonId}": {
+      "schema": "PlayerComparison",
+      "description": "User saved player comparisons and statistical evaluations"
+    },
+    "/pitch_form_alignment/{alignmentId}": {
+      "schema": "PitchFormAlignment",
+      "description": "Live tactical pitch form alignment index updated strictly by admins"
     }
   }
 }

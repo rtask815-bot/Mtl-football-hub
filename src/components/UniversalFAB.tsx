@@ -16,7 +16,8 @@ import {
   Menu,
   Shield,
   Bell,
-  Activity
+  Activity,
+  Users
 } from 'lucide-react';
 
 export interface FABAction {
@@ -156,6 +157,18 @@ export const UniversalFAB: React.FC<UniversalFABProps> = ({
   }
 
   if (showBackToDashboard) {
+    defaultActions.push({
+      id: 'compare_players',
+      label: 'Player Comparison',
+      description: 'Side-by-side career stats & pitch index',
+      icon: <Users className="w-4 h-4 text-emerald-400" />,
+      color: 'hover:border-emerald-500/50 hover:bg-emerald-950/40',
+      onClick: () => {
+        setIsOpen(false);
+        navigate('/player-comparison');
+      },
+    });
+
     defaultActions.push({
       id: 'dashboard',
       label: 'Back to Dashboard',

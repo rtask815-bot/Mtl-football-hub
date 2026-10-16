@@ -936,6 +936,89 @@ app.post('/api/trending', (req: Request, res: Response) => {
   }
 });
 
+// 8.1 Players Catalog & Career Stats
+app.get('/api/players', (_req: Request, res: Response) => {
+  const players = readJsonFile<any[]>('players.json', []);
+  return res.json({ success: true, players });
+});
+
+app.post('/api/players', (req: Request, res: Response) => {
+  try {
+    const item = req.body;
+    if (!item || !item.name) {
+      return res.status(400).json({ error: 'Missing player name' });
+    }
+    const players = readJsonFile<any[]>('players.json', []);
+    const id = item.id || `p_${Date.now()}`;
+    const newItem = { ...item, id, updatedAt: new Date().toISOString() };
+    const updated = [newItem, ...players.filter(p => p.id !== id)];
+    writeJsonFile('players.json', updated);
+    return res.json({ success: true, player: newItem });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// 8.2 Saved Player Comparisons
+app.get('/api/comparisons', (_req: Request, res: Response) => {
+  const comparisons = readJsonFile<any[]>('comparisons.json', []);
+  return res.json({ success: true, comparisons });
+});
+
+app.post('/api/comparisons', (req: Request, res: Response) => {
+  try {
+    const item = req.body;
+    const comparisons = readJsonFile<any[]>('comparisons.json', []);
+    const id = item.id || `cmp_${Date.now()}`;
+    const newItem = { ...item, id, savedAt: new Date().toISOString() };
+    const updated = [newItem, ...comparisons.filter(c => c.id !== id)];
+    writeJsonFile('comparisons.json', updated);
+    return res.json({ success: true, comparison: newItem });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// 8.3 Pitch Form Alignment Index (Admin Managed)
+app.get('/api/pitch-alignment', (_req: Request, res: Response) => {
+  const defaultAlignment = {
+    id: 'current',
+    formation: '4-3-3 Dynamic Overload',
+    alignmentIndex: 88,
+    pitchStatus: 'OPTIMAL',
+    zoneRatings: {
+      attackingThird: 92,
+      midfieldPivot: 86,
+      defensiveBlock: 84,
+      flankWidth: 89,
+      pressIntensity: 91,
+      transitionSpeed: 87,
+    },
+    tacticalNotes: 'High-block tactical synchronization active. Dual inverted wingers generating superior half-space penetration with immediate counter-pressing triggers upon ball turnover.',
+    updatedBy: 'Chief Tactical Admin (Verified)',
+    updatedAt: new Date().toISOString(),
+  };
+  const alignment = readJsonFile<any>('pitch_alignment.json', defaultAlignment);
+  return res.json({ success: true, ...alignment });
+});
+
+app.post('/api/pitch-alignment', (req: Request, res: Response) => {
+  try {
+    const item = req.body;
+    const current = readJsonFile<any>('pitch_alignment.json', {});
+    const updated = {
+      ...current,
+      ...item,
+      id: 'current',
+      updatedAt: new Date().toISOString(),
+    };
+    writeJsonFile('pitch_alignment.json', updated);
+    return res.json({ success: true, ...updated });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // 9. Community Messages & Emoji Reactions Database
 app.get('/api/messages', (req: Request, res: Response) => {
   const { groupId, recipientId, senderId } = req.query;

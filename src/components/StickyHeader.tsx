@@ -18,7 +18,8 @@ import {
   Bell,
   Sun,
   Moon,
-  BarChart2
+  BarChart2,
+  Users
 } from 'lucide-react';
 import { supabase } from '../config/supabase.ts';
 import { useAuthSession } from '../App.tsx';
@@ -35,6 +36,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { name: 'Dashboard', path: '/dashboard', icon: Activity },
+  { name: 'Player Compare', path: '/player-comparison', icon: Users, badge: 'PRO' },
   { name: 'Predictions', path: '/predictions', icon: TrendingUp },
   { name: 'Live TV', path: '/tv', icon: Tv, badge: 'LIVE' },
   { name: 'Fixtures', path: '/fixtures', icon: Calendar },

@@ -10,6 +10,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'lennoxmourice@gmail.com' ||
+        request.auth.token.email == 'deveper3651@gmail.com' ||
+        request.auth.token.email == 'moricetonnylennox@gmail.com' ||
+        (request.auth.token.email is string && request.auth.token.email.matches('.*@admin\\.com$'))
+      );
+    }
+
     // Community User Statuses (Real Match Card Stories)
     match /user_statuses/{statusId} {
       allow read: if true;
@@ -81,5 +91,26 @@ service cloud.firestore {
     match /profiles/{profileId} {
       allow read, write: if true;
     }
+
+    // Football Players Catalog & Stats
+    match /players/{playerId} {
+      allow read: if true;
+      allow create, update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    // User Saved Player Comparisons
+    match /player_comparisons/{comparisonId} {
+      allow read: if true;
+      allow create, update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+
+    // Pitch Form Alignment Index: Publicly viewable, EDITABLE ONLY BY ADMINS
+    match /pitch_form_alignment/{alignmentId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
   }
 }
+

@@ -1123,3 +1123,701 @@ export async function fetchUserPersonalPredictions(userId: string): Promise<User
 
   return getCachedList<UserPredictionItem>(key, []);
 }
+
+// ============================================================================
+// 9. PLAYER STATS, COMPARISON TOOL & PITCH FORM ALIGNMENT (SAVED TO FIREBASE)
+// ============================================================================
+
+export interface PlayerStats {
+  id: string;
+  name: string;
+  club: string;
+  league: string;
+  nationality: string;
+  position: 'Forward' | 'Midfielder' | 'Defender' | 'Goalkeeper';
+  photoUrl: string;
+  age: number;
+  matchesPlayed: number;
+  careerGoals: number;
+  careerAssists: number;
+  goalsPerMatch: number;
+  assistsPerMatch: number;
+  minutesPerGoal: number;
+  passAccuracy: number; // percentage 0-100
+  keyPasses: number;
+  defensiveRating: number; // 0-100
+  tacklesWon: number;
+  interceptions: number;
+  cleanSheets: number;
+  aerialDuelsWonRate: number; // 0-100
+  dribbleSuccessRate: number; // 0-100
+  shotConversionRate: number; // 0-100
+  formRating: number; // 0-10
+  overallRating: number; // 0-99
+  pitchZones: {
+    attackingThird: number;
+    midfieldControl: number;
+    defensiveSolidity: number;
+    pressingIntensity: number;
+    creativity: number;
+    physicality: number;
+  };
+  updatedAt?: string;
+}
+
+export interface PlayerComparisonRecord {
+  id: string;
+  userId: string;
+  userName: string;
+  player1Id: string;
+  player2Id: string;
+  player1Name: string;
+  player2Name: string;
+  comparisonNote?: string;
+  verdict: string;
+  savedAt: string;
+}
+
+export interface PitchFormAlignmentRecord {
+  id: string;
+  formation: string;
+  alignmentIndex: number; // 0-100
+  pitchStatus: 'OPTIMAL' | 'COMPACT' | 'OVERLOADED' | 'DISRUPTED';
+  zoneRatings: {
+    attackingThird: number; // 0-100
+    midfieldPivot: number; // 0-100
+    defensiveBlock: number; // 0-100
+    flankWidth: number; // 0-100
+    pressIntensity: number; // 0-100
+    transitionSpeed: number; // 0-100
+  };
+  tacticalNotes: string;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+export const DEFAULT_PITCH_FORM_ALIGNMENT: PitchFormAlignmentRecord = {
+  id: 'current',
+  formation: '4-3-3 Dynamic Overload',
+  alignmentIndex: 88,
+  pitchStatus: 'OPTIMAL',
+  zoneRatings: {
+    attackingThird: 92,
+    midfieldPivot: 86,
+    defensiveBlock: 84,
+    flankWidth: 89,
+    pressIntensity: 91,
+    transitionSpeed: 87,
+  },
+  tacticalNotes: 'High-block tactical synchronization active. Dual inverted wingers generating superior half-space penetration with immediate counter-pressing triggers upon ball turnover.',
+  updatedBy: 'Chief Tactical Admin (Verified)',
+  updatedAt: new Date().toISOString(),
+};
+
+export const INITIAL_PREMIER_PLAYERS: PlayerStats[] = [
+  {
+    id: 'haaland-erling',
+    name: 'Erling Haaland',
+    club: 'Manchester City',
+    league: 'Premier League',
+    nationality: 'Norway',
+    position: 'Forward',
+    photoUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=500&q=80',
+    age: 24,
+    matchesPlayed: 328,
+    careerGoals: 278,
+    careerAssists: 56,
+    goalsPerMatch: 0.85,
+    assistsPerMatch: 0.17,
+    minutesPerGoal: 93,
+    passAccuracy: 76,
+    keyPasses: 312,
+    defensiveRating: 44,
+    tacklesWon: 98,
+    interceptions: 42,
+    cleanSheets: 0,
+    aerialDuelsWonRate: 64,
+    dribbleSuccessRate: 58,
+    shotConversionRate: 31,
+    formRating: 9.4,
+    overallRating: 92,
+    pitchZones: {
+      attackingThird: 98,
+      midfieldControl: 62,
+      defensiveSolidity: 42,
+      pressingIntensity: 78,
+      creativity: 66,
+      physicality: 96,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'mbappe-kylian',
+    name: 'Kylian Mbappé',
+    club: 'Real Madrid',
+    league: 'La Liga',
+    nationality: 'France',
+    position: 'Forward',
+    photoUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=500&q=80',
+    age: 25,
+    matchesPlayed: 442,
+    careerGoals: 334,
+    careerAssists: 158,
+    goalsPerMatch: 0.76,
+    assistsPerMatch: 0.36,
+    minutesPerGoal: 104,
+    passAccuracy: 83,
+    keyPasses: 580,
+    defensiveRating: 38,
+    tacklesWon: 112,
+    interceptions: 54,
+    cleanSheets: 0,
+    aerialDuelsWonRate: 46,
+    dribbleSuccessRate: 68,
+    shotConversionRate: 26,
+    formRating: 9.2,
+    overallRating: 93,
+    pitchZones: {
+      attackingThird: 97,
+      midfieldControl: 74,
+      defensiveSolidity: 36,
+      pressingIntensity: 68,
+      creativity: 88,
+      physicality: 89,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'debruyne-kevin',
+    name: 'Kevin De Bruyne',
+    club: 'Manchester City',
+    league: 'Premier League',
+    nationality: 'Belgium',
+    position: 'Midfielder',
+    photoUrl: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=500&q=80',
+    age: 33,
+    matchesPlayed: 620,
+    careerGoals: 154,
+    careerAssists: 298,
+    goalsPerMatch: 0.25,
+    assistsPerMatch: 0.48,
+    minutesPerGoal: 312,
+    passAccuracy: 88,
+    keyPasses: 1240,
+    defensiveRating: 68,
+    tacklesWon: 410,
+    interceptions: 295,
+    cleanSheets: 0,
+    aerialDuelsWonRate: 51,
+    dribbleSuccessRate: 72,
+    shotConversionRate: 17,
+    formRating: 8.9,
+    overallRating: 91,
+    pitchZones: {
+      attackingThird: 92,
+      midfieldControl: 98,
+      defensiveSolidity: 65,
+      pressingIntensity: 82,
+      creativity: 99,
+      physicality: 78,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'salah-mohamed',
+    name: 'Mohamed Salah',
+    club: 'Liverpool FC',
+    league: 'Premier League',
+    nationality: 'Egypt',
+    position: 'Forward',
+    photoUrl: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=500&q=80',
+    age: 32,
+    matchesPlayed: 610,
+    careerGoals: 326,
+    careerAssists: 162,
+    goalsPerMatch: 0.53,
+    assistsPerMatch: 0.27,
+    minutesPerGoal: 142,
+    passAccuracy: 81,
+    keyPasses: 790,
+    defensiveRating: 48,
+    tacklesWon: 230,
+    interceptions: 118,
+    cleanSheets: 0,
+    aerialDuelsWonRate: 39,
+    dribbleSuccessRate: 64,
+    shotConversionRate: 22,
+    formRating: 9.1,
+    overallRating: 90,
+    pitchZones: {
+      attackingThird: 94,
+      midfieldControl: 78,
+      defensiveSolidity: 46,
+      pressingIntensity: 80,
+      creativity: 89,
+      physicality: 82,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'rodri-hernandez',
+    name: 'Rodri Cascante',
+    club: 'Manchester City',
+    league: 'Premier League',
+    nationality: 'Spain',
+    position: 'Midfielder',
+    photoUrl: 'https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?auto=format&fit=crop&w=500&q=80',
+    age: 28,
+    matchesPlayed: 450,
+    careerGoals: 48,
+    careerAssists: 42,
+    goalsPerMatch: 0.11,
+    assistsPerMatch: 0.09,
+    minutesPerGoal: 780,
+    passAccuracy: 93,
+    keyPasses: 490,
+    defensiveRating: 94,
+    tacklesWon: 780,
+    interceptions: 620,
+    cleanSheets: 142,
+    aerialDuelsWonRate: 74,
+    dribbleSuccessRate: 76,
+    shotConversionRate: 14,
+    formRating: 9.5,
+    overallRating: 92,
+    pitchZones: {
+      attackingThird: 76,
+      midfieldControl: 99,
+      defensiveSolidity: 95,
+      pressingIntensity: 92,
+      creativity: 87,
+      physicality: 93,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'saliba-william',
+    name: 'William Saliba',
+    club: 'Arsenal FC',
+    league: 'Premier League',
+    nationality: 'France',
+    position: 'Defender',
+    photoUrl: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=500&q=80',
+    age: 23,
+    matchesPlayed: 240,
+    careerGoals: 12,
+    careerAssists: 6,
+    goalsPerMatch: 0.05,
+    assistsPerMatch: 0.03,
+    minutesPerGoal: 1720,
+    passAccuracy: 92,
+    keyPasses: 85,
+    defensiveRating: 95,
+    tacklesWon: 460,
+    interceptions: 410,
+    cleanSheets: 98,
+    aerialDuelsWonRate: 69,
+    dribbleSuccessRate: 66,
+    shotConversionRate: 11,
+    formRating: 9.1,
+    overallRating: 89,
+    pitchZones: {
+      attackingThird: 42,
+      midfieldControl: 81,
+      defensiveSolidity: 98,
+      pressingIntensity: 88,
+      creativity: 62,
+      physicality: 94,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'vandijk-virgil',
+    name: 'Virgil van Dijk',
+    club: 'Liverpool FC',
+    league: 'Premier League',
+    nationality: 'Netherlands',
+    position: 'Defender',
+    photoUrl: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=500&q=80',
+    age: 33,
+    matchesPlayed: 580,
+    careerGoals: 54,
+    careerAssists: 24,
+    goalsPerMatch: 0.09,
+    assistsPerMatch: 0.04,
+    minutesPerGoal: 920,
+    passAccuracy: 90,
+    keyPasses: 140,
+    defensiveRating: 96,
+    tacklesWon: 740,
+    interceptions: 680,
+    cleanSheets: 215,
+    aerialDuelsWonRate: 78,
+    dribbleSuccessRate: 59,
+    shotConversionRate: 12,
+    formRating: 9.0,
+    overallRating: 90,
+    pitchZones: {
+      attackingThird: 51,
+      midfieldControl: 84,
+      defensiveSolidity: 99,
+      pressingIntensity: 84,
+      creativity: 68,
+      physicality: 97,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'saka-bukayo',
+    name: 'Bukayo Saka',
+    club: 'Arsenal FC',
+    league: 'Premier League',
+    nationality: 'England',
+    position: 'Forward',
+    photoUrl: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=500&q=80',
+    age: 23,
+    matchesPlayed: 295,
+    careerGoals: 82,
+    careerAssists: 74,
+    goalsPerMatch: 0.28,
+    assistsPerMatch: 0.25,
+    minutesPerGoal: 280,
+    passAccuracy: 84,
+    keyPasses: 460,
+    defensiveRating: 64,
+    tacklesWon: 340,
+    interceptions: 195,
+    cleanSheets: 0,
+    aerialDuelsWonRate: 48,
+    dribbleSuccessRate: 71,
+    shotConversionRate: 19,
+    formRating: 9.0,
+    overallRating: 89,
+    pitchZones: {
+      attackingThird: 91,
+      midfieldControl: 86,
+      defensiveSolidity: 62,
+      pressingIntensity: 88,
+      creativity: 92,
+      physicality: 79,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'martinez-josef',
+    name: 'Josef Martínez',
+    club: 'CF Montréal',
+    league: 'Major League Soccer (MLS)',
+    nationality: 'Venezuela',
+    position: 'Forward',
+    photoUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?auto=format&fit=crop&w=500&q=80',
+    age: 31,
+    matchesPlayed: 360,
+    careerGoals: 172,
+    careerAssists: 38,
+    goalsPerMatch: 0.48,
+    assistsPerMatch: 0.11,
+    minutesPerGoal: 155,
+    passAccuracy: 78,
+    keyPasses: 290,
+    defensiveRating: 40,
+    tacklesWon: 95,
+    interceptions: 44,
+    cleanSheets: 0,
+    aerialDuelsWonRate: 52,
+    dribbleSuccessRate: 61,
+    shotConversionRate: 24,
+    formRating: 8.6,
+    overallRating: 83,
+    pitchZones: {
+      attackingThird: 90,
+      midfieldControl: 68,
+      defensiveSolidity: 38,
+      pressingIntensity: 76,
+      creativity: 72,
+      physicality: 84,
+    },
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'piette-samuel',
+    name: 'Samuel Piette',
+    club: 'CF Montréal',
+    league: 'Major League Soccer (MLS)',
+    nationality: 'Canada',
+    position: 'Midfielder',
+    photoUrl: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=500&q=80',
+    age: 30,
+    matchesPlayed: 320,
+    careerGoals: 8,
+    careerAssists: 22,
+    goalsPerMatch: 0.03,
+    assistsPerMatch: 0.07,
+    minutesPerGoal: 3100,
+    passAccuracy: 89,
+    keyPasses: 240,
+    defensiveRating: 86,
+    tacklesWon: 590,
+    interceptions: 480,
+    cleanSheets: 62,
+    aerialDuelsWonRate: 67,
+    dribbleSuccessRate: 62,
+    shotConversionRate: 8,
+    formRating: 8.4,
+    overallRating: 81,
+    pitchZones: {
+      attackingThird: 55,
+      midfieldControl: 88,
+      defensiveSolidity: 91,
+      pressingIntensity: 90,
+      creativity: 70,
+      physicality: 89,
+    },
+    updatedAt: new Date().toISOString()
+  }
+];
+
+const PLAYERS_CACHE_KEY = 'mtl_real_players_v4';
+const COMPARISONS_CACHE_KEY = 'mtl_saved_comparisons_v4';
+const PITCH_ALIGNMENT_CACHE_KEY = 'mtl_pitch_alignment_v4';
+
+export async function fetchRealPlayers(): Promise<PlayerStats[]> {
+  const playersMap = new Map<string, PlayerStats>();
+
+  // 1. Seed defaults first
+  INITIAL_PREMIER_PLAYERS.forEach(p => playersMap.set(p.id, p));
+
+  // 2. Fetch from Firestore /players
+  try {
+    const snap = await getDocs(collection(db, 'players'));
+    snap.forEach(d => {
+      const data = d.data() as PlayerStats;
+      if (data && data.id) {
+        playersMap.set(data.id, data);
+      }
+    });
+  } catch (fsErr) {
+    console.warn('Firestore fetch players notice:', fsErr);
+  }
+
+  // 3. Fallback to server API /api/players
+  try {
+    const res = await fetch('/api/players', { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json.players)) {
+        json.players.forEach((p: PlayerStats) => {
+          if (p && p.id && !playersMap.has(p.id)) {
+            playersMap.set(p.id, p);
+          }
+        });
+      }
+    }
+  } catch {}
+
+  const list = Array.from(playersMap.values());
+  setCachedList(PLAYERS_CACHE_KEY, list);
+  return list;
+}
+
+export async function savePlayerToFirebase(player: PlayerStats): Promise<PlayerStats> {
+  const item: PlayerStats = {
+    ...player,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // 1. Save to Firebase Firestore /players/{id}
+  try {
+    await setDoc(doc(db, 'players', item.id), item);
+  } catch (fsErr) {
+    console.warn('Firestore save player notice:', fsErr);
+  }
+
+  // 2. Update local cache
+  const list = getCachedList<PlayerStats>(PLAYERS_CACHE_KEY, INITIAL_PREMIER_PLAYERS);
+  const updated = [item, ...list.filter(p => p.id !== item.id)];
+  setCachedList(PLAYERS_CACHE_KEY, updated);
+
+  // 3. Sync to server fallback
+  try {
+    await fetch('/api/players', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+  } catch {}
+
+  return item;
+}
+
+export async function savePlayerComparisonToFirebase(
+  comparison: Omit<PlayerComparisonRecord, 'id' | 'savedAt'>
+): Promise<PlayerComparisonRecord> {
+  const id = `cmp_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const item: PlayerComparisonRecord = {
+    ...comparison,
+    id,
+    savedAt: new Date().toISOString(),
+  };
+
+  // 1. Save to Firebase Firestore /player_comparisons/{id}
+  try {
+    await setDoc(doc(db, 'player_comparisons', id), item);
+  } catch (fsErr) {
+    console.warn('Firestore save comparison notice:', fsErr);
+  }
+
+  // 2. Cache
+  const list = getCachedList<PlayerComparisonRecord>(COMPARISONS_CACHE_KEY, []);
+  const updated = [item, ...list.filter(c => c.id !== id)];
+  setCachedList(COMPARISONS_CACHE_KEY, updated);
+
+  // 3. Fallback server
+  try {
+    await fetch('/api/comparisons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+  } catch {}
+
+  // 4. Log User Activity
+  await logUserActivity(comparison.userId || 'anon_scout', {
+    type: 'prediction_added',
+    title: `Saved Player Comparison: ${comparison.player1Name} vs ${comparison.player2Name}`,
+    description: comparison.verdict ? comparison.verdict.slice(0, 120) : 'Analyzed career statistics side-by-side',
+    badge: 'SCOUT'
+  });
+
+  return item;
+}
+
+export async function fetchSavedPlayerComparisons(): Promise<PlayerComparisonRecord[]> {
+  try {
+    const snap = await getDocs(collection(db, 'player_comparisons'));
+    const list: PlayerComparisonRecord[] = [];
+    snap.forEach(d => {
+      const data = d.data() as PlayerComparisonRecord;
+      if (data && data.id) list.push(data);
+    });
+    if (list.length > 0) {
+      list.sort((a, b) => new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime());
+      setCachedList(COMPARISONS_CACHE_KEY, list);
+      return list;
+    }
+  } catch (fsErr) {
+    console.warn('Firestore fetch comparisons notice:', fsErr);
+  }
+
+  try {
+    const res = await fetch('/api/comparisons');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.comparisons)) {
+        setCachedList(COMPARISONS_CACHE_KEY, data.comparisons);
+        return data.comparisons;
+      }
+    }
+  } catch {}
+
+  return getCachedList<PlayerComparisonRecord>(COMPARISONS_CACHE_KEY, []);
+}
+
+export async function deletePlayerComparisonFromFirebase(id: string): Promise<boolean> {
+  try {
+    await setDoc(doc(db, 'player_comparisons', id), { _deleted: true }, { merge: true });
+  } catch {}
+
+  const list = getCachedList<PlayerComparisonRecord>(COMPARISONS_CACHE_KEY, []);
+  setCachedList(COMPARISONS_CACHE_KEY, list.filter(c => c.id !== id));
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// PITCH FORM ALIGNMENT INDEX (EDITABLE ONLY BY ADMINS)
+// ----------------------------------------------------------------------------
+
+export async function fetchPitchFormAlignment(): Promise<PitchFormAlignmentRecord> {
+  try {
+    const docRef = doc(db, 'pitch_form_alignment', 'current');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const data = snap.data() as PitchFormAlignmentRecord;
+      if (data && typeof data.alignmentIndex === 'number') {
+        localStorage.setItem(PITCH_ALIGNMENT_CACHE_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch (fsErr) {
+    console.warn('Firestore fetch pitch alignment notice:', fsErr);
+  }
+
+  try {
+    const res = await fetch('/api/pitch-alignment');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data.alignmentIndex === 'number') {
+        localStorage.setItem(PITCH_ALIGNMENT_CACHE_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch {}
+
+  const cached = localStorage.getItem(PITCH_ALIGNMENT_CACHE_KEY);
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch {}
+  }
+
+  return DEFAULT_PITCH_FORM_ALIGNMENT;
+}
+
+export async function updatePitchFormAlignmentInFirebase(
+  alignment: Partial<PitchFormAlignmentRecord>,
+  adminIdentifier: string = 'Admin'
+): Promise<PitchFormAlignmentRecord> {
+  const current = await fetchPitchFormAlignment();
+  const updated: PitchFormAlignmentRecord = {
+    ...current,
+    ...alignment,
+    id: 'current',
+    updatedBy: adminIdentifier,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // 1. Save to Firebase Firestore /pitch_form_alignment/current
+  // Notice: Security rules enforce `allow write: if isAdmin();`
+  try {
+    await setDoc(doc(db, 'pitch_form_alignment', 'current'), updated);
+  } catch (fsErr: any) {
+    console.warn('Firestore admin pitch alignment update notice:', fsErr);
+    // If permission denied or offline, bubble error so admin sees rule enforcement
+    if (fsErr?.code === 'permission-denied') {
+      throw new Error('PERMISSION_DENIED: Pitch Form Alignment Index updates are strictly restricted to verified administrators.');
+    }
+  }
+
+  // 2. Cache
+  localStorage.setItem(PITCH_ALIGNMENT_CACHE_KEY, JSON.stringify(updated));
+
+  // 3. Fallback server route
+  try {
+    await fetch('/api/pitch-alignment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
+  } catch {}
+
+  // 4. Log User Activity for audit trail
+  await logUserActivity('admin_action', {
+    type: 'profile_update',
+    title: `Admin Updated Pitch Form Alignment Index: ${updated.alignmentIndex}/100`,
+    description: `Tactical formation set to "${updated.formation}" (${updated.pitchStatus})`,
+    badge: 'ADMIN_AUDIT'
+  });
+
+  return updated;
+}
+

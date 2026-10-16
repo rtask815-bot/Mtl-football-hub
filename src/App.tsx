@@ -23,6 +23,7 @@ import News from "./pages/News.tsx";
 import AdminControlPanel from "./pages/AdminControlPanel.tsx";
 import Engagement from "./pages/Engagement.tsx";
 import UserProfile from "./pages/UserProfile.tsx";
+import PlayerComparison from "./pages/PlayerComparison.tsx";
 import { supabase } from "./config/supabase.ts";
 import { StorageCache } from "./config/storageCache.ts";
 import { startGlobalBackgroundSync } from "./config/storageCache.ts";
@@ -298,6 +299,8 @@ export default function App() {
                                 <Route path="/news" element={<ProtectedRoute><News /></ProtectedRoute>} />
                                 <Route path="/engagement" element={<ProtectedRoute><Engagement /></ProtectedRoute>} />
                                 <Route path="/activity" element={<ProtectedRoute><Engagement /></ProtectedRoute>} />
+                                <Route path="/player-comparison" element={<ProtectedRoute><PlayerComparison /></ProtectedRoute>} />
+                                <Route path="/compare" element={<ProtectedRoute><PlayerComparison /></ProtectedRoute>} />
                                 <Route path="/admin" element={<AdminRoute><AdminControlPanel /></AdminRoute>} />
                                 <Route path="/admin-control-panel" element={<AdminRoute><AdminControlPanel /></AdminRoute>} />
 

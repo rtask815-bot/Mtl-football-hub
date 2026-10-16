@@ -724,6 +724,17 @@ export default function AdminControlPanel() {
                 </button>
 
                 <button
+                  onClick={() => navigate('/player-comparison')}
+                  className="p-4 rounded-xl bg-gradient-to-br from-emerald-950/60 to-slate-900 border border-emerald-500/40 hover:border-emerald-400 text-left space-y-1 transition-all cursor-pointer group shadow-lg shadow-emerald-950/30"
+                >
+                  <span className="text-xs font-bold text-emerald-300 block font-['Orbitron'] flex items-center justify-between">
+                    <span>⚡ Pitch Form Index & Player Compare</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </span>
+                  <p className="text-[11px] text-slate-400">Calibrate Pitch Form Alignment Index (Admin) & evaluate side-by-side player analytics.</p>
+                </button>
+
+                <button
                   onClick={() => navigate('/engagement')}
                   className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-purple-500/40 text-left space-y-1 transition-colors cursor-pointer group"
                 >
