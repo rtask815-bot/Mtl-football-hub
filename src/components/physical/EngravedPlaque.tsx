@@ -70,8 +70,20 @@ export const EngravedPlaque: React.FC<EngravedPlaqueProps> = ({
           </div>
         )}
         <div className="min-w-0">
-          <h2 className={`tracking-tight text-white uppercase text-wrap-balance truncate ${titleSizes[size]}`}>
-            {title}
+          <h2 className={`tracking-tight text-white uppercase text-wrap-balance truncate flex items-center gap-2 ${titleSizes[size]}`}>
+            {(() => {
+              const match = title.match(/^(.*?)\s*[\(\[]([0-9]+)[\)\]]\s*$/);
+              if (!match) return title;
+              const [, mainText, countStr] = match;
+              return (
+                <>
+                  <span>{mainText}</span>
+                  <sub className="inline-flex items-center justify-center px-1.5 py-0.5 ml-1 text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full animate-pulse shadow-sm align-super">
+                    {countStr}
+                  </sub>
+                </>
+              );
+            })()}
           </h2>
           {subtitle && (
             <p className="text-xs text-slate-400 font-medium tracking-normal mt-0.5 truncate">
