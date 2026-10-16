@@ -181,89 +181,9 @@ export default function Dashboard() {
     updateLiveMatches();
   }, [matchesData]);
 
-  // 4D Background Canvas Animation Engine
+  // High-Performance Static Background & Video Backdrop Engine
   useEffect(() => {
-    if (!canvasRef.current || !THREE) return;
-
-    const canvas = canvasRef.current;
-    
-    let renderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    } catch (e) {
-      console.warn("WebGL initialization note:", e);
-      return;
-    }
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 30;
-
-    const geometry = new THREE.TorusKnotGeometry(10, 3, 128, 32);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0x10b981,
-      wireframe: true,
-      roughness: 0.2,
-      metalness: 0.8
-    });
-    const torusKnot = new THREE.Mesh(geometry, material);
-    scene.add(torusKnot);
-
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 700;
-    const posArray = new Float32Array(particlesCount * 3);
-    for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 60;
-    }
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.12,
-      color: 0x00f0ff,
-      transparent: true,
-      opacity: 0.7
-    });
-    const particleMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particleMesh);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-    const pointLight = new THREE.PointLight(0x00f0ff, 2, 50);
-    pointLight.position.set(15, 15, 15);
-    scene.add(pointLight);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    const handleMouseMove = (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener('resize', handleResize);
-
-    let animationFrameId;
-    function animate() {
-      animationFrameId = requestAnimationFrame(animate);
-      torusKnot.rotation.x += 0.003 + mouseY * 0.1;
-      torusKnot.rotation.y += 0.005 + mouseX * 0.1;
-      particleMesh.rotation.y -= 0.001;
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-      renderer.dispose();
-    };
+    // Static background mode active - zero CPU/GPU animation loops to prevent hungs, glitches and loading lag.
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -1161,8 +1081,16 @@ export default function Dashboard() {
         }
       `}</style>
 
-      {/* 4D Background Canvas */}
-      <canvas ref={canvasRef} id="bg-4d-canvas" />
+      {/* High-Performance Static Background Image & Video Backdrop */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#060a12] via-[#09111e] to-[#04070d] opacity-95" />
+        <img 
+          src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1920&auto=format&fit=crop" 
+          alt="Stadium Atmosphere" 
+          className="absolute inset-0 w-full h-full object-cover opacity-20 filter contrast-125"
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950/20 via-transparent to-black/80" />
+      </div>
       <div className="background-grid" />
 
       {/* Main Dashboard Layout */}
