@@ -616,3 +616,27 @@ button:active:not(:disabled), [role="button"]:active:not([aria-disabled="true"])
   border: 1px solid rgba(56, 189, 248, 0.4);
 }
 
+/* ============================================================
+   SMOOTH DASHBOARD TRANSITIONS & TACTILE BUTTON REACTIONS
+   ============================================================ */
+.dashboard-view-transition {
+  animation: dashboardFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dashboardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+button:active, [role="button"]:active, .tactile-click:active {
+  transform: scale(0.96) translateY(1px) !important;
+  transition: transform 0.08s ease-out !important;
+}
+
+

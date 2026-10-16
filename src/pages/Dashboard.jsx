@@ -736,7 +736,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-root">
+    <div className="dashboard-root dashboard-view-transition">
       <style>{`
         html, body, #root {
           margin: 0;
