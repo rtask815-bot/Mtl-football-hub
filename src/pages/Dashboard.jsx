@@ -21,6 +21,7 @@ import {
   PhysicalOptionGrid,
   MaterialPanel 
 } from '../components/physical/index.ts';
+import heroPhysicalShowcase from '../assets/images/hero_physical_showcase_1791684418843.jpg';
 import { getTeamVisual, getFixtureTeamsVisuals, getMatchCardBg, getFixtureCardBg } from '../assets/visualsRegistry.ts';
 
 export default function Dashboard() {
