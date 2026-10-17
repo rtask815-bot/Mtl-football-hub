@@ -191,8 +191,11 @@ export const GroupChatsCallsTab: React.FC<GroupChatsCallsTabProps> = ({
         {/* QUICK DIAL COMMUNITY MEMBERS */}
         <div className="bg-[#091220] border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black text-white font-['Orbitron'] tracking-wider uppercase">
-              QUICK DIAL MEMBERS ({userList.length})
+            <h3 className="text-xs font-black text-white font-['Orbitron'] tracking-wider uppercase flex items-center gap-1.5">
+              <span>QUICK DIAL MEMBERS</span>
+              <sup className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 px-1.5 py-0.5 rounded-full shadow-sm">
+                {userList.length}
+              </sup>
             </h3>
             <div className="relative w-44">
               <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />

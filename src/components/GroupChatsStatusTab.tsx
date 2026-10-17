@@ -133,8 +133,13 @@ export const GroupChatsStatusTab: React.FC<GroupChatsStatusTabProps> = ({
 
       {/* COMMUNITY UPDATES SECTION */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-slate-400 uppercase font-mono tracking-wider px-1">
-          RECENT FAN UPDATES ({otherStatuses.length})
+        <h3 className="text-xs font-bold text-slate-400 uppercase font-mono tracking-wider px-1 flex items-center gap-1.5">
+          <span>RECENT FAN UPDATES</span>
+          {otherStatuses.length > 0 && (
+            <sup className="text-[10px] font-mono font-bold text-purple-400 bg-purple-500/15 border border-purple-500/30 px-1.5 py-0.5 rounded-full shadow-sm">
+              {otherStatuses.length}
+            </sup>
+          )}
         </h3>
 
         {otherStatuses.length === 0 ? (

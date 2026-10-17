@@ -1680,7 +1680,7 @@ export default function GroupChats() {
   let lastDateDivider = '';
 
   return (
-    <div className="min-h-screen bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.06),rgba(0,0,0,0))] text-slate-100 font-['Rajdhani',sans-serif] flex flex-col relative overflow-x-hidden">
+    <div className="min-h-[calc(100vh-64px)] bg-[#060b14] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.06),rgba(0,0,0,0))] text-slate-100 font-['Rajdhani',sans-serif] flex flex-col relative">
       <UniversalFAB />
 
       <FuturisticLoader active={isLoading} text="SYNCHRONIZING FOOTBALL CHAT HUBS..." />
@@ -1689,13 +1689,13 @@ export default function GroupChats() {
       {isSideNavOpen && (
         <div
           onClick={() => setIsSideNavOpen(false)}
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[90] transition-opacity duration-300"
+          className="fixed inset-0 top-16 bg-slate-950/80 backdrop-blur-md z-[90] transition-opacity duration-300"
         />
       )}
 
       {/* OFF-SCREEN SIDE DRAWER */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 z-[100] w-72 bg-[#091120] border-r border-slate-800/90 p-5 flex flex-col justify-between transform transition-transform duration-300 ease-out shadow-2xl ${
+        className={`fixed top-16 left-0 bottom-0 z-[100] w-72 h-[calc(100vh-4rem)] bg-[#091120] border-r border-slate-800/90 p-5 flex flex-col justify-between transform transition-transform duration-300 ease-out shadow-2xl ${
           isSideNavOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -1733,14 +1733,21 @@ export default function GroupChats() {
                 setActiveMainView('notifications');
                 setIsSideNavOpen(false);
               }}
-              className={`w-full p-3 rounded-xl border font-bold text-xs flex items-center gap-3 transition-all duration-200 cursor-pointer ${
+              className={`w-full p-3 rounded-xl border font-bold text-xs flex items-center justify-between transition-all duration-200 cursor-pointer ${
                 activeMainView === 'notifications'
                   ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40 shadow-sm'
                   : 'bg-slate-900/40 border-slate-800/80 text-slate-300 hover:bg-slate-800/70 hover:text-white'
               }`}
             >
-              <Bell className="w-4 h-4 text-emerald-400" />
-              <span>Notifications ({notifications.length})</span>
+              <div className="flex items-center gap-3">
+                <Bell className="w-4 h-4 text-emerald-400" />
+                <span>Notifications</span>
+              </div>
+              {notifications.length > 0 && (
+                <sup className="text-[10px] font-mono font-bold text-amber-300 bg-amber-500/20 border border-amber-500/30 px-1.5 py-0.5 rounded-full shadow-sm">
+                  {notifications.length}
+                </sup>
+              )}
             </button>
 
             <button
@@ -1799,7 +1806,7 @@ export default function GroupChats() {
         <div className="hidden md:flex items-center gap-1 bg-[#060d18] p-1 rounded-2xl border border-slate-800/90 shadow-inner">
           <button
             onClick={() => setActiveMainView('chats')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold font-['Orbitron'] tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold font-['Orbitron'] tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
               activeMainView === 'chats'
                 ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
                 : 'text-slate-400 hover:text-white'
@@ -1808,15 +1815,19 @@ export default function GroupChats() {
             <MessageSquare className="w-3.5 h-3.5" />
             <span>CHATS</span>
             {Object.values(unreadCounts).reduce((a, b) => a + b, 0) > 0 && (
-              <span className="px-1.5 py-0.2 bg-emerald-950 text-emerald-300 rounded-full text-[10px] font-mono">
+              <sup className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full shadow-sm border ${
+                activeMainView === 'chats'
+                  ? 'bg-slate-950 text-emerald-300 border-slate-900'
+                  : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+              }`}>
                 {Object.values(unreadCounts).reduce((a, b) => a + b, 0)}
-              </span>
+              </sup>
             )}
           </button>
 
           <button
             onClick={() => setActiveMainView('status')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold font-['Orbitron'] tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold font-['Orbitron'] tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
               activeMainView === 'status'
                 ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
                 : 'text-slate-400 hover:text-white'
@@ -1825,7 +1836,13 @@ export default function GroupChats() {
             <Camera className="w-3.5 h-3.5" />
             <span>STATUS</span>
             {allStatuses.length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <sup className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full shadow-sm border ${
+                activeMainView === 'status'
+                  ? 'bg-slate-950 text-emerald-300 border-slate-900'
+                  : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+              }`}>
+                {allStatuses.length}
+              </sup>
             )}
           </button>
 
@@ -1873,41 +1890,51 @@ export default function GroupChats() {
       </header>
 
       {/* MOBILE SECONDARY TAB BAR */}
-      <div className="md:hidden flex items-center justify-around bg-[#070e1a] border-b border-slate-800/80 px-2 py-2 sticky top-32 z-20">
+      <div className="md:hidden flex items-center justify-around bg-[#070e1a]/95 backdrop-blur-xl border-b border-slate-800/80 px-2 py-2 sticky top-32 z-20 shadow-md">
         <button
           onClick={() => setActiveMainView('chats')}
-          className={`flex-1 py-1.5 text-center text-xs font-bold font-['Orbitron'] border-b-2 transition-all cursor-pointer ${
+          className={`flex-1 py-1.5 text-center text-xs font-bold font-['Orbitron'] border-b-2 transition-all cursor-pointer flex items-center justify-center gap-1 ${
             activeMainView === 'chats'
               ? 'text-emerald-400 border-emerald-400'
               : 'text-slate-400 border-transparent'
           }`}
         >
-          CHATS
+          <span>CHATS</span>
+          {Object.values(unreadCounts).reduce((a, b) => a + b, 0) > 0 && (
+            <sup className="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950 border border-emerald-500/40 px-1.5 py-0.5 rounded-full shadow-sm">
+              {Object.values(unreadCounts).reduce((a, b) => a + b, 0)}
+            </sup>
+          )}
         </button>
         <button
           onClick={() => setActiveMainView('status')}
-          className={`flex-1 py-1.5 text-center text-xs font-bold font-['Orbitron'] border-b-2 transition-all cursor-pointer ${
+          className={`flex-1 py-1.5 text-center text-xs font-bold font-['Orbitron'] border-b-2 transition-all cursor-pointer flex items-center justify-center gap-1 ${
             activeMainView === 'status'
               ? 'text-emerald-400 border-emerald-400'
               : 'text-slate-400 border-transparent'
           }`}
         >
-          STATUS ({allStatuses.length})
+          <span>STATUS</span>
+          {allStatuses.length > 0 && (
+            <sup className="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950 border border-emerald-500/40 px-1.5 py-0.5 rounded-full shadow-sm">
+              {allStatuses.length}
+            </sup>
+          )}
         </button>
         <button
           onClick={() => setActiveMainView('calls')}
-          className={`flex-1 py-1.5 text-center text-xs font-bold font-['Orbitron'] border-b-2 transition-all cursor-pointer ${
+          className={`flex-1 py-1.5 text-center text-xs font-bold font-['Orbitron'] border-b-2 transition-all cursor-pointer flex items-center justify-center gap-1 ${
             activeMainView === 'calls'
               ? 'text-emerald-400 border-emerald-400'
               : 'text-slate-400 border-transparent'
           }`}
         >
-          CALLS
+          <span>CALLS</span>
         </button>
       </div>
 
       {/* PAGE BODY WORKSPACE */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-2 pb-6 space-y-4 w-full flex-1">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-0 pb-6 space-y-4 w-full flex-1">
 
         {/* VIEW 1: CHATS LIST & DIRECT MESSAGES */}
         {activeMainView === 'chats' && (
@@ -1933,7 +1960,16 @@ export default function GroupChats() {
                   }`}
                 >
                   <Users className="w-3.5 h-3.5" />
-                  <span>GROUP LOUNGES ({groupsData.length})</span>
+                  <span className="flex items-center">
+                    GROUP LOUNGES
+                    <sup className={`ml-1.5 text-[10px] font-mono font-black px-1.5 py-0.5 rounded-full border shadow-sm ${
+                      chatTypeMode === 'groups'
+                        ? 'bg-slate-950 text-emerald-300 border-slate-900'
+                        : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    }`}>
+                      {groupsData.length}
+                    </sup>
+                  </span>
                 </button>
 
                 <button
@@ -1948,7 +1984,16 @@ export default function GroupChats() {
                   }`}
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span>DIRECT MESSAGES ({userList.length})</span>
+                  <span className="flex items-center">
+                    DIRECT MESSAGES
+                    <sup className={`ml-1.5 text-[10px] font-mono font-black px-1.5 py-0.5 rounded-full border shadow-sm ${
+                      chatTypeMode === 'direct'
+                        ? 'bg-slate-950 text-emerald-300 border-slate-900'
+                        : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    }`}>
+                      {userList.length}
+                    </sup>
+                  </span>
                 </button>
               </div>
 
@@ -1959,7 +2004,12 @@ export default function GroupChats() {
                     className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-extrabold text-xs font-['Orbitron'] transition-all shadow-md cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4 text-amber-400" />
-                    <span>PENDING APPROVALS ({groupsData.filter(g => !g.is_approved).length})</span>
+                    <span className="flex items-center">
+                      PENDING APPROVALS
+                      <sup className="ml-1.5 text-[10px] font-mono font-black text-amber-300 bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 rounded-full shadow-sm">
+                        {groupsData.filter(g => !g.is_approved).length}
+                      </sup>
+                    </span>
                   </button>
                 )}
 
@@ -2093,7 +2143,12 @@ export default function GroupChats() {
             {chatTypeMode === 'direct' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                  <span>ALL REGISTERED COMMUNITY MEMBERS ({userList.length})</span>
+                  <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider font-['Orbitron'] text-[11px] text-slate-300">
+                    <span>ALL REGISTERED COMMUNITY MEMBERS</span>
+                    <sup className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 rounded-full shadow-sm">
+                      {userList.length}
+                    </sup>
+                  </span>
                   <button 
                     onClick={() => fetchUsersList()} 
                     className="text-emerald-400 hover:underline font-bold"
@@ -2605,7 +2660,7 @@ export default function GroupChats() {
       )}
 
       {/* GROUP SPECS & ROSTER MODAL */}
-      <div className={`fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.groupAboutModal ? 'flex' : 'hidden'}`}>
+      <div className={`fixed inset-0 top-16 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.groupAboutModal ? 'flex' : 'hidden'}`}>
         <div className="bg-[#091222] border border-slate-700/80 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 className="text-xs font-extrabold text-white font-['Orbitron'] uppercase tracking-wider">CHANNEL SPECS & ROSTER</h3>
@@ -2664,7 +2719,12 @@ export default function GroupChats() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">MEMBERS ROSTER ({groupAboutMembers.length})</h4>
+                  <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>MEMBERS ROSTER</span>
+                    <sup className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 rounded-full shadow-sm">
+                      {groupAboutMembers.length}
+                    </sup>
+                  </h4>
                   <button onClick={() => fetchGroupAboutMembers(currentOpenGroup.id)} className="text-[10px] text-emerald-400 hover:underline">Refresh</button>
                 </div>
                 
@@ -2707,7 +2767,7 @@ export default function GroupChats() {
       </div>
 
       {/* CREATE GROUP MODAL */}
-      <div className={`fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.createGroupModal ? 'flex' : 'hidden'}`}>
+      <div className={`fixed inset-0 top-16 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.createGroupModal ? 'flex' : 'hidden'}`}>
         <div className="bg-[#091222] border border-slate-700/80 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 className="text-xs font-extrabold text-white font-['Orbitron'] tracking-wider uppercase">CREATE PUBLIC LOUNGE</h3>
@@ -2746,7 +2806,7 @@ export default function GroupChats() {
       </div>
 
       {/* EDIT PROFILE MODAL */}
-      <div className={`fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.editProfileModal ? 'flex' : 'hidden'}`}>
+      <div className={`fixed inset-0 top-16 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.editProfileModal ? 'flex' : 'hidden'}`}>
         <div className="bg-[#091222] border border-slate-700/80 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 className="text-xs font-extrabold text-white font-['Orbitron'] tracking-wider uppercase">EDIT IDENTITY</h3>
@@ -2775,7 +2835,7 @@ export default function GroupChats() {
       </div>
 
       {/* NEW DIRECT CHAT MODAL - COMPLETE ROSTER */}
-      <div className={`fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.newDirectChatModal ? 'flex' : 'hidden'}`}>
+      <div className={`fixed inset-0 top-16 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.newDirectChatModal ? 'flex' : 'hidden'}`}>
         <div className="bg-[#091222] border border-slate-700/80 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
@@ -2810,10 +2870,17 @@ export default function GroupChats() {
       </div>
 
       {/* PENDING APPROVALS DRAWER MODAL */}
-      <div className={`fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.pendingApprovalsModal ? 'flex' : 'hidden'}`}>
+      <div className={`fixed inset-0 top-16 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 ${modals.pendingApprovalsModal ? 'flex' : 'hidden'}`}>
         <div className="bg-[#091222] border border-slate-700/80 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 className="text-xs font-extrabold text-white font-['Orbitron'] tracking-wider uppercase">PENDING LOUNGE APPROVALS</h3>
+            <h3 className="text-xs font-extrabold text-white font-['Orbitron'] tracking-wider uppercase flex items-center gap-1.5">
+              <span>PENDING LOUNGE APPROVALS</span>
+              {groupsData.filter(g => !g.is_approved).length > 0 && (
+                <sup className="text-[10px] font-mono font-bold text-amber-300 bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 rounded-full shadow-sm">
+                  {groupsData.filter(g => !g.is_approved).length}
+                </sup>
+              )}
+            </h3>
             <button onClick={() => closeModal('pendingApprovalsModal')} className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">
               <X className="w-4 h-4" />
             </button>
@@ -2848,7 +2915,7 @@ export default function GroupChats() {
 
       {/* DEDICATED REQUEST TO JOIN / JOIN GUARD MODAL */}
       {modals.requestToJoinModal && targetJoinGroup && (
-        <div className="fixed inset-0 z-[200] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 top-16 z-[200] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
           <div className="bg-[#091222] border border-emerald-500/40 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl relative overflow-hidden">
             {/* Ambient Corner Glow */}
             <div className="absolute -top-16 -right-16 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
@@ -2873,7 +2940,12 @@ export default function GroupChats() {
                   <h4 className="text-sm font-extrabold text-white font-['Orbitron']">{targetJoinGroup.name}</h4>
                   <div className="flex items-center gap-2 text-[11px] text-emerald-400 font-medium mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>{targetJoinGroup.group_members?.length || 1} Registered Members</span>
+                    <span className="flex items-center gap-1.5">
+                      <span>Registered Members</span>
+                      <sup className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 rounded-full shadow-sm">
+                        {targetJoinGroup.group_members?.length || 1}
+                      </sup>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2918,7 +2990,7 @@ export default function GroupChats() {
 
       {/* CUSTOM PROMPT INTERACTIVE OVERLAY */}
       {customPrompt && (
-        <div className="fixed inset-0 z-[350] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 top-16 z-[350] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#091222] border border-slate-700/80 rounded-3xl w-full max-w-sm p-6 space-y-3.5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <h3 className="text-xs font-bold font-['Orbitron']" style={{ color: customPrompt.titleColor || '#10b981' }}>{customPrompt.title}</h3>
