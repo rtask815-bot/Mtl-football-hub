@@ -21,11 +21,13 @@ import {
   BarChart2,
   Users,
   Volume2,
-  VolumeX
+  VolumeX,
+  Sparkles
 } from 'lucide-react';
 import { supabase } from '../config/supabase.ts';
 import { useAuthSession } from '../App.tsx';
 import GoogleSearchModal from './GoogleSearchModal.tsx';
+import GeminiAiGeneratorModal, { AiGeneratorCategory } from './GeminiAiGeneratorModal.tsx';
 import { useTheme } from '../context/ThemeContext.tsx';
 import { GoogleScoutTab } from '../utils/googleScout.ts';
 import { soundEngine } from '../utils/soundEngine.ts';
@@ -62,6 +64,10 @@ export const StickyHeader: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(() => soundEngine.getSoundEnabled());
+  const [isAiGeneratorOpen, setIsAiGeneratorOpen] = useState(false);
+  const [aiGenCategory, setAiGenCategory] = useState<AiGeneratorCategory>('news');
+  const [aiGenDate, setAiGenDate] = useState<string>('');
+  const [aiGenInstruction, setAiGenInstruction] = useState<string>('');
 
   // Monitor scroll position with smooth threshold transition
   useEffect(() => {
@@ -108,6 +114,20 @@ export const StickyHeader: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('open-quick-search', handleCustomSearchEvent);
     };
+  }, []);
+
+  // Listen for global custom event to open Gemini AI Generator
+  useEffect(() => {
+    const handleCustomAiGenEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ category?: AiGeneratorCategory; date?: string; instruction?: string }>;
+      if (customEvent.detail?.category) setAiGenCategory(customEvent.detail.category);
+      if (customEvent.detail?.date) setAiGenDate(customEvent.detail.date);
+      if (customEvent.detail?.instruction) setAiGenInstruction(customEvent.detail.instruction);
+      setIsAiGeneratorOpen(true);
+    };
+
+    window.addEventListener('mtl_open_ai_generator', handleCustomAiGenEvent);
+    return () => window.removeEventListener('mtl_open_ai_generator', handleCustomAiGenEvent);
   }, []);
 
   // Sync Supabase Auth session for user menu
@@ -258,6 +278,20 @@ export const StickyHeader: React.FC = () => {
                   <span className="hidden sm:inline text-[11px] font-bold text-slate-500">Muted</span>
                 </>
               )}
+            </button>
+
+            {/* Gemini AI Football Intelligence Generator Button */}
+            <button
+              onClick={() => {
+                soundEngine.playTactileClick();
+                setIsAiGeneratorOpen(true);
+              }}
+              aria-label="Gemini AI Football Generator"
+              title="Generate news, fixtures, matches, comparisons, and lineups with Gemini AI"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-cyan-500/20 hover:from-emerald-500/30 hover:to-cyan-500/30 border border-emerald-500/50 hover:border-emerald-400 text-emerald-300 font-bold transition-all cursor-pointer text-xs shadow-md shadow-emerald-950/40 active:scale-95"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <span className="hidden sm:inline font-['Orbitron'] text-[11px] tracking-wide">AI Generate</span>
             </button>
 
             {/* Quick Search Trigger */}
@@ -498,6 +532,15 @@ export const StickyHeader: React.FC = () => {
         onClose={() => setIsSearchOpen(false)}
         initialQuery={searchInitialQuery}
         initialTab={searchInitialTab}
+      />
+
+      {/* Gemini AI Generator Modal */}
+      <GeminiAiGeneratorModal
+        isOpen={isAiGeneratorOpen}
+        onClose={() => setIsAiGeneratorOpen(false)}
+        initialCategory={aiGenCategory}
+        initialDate={aiGenDate}
+        initialInstruction={aiGenInstruction}
       />
     </>
   );

@@ -34,7 +34,8 @@ import {
   Database,
   ArrowUpRight,
   Layers,
-  BarChart2
+  BarChart2,
+  Sparkles
 } from 'lucide-react';
 import UniversalFAB from '../components/UniversalFAB.tsx';
 import FuturisticLoader from '../components/FuturisticLoader.tsx';
@@ -80,6 +81,90 @@ export default function AdminControlPanel() {
   const notify = (title: string, message: string, type: 'success' | 'error' = 'success') => {
     setStatusNotification({ title, message, type });
     setTimeout(() => setStatusNotification(null), 4000);
+  };
+
+  // Gemini AI Auto-Complete States & Handler
+  const [aiInstruction, setAiInstruction] = useState('');
+  const [aiDate, setAiDate] = useState(new Date().toISOString().split('T')[0]);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const handleAiAutoComplete = async (category: string) => {
+    setAiLoading(true);
+    try {
+      const res = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category,
+          date: aiDate,
+          instruction: aiInstruction.trim() || 'CF Montréal matchday tactical preview'
+        })
+      });
+      const json = await res.json();
+      if (json && json.data) {
+        const d = json.data;
+        if (category === 'matches') {
+          setModalForm((prev: any) => ({
+            ...prev,
+            teams: d.teams || prev.teams,
+            league: d.league || prev.league,
+            match_date: d.match_date || prev.match_date,
+            match_time: d.match_time || prev.match_time,
+            prediction: d.prediction || prev.prediction,
+            status: d.status || prev.status,
+            decimal_odds: d.decimal_odds || prev.decimal_odds,
+            score: d.score || prev.score,
+            home_score: d.home_score ?? prev.home_score,
+            away_score: d.away_score ?? prev.away_score,
+            minute: d.minute ?? prev.minute,
+            confidence_stars: d.confidence_stars || prev.confidence_stars,
+            analysis_text: d.analysis_text || prev.analysis_text
+          }));
+        } else if (category === 'fixtures') {
+          setModalForm((prev: any) => ({
+            ...prev,
+            teams: d.teams || `${d.homeTeam} vs ${d.awayTeam}`,
+            league: d.league || prev.league,
+            match_date: d.match_date || d.matchDate || prev.match_date,
+            match_time: d.match_time || d.matchTime || prev.match_time,
+            venue: d.venue || d.stadium || prev.venue,
+            broadcast: d.broadcast || d.channel || prev.broadcast,
+            round: d.round || d.roundStage || prev.round,
+            importance: d.importance || prev.importance,
+            referee: d.referee || prev.referee
+          }));
+        } else if (category === 'news') {
+          setModalForm((prev: any) => ({
+            ...prev,
+            title: d.title || prev.title,
+            summary: d.summary || prev.summary,
+            content: Array.isArray(d.content) ? d.content.join('\n\n') : (d.content || prev.content),
+            category: d.category || prev.category,
+            author: d.author || prev.author,
+            source: d.source || prev.source,
+            badge: d.badgeText || prev.badge,
+            tags: Array.isArray(d.tags) ? d.tags.join(', ') : (d.tags || prev.tags),
+            read_time: d.readTime || prev.read_time
+          }));
+        } else if (category === 'trending') {
+          setModalForm((prev: any) => ({
+            ...prev,
+            topic: d.topic || prev.topic,
+            tag: d.tag || prev.tag,
+            category: d.category || prev.category,
+            post_count: d.post_count || prev.post_count,
+            score: d.score || prev.score,
+            summary: d.summary || prev.summary
+          }));
+        }
+        notify('GEMINI AI AUTO-FILL', `Form fields auto-completed for ${category.toUpperCase()}!`);
+      }
+    } catch (err) {
+      console.error('AI Auto-complete error:', err);
+      notify('AI ERROR', 'Could not auto-complete fields.', 'error');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const { isAdmin: isSessionAdmin, user: sessionUser, userProfile: sessionProfile } = useAuthSession();
@@ -1107,6 +1192,41 @@ export default function AdminControlPanel() {
             </div>
 
             <form onSubmit={handleSaveMatch} className="space-y-4 text-xs">
+              {/* Gemini AI Auto-Complete Bar */}
+              <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 font-['Orbitron']">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    Gemini AI Auto-Complete
+                  </span>
+                  <span className="text-[10px] text-slate-400">Date + Matchup instruction based</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input
+                    type="date"
+                    value={aiDate}
+                    onChange={(e) => setAiDate(e.target.value)}
+                    className="bg-[#050b14] border border-slate-800 rounded-lg px-2 py-1 text-slate-200 text-xs"
+                  />
+                  <input
+                    type="text"
+                    placeholder="e.g. CF Montréal vs Toronto FC Eastern derby"
+                    value={aiInstruction}
+                    onChange={(e) => setAiInstruction(e.target.value)}
+                    className="sm:col-span-2 bg-[#050b14] border border-slate-800 rounded-lg px-2.5 py-1 text-slate-200 text-xs placeholder-slate-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleAiAutoComplete('matches')}
+                  disabled={aiLoading}
+                  className="w-full flex items-center justify-center gap-2 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold border border-emerald-500/40 text-xs disabled:opacity-50 transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                  {aiLoading ? 'Auto-Completing with Gemini...' : 'Auto-Fill Match Record with Gemini AI'}
+                </button>
+              </div>
+
               <div>
                 <label className="text-[11px] font-bold text-emerald-400 block mb-1 uppercase tracking-wider">Teams Matchup *</label>
                 <input
@@ -1210,6 +1330,41 @@ export default function AdminControlPanel() {
             </div>
 
             <form onSubmit={handleSaveFixture} className="space-y-4 text-xs">
+              {/* Gemini AI Auto-Complete Bar */}
+              <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 font-['Orbitron']">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    Gemini AI Auto-Complete
+                  </span>
+                  <span className="text-[10px] text-slate-400">Date + Schedule instruction based</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input
+                    type="date"
+                    value={aiDate}
+                    onChange={(e) => setAiDate(e.target.value)}
+                    className="bg-[#050b14] border border-slate-800 rounded-lg px-2 py-1 text-slate-200 text-xs"
+                  />
+                  <input
+                    type="text"
+                    placeholder="e.g. CF Montréal vs Toronto FC at Stade Saputo"
+                    value={aiInstruction}
+                    onChange={(e) => setAiInstruction(e.target.value)}
+                    className="sm:col-span-2 bg-[#050b14] border border-slate-800 rounded-lg px-2.5 py-1 text-slate-200 text-xs placeholder-slate-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleAiAutoComplete('fixtures')}
+                  disabled={aiLoading}
+                  className="w-full flex items-center justify-center gap-2 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold border border-emerald-500/40 text-xs disabled:opacity-50 transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                  {aiLoading ? 'Auto-Completing with Gemini...' : 'Auto-Fill Fixture Schedule with Gemini AI'}
+                </button>
+              </div>
+
               <div>
                 <label className="text-[11px] font-bold text-emerald-400 block mb-1 uppercase tracking-wider">Fixture (Teams) *</label>
                 <input

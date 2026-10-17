@@ -169,6 +169,424 @@ app.post('/api/ai/chat', async (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// GEMINI AI FOOTBALL DATA GENERATION ENGINE (NEWS, FIXTURES, MATCHES, COMPARISONS)
+// ============================================================================
+
+function getFallbackGeneratedData(category: string, dateStr: string, instr: string) {
+  const cleanInstr = instr || 'CF Montréal vs Toronto FC Derby Rivalry';
+
+  if (category === 'fixtures') {
+    return {
+      id: `fix_ai_${Date.now()}`,
+      homeTeam: cleanInstr.includes('vs') ? cleanInstr.split('vs')[0].trim() : 'CF Montréal',
+      awayTeam: cleanInstr.includes('vs') ? cleanInstr.split('vs')[1].trim() : 'Toronto FC',
+      teams: cleanInstr.includes('vs') ? cleanInstr : `${cleanInstr} vs Opponent Club`,
+      league: 'Major League Soccer - Eastern Conference',
+      matchDate: dateStr,
+      match_date: dateStr,
+      matchTime: '19:30',
+      match_time: '19:30',
+      stadium: 'Stade Saputo, Montréal',
+      venue: 'Stade Saputo, Montréal',
+      locationCity: 'Montréal, QC, Canada',
+      channel: 'Apple TV - MLS Season Pass 4K',
+      broadcast: 'Apple TV - MLS Season Pass 4K',
+      importance: 'Canadian Classique Derby',
+      roundStage: 'Regular Season Round',
+      round: 'Regular Season Round',
+      referee: 'Drew Fischer (FIFA)',
+      badge: '🍁',
+      streamUrl: '/tv',
+      status: 'SCHEDULED'
+    };
+  }
+
+  if (category === 'matches') {
+    const teams = cleanInstr.includes('vs') ? cleanInstr : `${cleanInstr} vs Rival FC`;
+    return {
+      id: `match_ai_${Date.now()}`,
+      teams,
+      league: 'Major League Soccer',
+      match_date: dateStr,
+      match_time: '20:00',
+      prediction: 'Home Win & Over 2.5 Total Goals',
+      status: 'PENDING',
+      decimal_odds: 1.95,
+      type: 'free',
+      score: '2-1',
+      home_score: 2,
+      away_score: 1,
+      minute: 0,
+      confidence_stars: 5,
+      analysis_text: `Based on live high-press indicators for ${teams} on ${dateStr}, the home squad maintains a 58.4% win probability with an expected goals (xG) index of 1.92 vs 1.15.`
+    };
+  }
+
+  if (category === 'comparisons') {
+    let p1 = 'Erling Haaland';
+    let p2 = 'Kylian Mbappé';
+    if (cleanInstr.includes('vs')) {
+      const parts = cleanInstr.split('vs');
+      p1 = parts[0].trim();
+      p2 = parts[1].trim();
+    }
+    return {
+      id: `comp_ai_${Date.now()}`,
+      player1: {
+        name: p1,
+        team: 'Manchester City / Pro Circuit',
+        position: 'Striker',
+        age: 25,
+        overall: 92,
+        goals: 28,
+        assists: 8,
+        matches: 30,
+        xG: 26.2,
+        shotAccuracy: 69,
+        passAccuracy: 81,
+        tacklesPer90: 1.1,
+        dribblesCompleted: 38,
+        topSpeed: '35.1 km/h',
+        workRate: 'High / Medium',
+        radar: { pace: 92, shooting: 94, passing: 80, dribbling: 86, defending: 44, physicality: 88 }
+      },
+      player2: {
+        name: p2,
+        team: 'Real Madrid / European Elite',
+        position: 'Inside Forward / Striker',
+        age: 26,
+        overall: 93,
+        goals: 29,
+        assists: 11,
+        matches: 31,
+        xG: 25.8,
+        shotAccuracy: 72,
+        passAccuracy: 84,
+        tacklesPer90: 0.8,
+        dribblesCompleted: 58,
+        topSpeed: '36.2 km/h',
+        workRate: 'High / Low',
+        radar: { pace: 97, shooting: 93, passing: 84, dribbling: 94, defending: 36, physicality: 79 }
+      },
+      tacticalVerdict: `Statistical breakdown for ${dateStr}: ${p1} excels in penalty-box positioning and aerial hold-up value, while ${p2} holds superior dynamic transition speed and isolated 1v1 take-on success.`,
+      winnerPick: `${p2} carries an edge in transitional breakaways, while ${p1} leads inside the 18-yard box.`
+    };
+  }
+
+  if (category === 'team_stats') {
+    return {
+      id: `team_ai_${Date.now()}`,
+      teamName: cleanInstr.includes('vs') ? cleanInstr.split('vs')[0].trim() : cleanInstr || 'CF Montréal',
+      opponentName: cleanInstr.includes('vs') ? cleanInstr.split('vs')[1].trim() : 'Toronto FC',
+      date: dateStr,
+      formation: '4-3-3 Attacking',
+      manager: 'Laurent Courtois',
+      startingXI: [
+        { number: 1, name: 'Jonathan Sirois', position: 'GK', role: 'Sweeper Keeper', rating: 7.9 },
+        { number: 22, name: 'Ruan Teixeira', position: 'RB', role: 'Inverted Wingback', rating: 7.6 },
+        { number: 4, name: 'Fernando Alvarez', position: 'CB', role: 'Ball Playing Defender', rating: 8.1 },
+        { number: 16, name: 'Joel Waterman', position: 'CB', role: 'Commanding Stopper', rating: 7.8 },
+        { number: 3, name: 'Joaquín Sosa', position: 'LB', role: 'Overlapping Fullback', rating: 7.7 },
+        { number: 6, name: 'Samuel Piette', position: 'DM', role: 'Defensive Anchor', rating: 8.3 },
+        { number: 8, name: 'Nathan Saliba', position: 'CM', role: 'Box-to-Box Engine', rating: 8.2 },
+        { number: 10, name: 'Bryce Duke', position: 'AM', role: 'Advanced Playmaker', rating: 8.6 },
+        { number: 7, name: 'Kwadwo Opoku', position: 'RW', role: 'Inside Forward', rating: 8.4 },
+        { number: 17, name: 'Josef Martínez', position: 'ST', role: 'Clinical Poacher', rating: 8.9 },
+        { number: 11, name: 'Ariel Lassiter', position: 'LW', role: 'Pacy Winger', rating: 8.1 }
+      ],
+      substitutes: [
+        { number: 40, name: 'Sébastien Breza', position: 'GK' },
+        { number: 25, name: 'Gabriele Corbo', position: 'DF' },
+        { number: 18, name: 'Dominik Yankov', position: 'MF' },
+        { number: 9, name: 'Matias Coccaro', position: 'FW' }
+      ],
+      tacticalStyle: 'High-octane central transition with inverted wing play and disciplined low-mid defensive block.',
+      possessionExpected: 54,
+      expectedGoals: 1.88,
+      strengths: ['Dynamic counter-pressing', 'Central box overload', 'Dead-ball deliveries'],
+      weaknesses: ['Space behind high fullbacks on fast opposite turnovers']
+    };
+  }
+
+  if (category === 'trending') {
+    return {
+      id: `trend_ai_${Date.now()}`,
+      topic: `${cleanInstr} Takes Center Stage on MTL Hub`,
+      tag: `#${cleanInstr.replace(/[^a-zA-Z0-9]/g, '').slice(0, 14) || 'MTLDerby'}`,
+      category: 'Match Day Fever',
+      post_count: 2380,
+      score: 95,
+      summary: `High engagement across all lounges as tactical debates intensify leading up to the fixture on ${dateStr}.`
+    };
+  }
+
+  // Default: News
+  return {
+    id: `news_ai_${Date.now()}`,
+    title: `${cleanInstr}: Official Tactical Report & Matchday Intelligence`,
+    summary: `Comprehensive tactical dispatch on ${cleanInstr} covering formation adjustments, injury updates, and key statistical indicators.`,
+    content: [
+      `Heading into the critical match window on ${dateStr}, tactical developments around ${cleanInstr} have dominated analytical discussion. Both coaching staffs have spent the training cycle refining transitional pressing patterns and set-piece defending.`,
+      `Advanced tracking metrics indicate a high volume of progressive carries in the central third, providing key opportunities for midfield playmakers to unlock compact defensive blocks. Player fitness monitors confirm peak readiness across the starting eleven.`,
+      `With domestic positioning and continental qualification points hanging in the balance, tonight's fixture promises a high-tempo tactical clash characterized by rapid vertical breaks and intense counter-pressing traps.`
+    ],
+    category: 'tactical',
+    author: 'Matthieu Vance, Senior MTL Analyst',
+    source: 'MTL Tactical Dispatch',
+    badgeText: 'INTELLIGENCE WIRE',
+    tags: ['Tactics', 'Matchday', 'Intelligence', 'Analysis'],
+    readTime: '3 min read',
+    imageUrl: '/src/assets/images/hub_feature_32.jpg',
+    likes: 124,
+    createdAt: new Date().toISOString()
+  };
+}
+
+async function generateFootballDataWithGemini(category: string, date: string, instruction: string) {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+  const dateStr = date || new Date().toISOString().split('T')[0];
+  const instr = instruction || 'CF Montréal tactical matchday dispatch';
+
+  const systemPrompt = `You are Google Gemini Football Intelligence Data Generator. Return ONLY a single valid JSON object with NO MARKDOWN, NO EXPLANATION, NO CODE BLOCKS, and NO BACKTICKS. The JSON must strictly adhere to the requested schema.`;
+
+  const prompts: Record<string, string> = {
+    news: `Generate a rich, professional football news article for Date: "${dateStr}" based on Topic: "${instr}".
+Format JSON:
+{
+  "title": "Compelling journalism headline",
+  "summary": "1-2 sentence executive summary",
+  "content": ["Detailed paragraph 1 with context", "Paragraph 2 with tactical analysis", "Paragraph 3 with quotes and outlook"],
+  "category": "transfers",
+  "author": "Expert Journalist Name",
+  "source": "MTL Football Wire",
+  "badgeText": "BREAKING WIRE",
+  "tags": ["Football", "Tactics", "Transfer"],
+  "readTime": "3 min read"
+}`,
+    fixtures: `Generate an upcoming football fixture for Date: "${dateStr}" based on Matchup: "${instr}".
+Format JSON:
+{
+  "homeTeam": "Home Club Name",
+  "awayTeam": "Away Club Name",
+  "teams": "Home Club vs Away Club",
+  "league": "Premier League / MLS / Champions League",
+  "matchDate": "${dateStr}",
+  "matchTime": "19:30",
+  "stadium": "Stadium Name",
+  "locationCity": "City, Country",
+  "channel": "Sky Sports / Apple TV",
+  "importance": "Derby Clash",
+  "roundStage": "Matchday Regular",
+  "referee": "Official Referee Name",
+  "badge": "⚽"
+}`,
+    matches: `Generate a match prediction entry for Date: "${dateStr}" based on Matchup: "${instr}".
+Format JSON:
+{
+  "teams": "Home Club vs Away Club",
+  "league": "League Name",
+  "match_date": "${dateStr}",
+  "match_time": "20:00",
+  "prediction": "Home Win & Both Teams to Score",
+  "status": "PENDING",
+  "decimal_odds": 1.95,
+  "type": "free",
+  "score": "2-1",
+  "home_score": 2,
+  "away_score": 1,
+  "minute": 0,
+  "confidence_stars": 5,
+  "analysis_text": "Tactical breakdown and xG stats."
+}`,
+    comparisons: `Generate an in-depth head-to-head player comparison for Date: "${dateStr}" based on: "${instr}".
+Format JSON:
+{
+  "player1": {
+    "name": "Player 1",
+    "team": "Team 1",
+    "position": "Striker",
+    "age": 25,
+    "overall": 91,
+    "goals": 25,
+    "assists": 9,
+    "matches": 30,
+    "xG": 23.5,
+    "shotAccuracy": 68,
+    "passAccuracy": 82,
+    "tacklesPer90": 1.2,
+    "dribblesCompleted": 44,
+    "topSpeed": "35.0 km/h",
+    "workRate": "High/High",
+    "radar": { "pace": 92, "shooting": 92, "passing": 82, "dribbling": 88, "defending": 42, "physicality": 84 }
+  },
+  "player2": {
+    "name": "Player 2",
+    "team": "Team 2",
+    "position": "Winger",
+    "age": 26,
+    "overall": 92,
+    "goals": 27,
+    "assists": 12,
+    "matches": 31,
+    "xG": 24.8,
+    "shotAccuracy": 71,
+    "passAccuracy": 85,
+    "tacklesPer90": 0.9,
+    "dribblesCompleted": 55,
+    "topSpeed": "35.8 km/h",
+    "workRate": "High/Medium",
+    "radar": { "pace": 96, "shooting": 91, "passing": 85, "dribbling": 93, "defending": 38, "physicality": 78 }
+  },
+  "tacticalVerdict": "Comprehensive comparison verdict.",
+  "winnerPick": "Verdict pick."
+}`,
+    team_stats: `Generate starting lineup and tactical team starts for Date: "${dateStr}" based on: "${instr}".
+Format JSON:
+{
+  "teamName": "Team Name",
+  "opponentName": "Opponent Name",
+  "date": "${dateStr}",
+  "formation": "4-3-3 Attacking",
+  "manager": "Head Coach",
+  "startingXI": [
+    { "number": 1, "name": "Player 1", "position": "GK", "role": "Sweeper Keeper", "rating": 7.8 },
+    { "number": 2, "name": "Player 2", "position": "RB", "role": "Wingback", "rating": 7.6 },
+    { "number": 4, "name": "Player 3", "position": "CB", "role": "Stopper", "rating": 8.0 },
+    { "number": 5, "name": "Player 4", "position": "CB", "role": "Ball Playing", "rating": 7.9 },
+    { "number": 3, "name": "Player 5", "position": "LB", "role": "Fullback", "rating": 7.7 },
+    { "number": 6, "name": "Player 6", "position": "DM", "role": "Anchor", "rating": 8.2 },
+    { "number": 8, "name": "Player 7", "position": "CM", "role": "Box-to-Box", "rating": 8.1 },
+    { "number": 10, "name": "Player 8", "position": "AM", "role": "Playmaker", "rating": 8.5 },
+    { "number": 7, "name": "Player 9", "position": "RW", "role": "Winger", "rating": 8.3 },
+    { "number": 9, "name": "Player 10", "position": "ST", "role": "Poacher", "rating": 8.8 },
+    { "number": 11, "name": "Player 11", "position": "LW", "role": "Inside Forward", "rating": 8.2 }
+  ],
+  "substitutes": [
+    { "number": 12, "name": "Sub 1", "position": "GK" },
+    { "number": 14, "name": "Sub 2", "position": "DF" },
+    { "number": 17, "name": "Sub 3", "position": "MF" },
+    { "number": 19, "name": "Sub 4", "position": "FW" }
+  ],
+  "tacticalStyle": "High pressing and fast transitions.",
+  "possessionExpected": 55,
+  "expectedGoals": 1.9,
+  "strengths": ["High pressing", "Set pieces"],
+  "weaknesses": ["Space behind high defensive line"]
+}`,
+    trending: `Generate a viral football trending topic for Date: "${dateStr}" based on: "${instr}".
+Format JSON:
+{
+  "topic": "Trending Topic Title",
+  "tag": "#TrendingTag",
+  "category": "Tactics",
+  "post_count": 2150,
+  "score": 94,
+  "summary": "Summary of trending discussion."
+}`
+  };
+
+  const promptText = prompts[category] || prompts['news'];
+
+  if (apiKey && apiKey.length > 5) {
+    try {
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
+      });
+
+      // Try gemini-flash-latest first
+      let rawText = '';
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-flash-latest',
+          contents: `${systemPrompt}\n\n${promptText}`,
+          config: {
+            responseMimeType: 'application/json'
+          }
+        });
+        rawText = response.text || '';
+      } catch (err1) {
+        // Fallback to gemini-2.5-flash
+        const response2 = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: `${systemPrompt}\n\n${promptText}`,
+          config: { responseMimeType: 'application/json' }
+        });
+        rawText = response2.text || '';
+      }
+
+      if (rawText) {
+        let clean = rawText.trim();
+        if (clean.startsWith('```json')) clean = clean.replace(/```json/i, '').replace(/```/g, '').trim();
+        else if (clean.startsWith('```')) clean = clean.replace(/```/g, '').trim();
+        const parsed = JSON.parse(clean);
+        // Inject ID and Date if missing
+        if (!parsed.id) parsed.id = `${category}_ai_${Date.now()}`;
+        if (!parsed.createdAt) parsed.createdAt = new Date().toISOString();
+        if (parsed.matchDate && !parsed.match_date) parsed.match_date = parsed.matchDate;
+        if (parsed.matchTime && !parsed.match_time) parsed.match_time = parsed.matchTime;
+        return { success: true, category, data: parsed, source: 'gemini' };
+      }
+    } catch (apiErr: any) {
+      console.warn('[Gemini Generator Fallback]:', apiErr?.message || apiErr);
+    }
+  }
+
+  // Fallback to intelligent tactical template
+  const fallbackData = getFallbackGeneratedData(category, dateStr, instr);
+  return { success: true, category, data: fallbackData, source: 'fallback' };
+}
+
+// POST /api/ai/generate: Auto-complete or generate entries for all categories
+app.post('/api/ai/generate', async (req: Request, res: Response) => {
+  try {
+    const { category, date, instruction, autoSave } = req.body;
+    const cat = (category || 'news').toLowerCase();
+    const dateStr = date || new Date().toISOString().split('T')[0];
+    const instr = instruction || 'CF Montréal matchday tactical preview';
+
+    const result = await generateFootballDataWithGemini(cat, dateStr, instr);
+
+    // If autoSave requested, persist directly to JSON stores
+    if (autoSave && result.data) {
+      try {
+        if (cat === 'news') {
+          const newsPath = path.join(__dirname, 'data', 'news.json');
+          const currentNews = fs.existsSync(newsPath) ? JSON.parse(fs.readFileSync(newsPath, 'utf8')) : [];
+          const updated = [result.data, ...currentNews];
+          fs.writeFileSync(newsPath, JSON.stringify(updated, null, 2));
+        } else if (cat === 'fixtures') {
+          const fixPath = path.join(__dirname, 'data', 'fixtures.json');
+          const currentFix = fs.existsSync(fixPath) ? JSON.parse(fs.readFileSync(fixPath, 'utf8')) : [];
+          const updated = [result.data, ...currentFix];
+          fs.writeFileSync(fixPath, JSON.stringify(updated, null, 2));
+        } else if (cat === 'matches') {
+          const matchPath = path.join(__dirname, 'data', 'matches.json');
+          const currentMatches = fs.existsSync(matchPath) ? JSON.parse(fs.readFileSync(matchPath, 'utf8')) : [];
+          const updated = [result.data, ...currentMatches];
+          fs.writeFileSync(matchPath, JSON.stringify(updated, null, 2));
+        } else if (cat === 'trending') {
+          const trPath = path.join(__dirname, 'data', 'trending.json');
+          const currentTr = fs.existsSync(trPath) ? JSON.parse(fs.readFileSync(trPath, 'utf8')) : [];
+          const updated = [result.data, ...currentTr];
+          fs.writeFileSync(trPath, JSON.stringify(updated, null, 2));
+        }
+      } catch (saveErr) {
+        console.warn('Auto-save data store warning:', saveErr);
+      }
+    }
+
+    return res.json(result);
+  } catch (err: any) {
+    console.error('AI Generate Error:', err);
+    return res.status(500).json({
+      error: 'Failed to generate football intelligence data',
+      message: err?.message || err
+    });
+  }
+});
+
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 
 /**
