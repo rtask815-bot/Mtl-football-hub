@@ -230,6 +230,14 @@ export default function GroupChats() {
   // Active Chat State
   const [currentOpenGroup, setCurrentOpenGroup] = useState<any>(null);
   const [currentOpenDirectPeer, setCurrentOpenDirectPeer] = useState<any>(null);
+  const [initiatedDirectChats, setInitiatedDirectChats] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('mtl_initiated_direct_chats');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Filters & Searching
   const [currentTabFilter, setCurrentTabFilter] = useState('all');
@@ -1084,6 +1092,8 @@ export default function GroupChats() {
   }
 
   async function openDirectChatWithUser(peerUser: any) {
+    if (!peerUser) return;
+    markChatInitiated(peerUser.id);
     setCurrentOpenDirectPeer(peerUser);
     setCurrentOpenGroup(null);
     setChatTypeMode('direct');
@@ -1571,6 +1581,46 @@ export default function GroupChats() {
   /* ============================================================
      1-ON-1 ENCRYPTED DIRECT CHAT REQUEST PROTOCOL LOGIC
      ============================================================ */
+  function markChatInitiated(peerId: string) {
+    if (!peerId) return;
+    setInitiatedDirectChats(prev => {
+      if (prev.includes(peerId)) return prev;
+      const updated = [...prev, peerId];
+      try {
+        localStorage.setItem('mtl_initiated_direct_chats', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }
+
+  function isChatInitiatedWithUser(peerId: string): boolean {
+    if (!peerId) return false;
+    if (initiatedDirectChats.includes(peerId)) return true;
+    if (currentUser?.id) {
+      const cacheKey = 'messages_direct_' + [currentUser.id, peerId].sort().join('_');
+      const cached = LocalStore.get(cacheKey);
+      if (Array.isArray(cached) && cached.length > 0) return true;
+    }
+    return false;
+  }
+
+  function handleDirectChatClick(targetUser: any) {
+    if (!targetUser) return;
+    if (currentUser && targetUser.id === currentUser.id) {
+      addLocalNotification("ACTION DENIED", "You cannot initiate a direct chat with yourself.");
+      return;
+    }
+
+    // Direct immediately to chat container if already initiated once!
+    if (isChatInitiatedWithUser(targetUser.id)) {
+      openDirectChatWithUser(targetUser);
+      return;
+    }
+
+    // First time initiation: prompt once, then seamlessly direct to chat container
+    sendChatRequestPrompt(targetUser);
+  }
+
   function sendChatRequestPrompt(targetUser: any) {
     if (!currentUser) {
       addLocalNotification("SIGN IN REQUIRED", "Please sign in to start direct messaging.");
@@ -1582,26 +1632,36 @@ export default function GroupChats() {
       return;
     }
 
+    // If chat was already initiated, direct straight to chat container
+    if (isChatInitiatedWithUser(targetUser.id)) {
+      openDirectChatWithUser(targetUser);
+      return;
+    }
+
     setCustomPrompt({
       type: 'input',
-      title: 'INITIALIZE ENCRYPTED CHAT',
-      titleColor: '#3b82f6',
-      message: `Do you want to establish an end-to-end encrypted direct chat feed with ${targetUser.username}? Enter an optional greeting:`,
+      title: 'INITIALIZE DIRECT CHAT',
+      titleColor: '#10b981',
+      message: `Connect with ${targetUser.username || targetUser.name || 'Member'} in an end-to-end encrypted direct channel. Enter an optional greeting or click below:`,
       placeholder: "Hello, let's connect on match tactics...",
-      confirmText: 'ESTABLISH FEED',
-      confirmBg: 'bg-blue-600 hover:bg-blue-500 text-white font-bold',
+      confirmText: 'OPEN CHAT FEED',
+      confirmBg: 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black',
       onConfirm: async (messageText: string) => {
+        markChatInitiated(targetUser.id);
         if (messageText && messageText.trim() !== '') {
-          await supabaseClient.from('messages').insert([{
-            sender_id: currentUser.id,
-            recipient_id: targetUser.id,
-            content: `[DIRECT FEED REQUEST] ${messageText.trim()}`,
-            message_type: 'direct'
-          }]);
+          try {
+            await supabaseClient.from('messages').insert([{
+              sender_id: currentUser.id,
+              recipient_id: targetUser.id,
+              content: messageText.trim(),
+              message_type: 'direct'
+            }]);
+          } catch {}
         }
         
-        addLocalNotification("SECURE FEED INITIATED", `Secure 1-on-1 direct channel established with ${targetUser.username}.`);
+        addLocalNotification("SECURE FEED INITIATED", `Secure 1-on-1 direct channel established with ${targetUser.username || targetUser.name}.`);
         setCustomPrompt(null);
+        // Direct straight to the chat container
         openDirectChatWithUser(targetUser);
       }
     });
@@ -2162,46 +2222,153 @@ export default function GroupChats() {
                     No other users registered yet.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {userList
-                      .filter(u => (u.username || u.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
-                      .map(usr => {
-                        const unread = unreadCounts[usr.id] || 0;
-                        return (
-                          <div
-                            key={usr.id}
-                            onClick={() => sendChatRequestPrompt(usr)}
-                            className="group bg-gradient-to-b from-[#0e182a] to-[#0a1221] border border-slate-800/90 hover:border-emerald-500/40 rounded-2xl p-4.5 flex items-center justify-between cursor-pointer transition-all duration-200 hover:-translate-y-0.5 shadow-xl shadow-black/40 hover:shadow-emerald-950/20"
-                          >
-                            <div className="flex items-center gap-3.5">
-                              <div className="relative w-11 h-11 rounded-full border-2 border-emerald-500/40 overflow-hidden shadow-md group-hover:border-emerald-400 transition-colors shrink-0">
-                                <img
-                                  src={usr.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                                  alt={usr.username || 'User'}
-                                  className="w-full h-full object-cover"
-                                />
-                                {unread > 0 && (
-                                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-emerald-500 text-slate-950 font-black text-[9px] rounded-full">
-                                    {unread}
-                                  </span>
-                                )}
-                              </div>
-                              <div>
-                                <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">{usr.username || usr.name || 'Member'}</h4>
-                                <p className="text-[11px] text-slate-400 line-clamp-1">{usr.status_message || usr.favorite_club || 'Available on Hub'}</p>
-                                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold mt-0.5">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                  <span>Active Fan</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <button className="px-3.5 py-1.5 rounded-xl bg-slate-800/90 group-hover:bg-emerald-500 text-slate-200 group-hover:text-slate-950 font-bold text-xs transition-colors border border-slate-700/60 shadow-sm">
-                              Chat 💬
-                            </button>
+                  <div className="space-y-6">
+                    {/* SECTION 1: ACTIVE INITIATED DIRECT CHATS */}
+                    {(() => {
+                      const activeChats = userList.filter(u => isChatInitiatedWithUser(u.id));
+                      if (activeChats.length === 0) return null;
+                      return (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-xs text-slate-300 font-bold font-['Orbitron'] px-1">
+                            <span className="flex items-center gap-2 text-emerald-400 uppercase tracking-wider text-[11px]">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                              <span>Active Direct Conversations ({activeChats.length})</span>
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-normal">Click any chat to open container</span>
                           </div>
-                        );
-                      })}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {activeChats
+                              .filter(u => (u.username || u.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
+                              .map(usr => {
+                                const unread = unreadCounts[usr.id] || 0;
+                                return (
+                                  <div
+                                    key={usr.id}
+                                    onClick={() => handleDirectChatClick(usr)}
+                                    className="group bg-gradient-to-b from-[#0a1a2b] via-[#091424] to-[#070e1a] border-2 border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-4 flex items-center justify-between cursor-pointer transition-all duration-200 hover:-translate-y-0.5 shadow-xl shadow-black/50 hover:shadow-emerald-950/30"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="relative w-12 h-12 rounded-full border-2 border-emerald-400 overflow-hidden shadow-md shrink-0">
+                                        <img
+                                          src={usr.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                                          alt={usr.username || 'User'}
+                                          className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#091424]" />
+                                        {unread > 0 && (
+                                          <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-emerald-400 text-slate-950 font-black text-[9px] rounded-full">
+                                            {unread}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
+                                          <span>{usr.username || usr.name || 'Member'}</span>
+                                        </h4>
+                                        <p className="text-[11px] text-emerald-400 font-mono mt-0.5">Encrypted Feed Active</p>
+                                        <p className="text-[10px] text-slate-400 line-clamp-1">{usr.status_message || usr.favorite_club || 'Direct Channel'}</p>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDialCall(usr, 'audio');
+                                        }}
+                                        className="p-2 rounded-xl bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 transition-colors border border-slate-700/60"
+                                        title="Audio Hotline"
+                                      >
+                                        <Phone className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDialCall(usr, 'video');
+                                        }}
+                                        className="p-2 rounded-xl bg-slate-800/80 hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-400 transition-colors border border-slate-700/60"
+                                        title="Video Hotline"
+                                      >
+                                        <Video className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-colors shadow-sm">
+                                        Open 💬
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* SECTION 2: ALL COMMUNITY MEMBERS DIRECTORY */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs text-slate-300 font-bold font-['Orbitron'] px-1">
+                        <span className="flex items-center gap-2 uppercase tracking-wider text-[11px] text-slate-300">
+                          <span>COMMUNITY MEMBERS DIRECTORY</span>
+                          <sup className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 px-1.5 py-0.5 rounded-full shadow-sm">
+                            {userList.length}
+                          </sup>
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-normal">Initiate or launch chat container</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {userList
+                          .filter(u => (u.username || u.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
+                          .map(usr => {
+                            const unread = unreadCounts[usr.id] || 0;
+                            const isInitiated = isChatInitiatedWithUser(usr.id);
+                            return (
+                              <div
+                                key={usr.id}
+                                onClick={() => handleDirectChatClick(usr)}
+                                className={`group bg-gradient-to-b from-[#0e182a] to-[#0a1221] border rounded-2xl p-4 flex items-center justify-between cursor-pointer transition-all duration-200 hover:-translate-y-0.5 shadow-xl shadow-black/40 ${
+                                  isInitiated
+                                    ? 'border-emerald-500/30 hover:border-emerald-400'
+                                    : 'border-slate-800/90 hover:border-cyan-500/40'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3.5">
+                                  <div className="relative w-11 h-11 rounded-full border-2 border-slate-700 group-hover:border-emerald-400 transition-colors overflow-hidden shadow-md shrink-0">
+                                    <img
+                                      src={usr.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                                      alt={usr.username || 'User'}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    {unread > 0 && (
+                                      <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-emerald-500 text-slate-950 font-black text-[9px] rounded-full">
+                                        {unread}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">{usr.username || usr.name || 'Member'}</h4>
+                                    <p className="text-[11px] text-slate-400 line-clamp-1">{usr.status_message || usr.favorite_club || 'Available on Hub'}</p>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold mt-0.5">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                      <span>{isInitiated ? 'Feed Ready' : 'Active Fan'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <button 
+                                  className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors border shadow-sm ${
+                                    isInitiated
+                                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 hover:bg-emerald-400'
+                                      : 'bg-slate-800/90 group-hover:bg-cyan-500 text-slate-200 group-hover:text-slate-950 border-slate-700/60'
+                                  }`}
+                                >
+                                  {isInitiated ? 'Open 💬' : 'Chat 💬'}
+                                </button>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -2852,18 +3019,23 @@ export default function GroupChats() {
                 No users found. Loading members...
               </div>
             ) : (
-              userList.map(usr => (
-                <div key={usr.id} onClick={() => sendChatRequestPrompt(usr)} className="p-3 bg-[#060d18] hover:bg-slate-800/80 rounded-2xl border border-slate-800/80 flex justify-between items-center cursor-pointer transition-colors">
-                  <div className="flex items-center gap-3">
-                    <img src={usr.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} alt="Avatar" className="w-9 h-9 rounded-full object-cover border border-slate-700" />
-                    <div>
-                      <span className="text-xs font-bold text-white block">{usr.username || usr.name || 'Member'}</span>
-                      <span className="text-[10px] text-slate-400 line-clamp-1">{usr.status_message || usr.favorite_club || 'Available'}</span>
+              userList.map(usr => {
+                const isInitiated = isChatInitiatedWithUser(usr.id);
+                return (
+                  <div key={usr.id} onClick={() => handleDirectChatClick(usr)} className="p-3 bg-[#060d18] hover:bg-slate-800/80 rounded-2xl border border-slate-800/80 flex justify-between items-center cursor-pointer transition-colors">
+                    <div className="flex items-center gap-3">
+                      <img src={usr.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} alt="Avatar" className="w-9 h-9 rounded-full object-cover border border-slate-700" />
+                      <div>
+                        <span className="text-xs font-bold text-white block">{usr.username || usr.name || 'Member'}</span>
+                        <span className="text-[10px] text-slate-400 line-clamp-1">{usr.status_message || usr.favorite_club || 'Available'}</span>
+                      </div>
                     </div>
+                    <span className="text-[11px] text-emerald-400 font-bold">
+                      {isInitiated ? 'Open Chat 💬' : 'Start Chat →'}
+                    </span>
                   </div>
-                  <span className="text-[11px] text-emerald-400 font-bold">Start Chat →</span>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
@@ -3047,7 +3219,7 @@ export default function GroupChats() {
         callType={callModalState.callType}
         onSendMessage={(peerId) => {
           const peer = userList.find(u => u.id === peerId);
-          if (peer) sendChatRequestPrompt(peer);
+          if (peer) openDirectChatWithUser(peer);
         }}
       />
 
@@ -3059,7 +3231,7 @@ export default function GroupChats() {
         isCurrentUser={otherProfileModalState.isCurrentUser}
         onDialAudioCall={(p) => handleDialCall(p, 'audio')}
         onDialVideoCall={(p) => handleDialCall(p, 'video')}
-        onStartDirectChat={(p) => sendChatRequestPrompt(p)}
+        onStartDirectChat={(p) => handleDirectChatClick(p)}
         onViewStatus={(st) => {
           const idx = allStatuses.findIndex(s => s.id === st.id);
           setViewStatusIndex(idx >= 0 ? idx : 0);

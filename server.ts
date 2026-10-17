@@ -31,7 +31,7 @@ app.use('/uploads', express.static(uploadsDir));
 async function getGeminiAnalysis(queryText: string, messages: any[], contextStats: any) {
   const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
   
-  const systemInstruction = `You are Google Gemini Football Intelligence Analyst, an expert real-time sports analyst powered by Gemini 3.8 Flash and live Google Search Grounding. Provide structured, authoritative, engaging football insights with match stats, head-to-head records, tactical formations, expected goals (xG), betting probabilities, player injuries, and live scores. When relevant, format answers with clear bullet points and bold section headers.`;
+  const systemInstruction = `You are Google Gemini Football Intelligence Analyst, an expert real-time sports analyst powered by Google GenAI and live Google Search Grounding. Provide structured, authoritative, engaging football insights with match stats, head-to-head records, tactical formations, expected goals (xG), betting probabilities, player injuries, and live scores. When relevant, format answers with clear bullet points and bold section headers.`;
 
   // Construct conversation contents for Gemini
   const contents: any[] = [];
@@ -63,10 +63,10 @@ async function getGeminiAnalysis(queryText: string, messages: any[], contextStat
       }
     });
 
-    // Strategy 1: gemini-3.8-flash with Search Grounding
+    // Strategy 1: gemini-flash-latest with Search Grounding
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-flash-latest',
         contents,
         config: {
           systemInstruction,
@@ -79,23 +79,20 @@ async function getGeminiAnalysis(queryText: string, messages: any[], contextStat
         const sources = groundingChunks
           .filter((chunk: any) => chunk?.web?.uri)
           .map((chunk: any) => ({
-            title: chunk.web.title || 'Google Search Source',
+            title: chunk.web.title || 'Google Search Grounding',
             uri: chunk.web.uri
           }));
 
         return { reply: response.text, sources };
       }
     } catch (groundingErr: any) {
-      const errMsg = groundingErr?.message || '';
-      if (!errMsg.includes('429') && !errMsg.includes('RESOURCE_EXHAUSTED')) {
-        console.warn('[Gemini Grounding Notice]:', errMsg.slice(0, 120));
-      }
+      // Fall through to non-grounded / next models
     }
 
-    // Strategy 2: gemini-3.8-flash without Search Grounding
+    // Strategy 2: gemini-flash-latest direct
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-flash-latest',
         contents,
         config: {
           systemInstruction
@@ -106,16 +103,13 @@ async function getGeminiAnalysis(queryText: string, messages: any[], contextStat
         return { reply: response.text, sources: [] };
       }
     } catch (err: any) {
-      const errMsg = err?.message || '';
-      if (!errMsg.includes('429') && !errMsg.includes('RESOURCE_EXHAUSTED')) {
-        console.warn('[Gemini Direct Notice]:', errMsg.slice(0, 120));
-      }
+      // Fall through
     }
 
-    // Strategy 3: gemini-3.1-flash-lite fallback
+    // Strategy 3: gemini-2.5-flash / gemini-3.8-flash fallback
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-lite',
+        model: 'gemini-2.5-flash',
         contents,
         config: {
           systemInstruction
@@ -126,7 +120,18 @@ async function getGeminiAnalysis(queryText: string, messages: any[], contextStat
         return { reply: response.text, sources: [] };
       }
     } catch (err: any) {
-      // Clean silent fallback if quota exhausted or rate limited
+      try {
+        const response38 = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents,
+          config: {
+            systemInstruction
+          }
+        });
+        if (response38 && response38.text) {
+          return { reply: response38.text, sources: [] };
+        }
+      } catch (err38: any) {}
     }
   }
 

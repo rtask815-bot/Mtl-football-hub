@@ -336,8 +336,74 @@ export async function deleteMediaAsset(mediaId: string, userId: string, storageP
 }
 
 // ============================================================================
-// 2. REAL USER STATUSES (MATCH CARDS, REELS, IMAGES) SAVED TO FIREBASE
+// 2. REAL USER STATUSES (MATCH CARDS, REELS, IMAGES) SAVED TO SUPABASE
 // ============================================================================
+
+// Serialization helper for Supabase table: public.user_statuses
+function toSupabaseStatusRecord(status: MatchCardStatus) {
+  return {
+    id: status.id,
+    user_id: status.userId,
+    user_name: status.userName || 'Anonymous Fan',
+    user_avatar: status.userAvatar || null,
+    status_type: status.statusType || 'match_card',
+    match_fixture: status.matchFixture || 'Match Day',
+    league: status.league || null,
+    home_team: status.homeTeam || null,
+    away_team: status.awayTeam || null,
+    predicted_score: status.predictedScore || null,
+    prediction_pick: status.predictionPick || '',
+    decimal_odds: status.decimalOdds != null ? Number(status.decimalOdds) : 1.95,
+    confidence_stars: status.confidenceStars != null ? Number(status.confidenceStars) : 5,
+    caption: status.caption || null,
+    media_url: status.mediaUrl || null,
+    media_type: status.mediaType || 'image',
+    theme_color: status.themeColor || 'emerald',
+    views_count: status.viewsCount != null ? Number(status.viewsCount) : 1,
+    likes_count: status.likesCount != null ? Number(status.likesCount) : 0,
+    viewers: Array.isArray(status.viewers) ? status.viewers : [status.userId],
+    likers: Array.isArray(status.likers) ? status.likers : [],
+    created_at: status.createdAt,
+    expires_at: status.expiresAt
+  };
+}
+
+// Deserialization helper for Supabase row -> MatchCardStatus
+function fromSupabaseStatusRecord(row: any): MatchCardStatus {
+  return {
+    id: String(row.id),
+    userId: String(row.user_id || row.userId || ''),
+    userName: String(row.user_name || row.userName || 'Anonymous Fan'),
+    userAvatar: row.user_avatar || row.userAvatar || undefined,
+    statusType: (row.status_type || row.statusType || 'match_card') as StatusType,
+    matchFixture: String(row.match_fixture || row.matchFixture || 'Match Day'),
+    league: row.league || undefined,
+    homeTeam: row.home_team || row.homeTeam || undefined,
+    awayTeam: row.away_team || row.awayTeam || undefined,
+    predictedScore: row.predicted_score || row.predictedScore || undefined,
+    predictionPick: String(row.prediction_pick || row.predictionPick || ''),
+    decimalOdds: Number(row.decimal_odds ?? row.decimalOdds ?? 1.95),
+    confidenceStars: Number(row.confidence_stars ?? row.confidenceStars ?? 5),
+    caption: row.caption || undefined,
+    mediaUrl: row.media_url || row.mediaUrl || undefined,
+    mediaType: (row.media_type || row.mediaType || 'image') as 'image' | 'video',
+    themeColor: row.theme_color || row.themeColor || 'emerald',
+    viewsCount: Number(row.views_count ?? row.viewsCount ?? 1),
+    likesCount: Number(row.likes_count ?? row.likesCount ?? 0),
+    viewers: Array.isArray(row.viewers)
+      ? row.viewers
+      : typeof row.viewers === 'string'
+      ? (() => { try { return JSON.parse(row.viewers); } catch { return []; } })()
+      : [],
+    likers: Array.isArray(row.likers)
+      ? row.likers
+      : typeof row.likers === 'string'
+      ? (() => { try { return JSON.parse(row.likers); } catch { return []; } })()
+      : [],
+    createdAt: row.created_at || row.createdAt || new Date().toISOString(),
+    expiresAt: row.expires_at || row.expiresAt || new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+  };
+}
 
 export async function saveUserMatchStatus(
   status: Omit<MatchCardStatus, 'id' | 'createdAt' | 'expiresAt' | 'viewsCount' | 'likesCount' | 'viewers' | 'likers'>
@@ -367,7 +433,20 @@ export async function saveUserMatchStatus(
     window.dispatchEvent(new CustomEvent('mtl_status_updated', { detail: fullStatus }));
   } catch {}
 
-  // 2. Persistent Firestore Save (Broadcasts to all registered users via Firebase)
+  // 2. PRIMARY: Save directly to Supabase Database (public.user_statuses)
+  try {
+    const supabaseRecord = toSupabaseStatusRecord(fullStatus);
+    const { error: sbErr } = await supabase
+      .from('user_statuses')
+      .upsert(supabaseRecord);
+    if (sbErr) {
+      console.warn('Supabase user status write notice:', sbErr.message || sbErr);
+    }
+  } catch (sbEx) {
+    console.warn('Supabase user status write exception:', sbEx);
+  }
+
+  // 3. Persistent Firestore Save as secondary synchronization
   try {
     const statusDocRef = doc(db, 'user_statuses', statusId);
     await setDoc(statusDocRef, fullStatus);
@@ -375,7 +454,7 @@ export async function saveUserMatchStatus(
     console.warn('Firestore user status write notice:', fsErr);
   }
 
-  // 3. Central Persistent Database Save
+  // 4. Central Persistent Database Save
   try {
     await fetch('/api/statuses', {
       method: 'POST',
@@ -386,7 +465,7 @@ export async function saveUserMatchStatus(
     console.warn('Central database status save notice:', serverErr);
   }
 
-  // 4. Log User Activity to Firebase
+  // 5. Log User Activity to Firebase & LocalStore
   await logUserActivity(status.userId, {
     type: 'status_post',
     title: `Published ${fullStatus.statusType === 'reel' ? 'Match Reel' : fullStatus.statusType === 'image' ? 'Image Status' : 'Match Prediction Card'}`,
@@ -399,31 +478,52 @@ export async function saveUserMatchStatus(
 export async function fetchUserStatuses(): Promise<MatchCardStatus[]> {
   const mergedMap = new Map<string, MatchCardStatus>();
 
-  // 1. Primary: Query Firestore collection for real cross-user statuses
+  // 1. PRIMARY: Query Supabase public.user_statuses table
+  try {
+    const { data: sbData, error: sbErr } = await supabase
+      .from('user_statuses')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!sbErr && Array.isArray(sbData) && sbData.length > 0) {
+      sbData.forEach((row) => {
+        if (row && row.id) {
+          const item = fromSupabaseStatusRecord(row);
+          mergedMap.set(item.id, item);
+        }
+      });
+    }
+  } catch (sbErr) {
+    console.warn('Supabase fetchUserStatuses notice:', sbErr);
+  }
+
+  // 2. Query Firestore collection as secondary source
   try {
     const snap = await getDocs(collection(db, 'user_statuses'));
     snap.forEach((docSnap) => {
       const item = docSnap.data() as MatchCardStatus;
-      if (item && item.id) {
+      if (item && item.id && !mergedMap.has(item.id)) {
         mergedMap.set(item.id, item);
       }
     });
   } catch (fsErr) {}
 
-  // 2. Fetch from central server database
+  // 3. Query Central Server Database
   try {
     const res = await fetch('/api/statuses', { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data.statuses)) {
         data.statuses.forEach((s: MatchCardStatus) => {
-          if (s && s.id) mergedMap.set(s.id, s);
+          if (s && s.id && !mergedMap.has(s.id)) {
+            mergedMap.set(s.id, s);
+          }
         });
       }
     }
   } catch (e) {}
 
-  // 3. Fallback to cached statuses
+  // 4. Fallback to cached statuses if still empty
   if (mergedMap.size === 0) {
     const cached = getCachedList<MatchCardStatus>(STATUS_CACHE_KEY, []);
     cached.forEach(s => {
@@ -457,6 +557,25 @@ export function subscribeUserStatuses(onUpdate: (statuses: MatchCardStatus[]) =>
   };
   window.addEventListener('mtl_status_updated', handleLocalUpdate);
 
+  // 1. Supabase Realtime Subscription on public.user_statuses
+  let supabaseChannel: any = null;
+  try {
+    supabaseChannel = supabase
+      .channel('public:user_statuses')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_statuses' },
+        async () => {
+          const refreshed = await fetchUserStatuses();
+          onUpdate(refreshed);
+        }
+      )
+      .subscribe();
+  } catch (sbSubErr) {
+    console.warn('Supabase status subscription notice:', sbSubErr);
+  }
+
+  // 2. Firestore Snapshot Listener
   let unsubscribeFirestore = () => {};
   try {
     unsubscribeFirestore = onSnapshot(collection(db, 'user_statuses'), (snapshot) => {
@@ -480,6 +599,7 @@ export function subscribeUserStatuses(onUpdate: (statuses: MatchCardStatus[]) =>
     }, () => {});
   } catch {}
 
+  // 3. Fallback polling interval
   const intervalId = setInterval(async () => {
     try {
       const res = await fetch('/api/statuses', { cache: 'no-store' });
@@ -491,12 +611,17 @@ export function subscribeUserStatuses(onUpdate: (statuses: MatchCardStatus[]) =>
         }
       }
     } catch {}
-  }, 3000);
+  }, 4000);
 
   return () => {
     clearInterval(intervalId);
     window.removeEventListener('mtl_status_updated', handleLocalUpdate);
     try { unsubscribeFirestore(); } catch {}
+    try {
+      if (supabaseChannel) {
+        supabase.removeChannel(supabaseChannel);
+      }
+    } catch {}
   };
 }
 
@@ -511,7 +636,20 @@ export async function recordStatusView(statusId: string, viewerId: string) {
     target.viewsCount = (target.viewsCount || 0) + 1;
     setCachedList(STATUS_CACHE_KEY, current);
 
-    // Save to Firestore
+    // 1. Save to Supabase
+    try {
+      await supabase
+        .from('user_statuses')
+        .update({
+          viewers: target.viewers,
+          views_count: target.viewsCount
+        })
+        .eq('id', statusId);
+    } catch (sbErr) {
+      console.warn('Supabase recordStatusView notice:', sbErr);
+    }
+
+    // 2. Save to Firestore
     try {
       const statusRef = doc(db, 'user_statuses', statusId);
       await updateDoc(statusRef, {
@@ -520,7 +658,7 @@ export async function recordStatusView(statusId: string, viewerId: string) {
       });
     } catch {}
 
-    // Save to backend
+    // 3. Save to backend
     try {
       await fetch(`/api/statuses/${statusId}/view`, {
         method: 'POST',
@@ -552,7 +690,36 @@ export async function toggleStatusLike(statusId: string, userId: string): Promis
 
   setCachedList(STATUS_CACHE_KEY, current);
 
-  // 1. Save to Firebase Firestore /user_statuses/{statusId}
+  // 1. Save to Supabase (user_statuses & status_likes audit table)
+  try {
+    await supabase
+      .from('user_statuses')
+      .update({
+        likers: target.likers,
+        likes_count: target.likesCount
+      })
+      .eq('id', statusId);
+
+    if (newLikedState) {
+      await supabase
+        .from('status_likes')
+        .upsert({
+          id: `like_${statusId}_${userId}`,
+          status_id: statusId,
+          user_id: userId,
+          created_at: new Date().toISOString()
+        });
+    } else {
+      await supabase
+        .from('status_likes')
+        .delete()
+        .match({ status_id: statusId, user_id: userId });
+    }
+  } catch (sbErr) {
+    console.warn('Supabase toggleStatusLike notice:', sbErr);
+  }
+
+  // 2. Save to Firebase Firestore /user_statuses/{statusId}
   try {
     const statusRef = doc(db, 'user_statuses', statusId);
     await updateDoc(statusRef, {
@@ -563,7 +730,7 @@ export async function toggleStatusLike(statusId: string, userId: string): Promis
     console.warn('Firestore toggleStatusLike update notice:', fsErr);
   }
 
-  // 2. Save like audit record to Firestore /status_likes/{likeId}
+  // 3. Save like audit record to Firestore /status_likes/{likeId}
   const likeDocId = `like_${statusId}_${userId}`;
   try {
     if (newLikedState) {
@@ -579,7 +746,7 @@ export async function toggleStatusLike(statusId: string, userId: string): Promis
     }
   } catch {}
 
-  // 3. Save to backend database
+  // 4. Save to backend database
   try {
     await fetch(`/api/statuses/${statusId}/like`, {
       method: 'POST',
