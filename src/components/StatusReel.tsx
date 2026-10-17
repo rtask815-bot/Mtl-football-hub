@@ -10,13 +10,17 @@ interface StatusReelProps {
   currentUser: any;
   userProfile: any;
   onRefreshStatuses?: () => void;
+  disableViewerModal?: boolean;
+  onStatusClick?: (index: number) => void;
 }
 
 export const StatusReel: React.FC<StatusReelProps> = ({
   statuses: propStatuses,
   currentUser,
   userProfile,
-  onRefreshStatuses
+  onRefreshStatuses,
+  disableViewerModal = false,
+  onStatusClick
 }) => {
   const [liveStatuses, setLiveStatuses] = useState<MatchCardStatus[]>(() => {
     if (Array.isArray(propStatuses) && propStatuses.length > 0) return propStatuses;
@@ -71,6 +75,11 @@ export const StatusReel: React.FC<StatusReelProps> = ({
   const otherStatuses = statuses.filter(s => s.id !== myStatus?.id);
 
   const handleOpenStatus = (index: number) => {
+    if (onStatusClick) {
+      onStatusClick(index);
+      return;
+    }
+    if (disableViewerModal) return;
     setSelectedStatusIndex(index);
   };
 
@@ -317,7 +326,7 @@ export const StatusReel: React.FC<StatusReelProps> = ({
       </div>
 
       {/* Fullscreen WhatsApp-style story viewer modal */}
-      {selectedStatusIndex !== null && (
+      {!disableViewerModal && selectedStatusIndex !== null && (
         <StatusViewerModal
           statuses={statuses}
           initialIndex={selectedStatusIndex}

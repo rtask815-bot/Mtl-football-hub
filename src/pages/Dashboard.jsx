@@ -11,7 +11,6 @@ import AlertBanner from '../components/AlertBanner.tsx';
 import DashboardFAB from '../components/DashboardFAB.tsx';
 import { PerformanceAnalyticsChart } from '../components/PerformanceAnalyticsChart.tsx';
 import StatusReel from '../components/StatusReel.tsx';
-import StatusViewerModal from '../components/StatusViewerModal.tsx';
 import CreateStatusModal from '../components/CreateStatusModal.tsx';
 import { fetchUserStatuses, subscribeUserStatuses, INITIAL_COMMUNITY_STATUSES, saveMatchReaction } from '../config/firebaseStore.ts';
 import { 
@@ -37,7 +36,6 @@ export default function Dashboard() {
   // User & Profile States
   const [currentUser, setCurrentUser] = useState(null);
   const [dashboardStatuses, setDashboardStatuses] = useState(INITIAL_COMMUNITY_STATUSES);
-  const [viewingStatusIndex, setViewingStatusIndex] = useState(null);
   const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(() => {
     const cached = StorageCache.get('profile');
@@ -1220,6 +1218,8 @@ export default function Dashboard() {
               statuses={dashboardStatuses}
               currentUser={currentUser}
               userProfile={userProfile}
+              disableViewerModal={true}
+              onStatusClick={() => navigate('/profile')}
               onRefreshStatuses={async () => {
                 const list = await fetchUserStatuses();
                 if (Array.isArray(list)) setDashboardStatuses(list);
@@ -1279,13 +1279,10 @@ export default function Dashboard() {
                   </div>
 
                   <button
-                    onClick={() => {
-                      const idx = dashboardStatuses.findIndex(s => s.id === myStatus.id);
-                      setViewingStatusIndex(idx >= 0 ? idx : 0);
-                    }}
+                    onClick={() => navigate('/profile')}
                     className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs font-['Orbitron'] transition-colors cursor-pointer"
                   >
-                    WATCH STORY
+                    VIEW ON PROFILE
                   </button>
                 </div>
               </div>
@@ -1323,7 +1320,7 @@ export default function Dashboard() {
                   {dashboardStatuses.map((st, i) => (
                     <div
                       key={st.id || i}
-                      onClick={() => setViewingStatusIndex(i)}
+                      onClick={() => navigate('/profile')}
                       className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-lg space-y-3 group"
                     >
                       <div className="flex items-center justify-between">
@@ -2034,21 +2031,6 @@ export default function Dashboard() {
         onNavigate={(route) => navigateTo(route)}
         isAdmin={isAdmin}
       />
-
-      {/* STATUS STORY VIEWER MODAL */}
-      {viewingStatusIndex !== null && (
-        <StatusViewerModal
-          statuses={dashboardStatuses}
-          initialIndex={viewingStatusIndex}
-          isOpen={true}
-          onClose={() => setViewingStatusIndex(null)}
-          currentUserId={currentUser?.id || 'guest'}
-          onStatusUpdated={async () => {
-            const list = await fetchUserStatuses();
-            if (Array.isArray(list)) setDashboardStatuses(list);
-          }}
-        />
-      )}
 
       {/* CREATE STATUS MODAL */}
       {isCreateStatusOpen && (
