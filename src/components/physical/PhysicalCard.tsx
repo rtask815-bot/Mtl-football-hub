@@ -98,11 +98,20 @@ export const PhysicalCard: React.FC<PhysicalCardProps> = ({
       onMouseEnter={() => interactive && setLocalHover(true)}
       onMouseLeave={() => interactive && setLocalHover(false)}
       onMouseMove={handleMouseMove}
+      role={interactive ? (props.role || 'button') : props.role}
+      tabIndex={interactive ? (props.tabIndex ?? 0) : props.tabIndex}
+      onKeyDown={(e) => {
+        if (interactive && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          if (props.onClick) (props.onClick as any)(e);
+        }
+        if (props.onKeyDown) props.onKeyDown(e);
+      }}
       className={`
         relative rounded-2xl overflow-hidden
         transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
         ${variantStyles[variant]}
-        ${interactive ? 'hover:-translate-y-1 hover:border-[#475569] cursor-pointer' : ''}
+        ${interactive ? 'hover:-translate-y-1 hover:border-[#475569] cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400/50' : ''}
         ${className}
       `}
       style={{

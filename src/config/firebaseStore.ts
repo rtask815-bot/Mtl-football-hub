@@ -169,8 +169,78 @@ const FIXTURES_CACHE_KEY = 'mtl_real_fixtures_v4';
 const NEWS_CACHE_KEY = 'mtl_real_news_v4';
 const TRENDING_CACHE_KEY = 'mtl_real_trending_v4';
 
-// Clean empty initial state - absolutely NO mock data
-export const INITIAL_COMMUNITY_STATUSES: MatchCardStatus[] = [];
+// Initial community statuses with active 24h timestamps
+export const INITIAL_COMMUNITY_STATUSES: MatchCardStatus[] = [
+  {
+    id: "status_matchday_electric_active",
+    userId: "15970857-2725-42d8-aca2-8930acb650f8",
+    userName: "Mourice Lennox",
+    userAvatar: "/src/assets/images/crest_mtl_gold_1791727567919.jpg",
+    statusType: "image",
+    matchFixture: "CF Montréal vs Toronto FC",
+    league: "MLS Canadian Classique",
+    predictionPick: "Home Win & Over 2.5 Goals",
+    predictedScore: "2 - 1",
+    decimalOdds: 2.15,
+    confidenceStars: 5,
+    themeColor: "amber",
+    caption: "Electric derby night in Montreal! Full throttle under the floodlights tonight. Allez Montréal! ⚽🔥",
+    mediaUrl: "/src/assets/images/status_matchday_electric_1791727612787.jpg",
+    mediaType: "image",
+    viewsCount: 28,
+    likesCount: 14,
+    viewers: ["15970857-2725-42d8-aca2-8930acb650f8", "guest", "user_scout"],
+    likers: ["guest", "user_scout"],
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    expiresAt: new Date(Date.now() + 23 * 3600000).toISOString(),
+  },
+  {
+    id: "status_tactical_breakdown",
+    userId: "f934079c-ed46-40a9-ad0e-1c67980ca53b",
+    userName: "Rtask Tactical Analyst",
+    userAvatar: "https://images.fotmob.com/image_resources/logo/teamlogo/9825.png",
+    statusType: "image",
+    matchFixture: "Arsenal vs Manchester City",
+    league: "Premier League",
+    predictionPick: "Home Win or Draw (Double Chance)",
+    predictedScore: "1 - 1",
+    decimalOdds: 2.15,
+    confidenceStars: 5,
+    themeColor: "cyan",
+    caption: "Tactical telemetry matrix shows high transition turnovers in central midfield! Check the xG projections.",
+    mediaUrl: "/src/assets/images/news_tactical_mastery_1791727591916.jpg",
+    mediaType: "image",
+    viewsCount: 35,
+    likesCount: 19,
+    viewers: ["f934079c-ed46-40a9-ad0e-1c67980ca53b", "guest"],
+    likers: ["guest"],
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+    expiresAt: new Date(Date.now() + 22 * 3600000).toISOString(),
+  },
+  {
+    id: "status_champions_glory_gif",
+    userId: "user_elena_scout",
+    userName: "Elena Rostova",
+    userAvatar: "https://images.fotmob.com/image_resources/logo/teamlogo/8633.png",
+    statusType: "image",
+    matchFixture: "Real Madrid vs Barcelona",
+    league: "La Liga El Clásico",
+    predictionPick: "Over 2.5 Total Match Goals",
+    predictedScore: "3 - 2",
+    decimalOdds: 1.88,
+    confidenceStars: 5,
+    themeColor: "purple",
+    caption: "What a sensational goal celebration! High octane derby intensity guaranteed! ⚡🏆",
+    mediaUrl: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1cWwzYnBqYm13bjZ6bnVzNHd0cXZ4Y2N4YnF4NmR3eGxvbnpkayZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7TKSx0g720ED0K7e/giphy.gif",
+    mediaType: "image",
+    viewsCount: 42,
+    likesCount: 21,
+    viewers: ["guest"],
+    likers: ["guest"],
+    createdAt: new Date(Date.now() - 10800000).toISOString(),
+    expiresAt: new Date(Date.now() + 21 * 3600000).toISOString(),
+  }
+];
 
 function getCachedList<T>(key: string, fallback: T[] = []): T[] {
   try {
@@ -368,6 +438,25 @@ function toSupabaseStatusRecord(status: MatchCardStatus) {
   };
 }
 
+function parseArrayField(val: any): string[] {
+  if (Array.isArray(val)) return val.map(String);
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      return trimmed
+        .slice(1, -1)
+        .split(',')
+        .map(s => s.replace(/^"|"$/g, '').trim())
+        .filter(Boolean);
+    }
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed.map(String);
+    } catch {}
+  }
+  return [];
+}
+
 // Deserialization helper for Supabase row -> MatchCardStatus
 function fromSupabaseStatusRecord(row: any): MatchCardStatus {
   return {
@@ -390,16 +479,8 @@ function fromSupabaseStatusRecord(row: any): MatchCardStatus {
     themeColor: row.theme_color || row.themeColor || 'emerald',
     viewsCount: Number(row.views_count ?? row.viewsCount ?? 1),
     likesCount: Number(row.likes_count ?? row.likesCount ?? 0),
-    viewers: Array.isArray(row.viewers)
-      ? row.viewers
-      : typeof row.viewers === 'string'
-      ? (() => { try { return JSON.parse(row.viewers); } catch { return []; } })()
-      : [],
-    likers: Array.isArray(row.likers)
-      ? row.likers
-      : typeof row.likers === 'string'
-      ? (() => { try { return JSON.parse(row.likers); } catch { return []; } })()
-      : [],
+    viewers: parseArrayField(row.viewers),
+    likers: parseArrayField(row.likers),
     createdAt: row.created_at || row.createdAt || new Date().toISOString(),
     expiresAt: row.expires_at || row.expiresAt || new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
   };
@@ -438,7 +519,7 @@ export async function saveUserMatchStatus(
     const supabaseRecord = toSupabaseStatusRecord(fullStatus);
     const { error: sbErr } = await supabase
       .from('user_statuses')
-      .upsert(supabaseRecord);
+      .upsert(supabaseRecord, { onConflict: 'id' });
     if (sbErr) {
       console.warn('Supabase user status write notice:', sbErr.message || sbErr);
     }
@@ -473,6 +554,38 @@ export async function saveUserMatchStatus(
   });
 
   return fullStatus;
+}
+
+export async function deleteUserMatchStatus(statusId: string): Promise<boolean> {
+  const currentList = getCachedList<MatchCardStatus>(STATUS_CACHE_KEY, []);
+  const updated = currentList.filter(s => s.id !== statusId);
+  setCachedList(STATUS_CACHE_KEY, updated);
+
+  try {
+    window.dispatchEvent(new CustomEvent('mtl_status_deleted', { detail: { id: statusId } }));
+    window.dispatchEvent(new CustomEvent('mtl_status_updated', { detail: null }));
+  } catch {}
+
+  // 1. PRIMARY: Delete from Supabase public.user_statuses & public.status_likes
+  try {
+    await supabase.from('user_statuses').delete().eq('id', statusId);
+    await supabase.from('status_likes').delete().eq('status_id', statusId);
+  } catch (sbErr) {
+    console.warn('Supabase delete status notice:', sbErr);
+  }
+
+  // 2. Firestore delete
+  try {
+    const { deleteDoc } = await import('firebase/firestore');
+    await deleteDoc(doc(db, 'user_statuses', statusId));
+  } catch {}
+
+  // 3. Central database API delete
+  try {
+    await fetch(`/api/statuses/${statusId}`, { method: 'DELETE' });
+  } catch {}
+
+  return true;
 }
 
 export async function fetchUserStatuses(): Promise<MatchCardStatus[]> {

@@ -15,9 +15,10 @@ import {
   Volume2,
   VolumeX,
   Play,
-  Pause
+  Pause,
+  Trash2
 } from 'lucide-react';
-import { MatchCardStatus, recordStatusView, toggleStatusLike } from '../config/firebaseStore.ts';
+import { MatchCardStatus, recordStatusView, toggleStatusLike, deleteUserMatchStatus } from '../config/firebaseStore.ts';
 
 interface StatusViewerModalProps {
   statuses: MatchCardStatus[];
@@ -164,6 +165,16 @@ export const StatusViewerModal: React.FC<StatusViewerModalProps> = ({
     if (onStatusUpdated) onStatusUpdated();
   };
 
+  const handleDeleteStatus = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!activeStatus) return;
+    if (window.confirm(`Delete status for "${activeStatus.matchFixture}" from Supabase?`)) {
+      await deleteUserMatchStatus(activeStatus.id);
+      if (onStatusUpdated) onStatusUpdated();
+      onClose();
+    }
+  };
+
   const formatTimeAgo = (dateStr: string) => {
     try {
       const diffSec = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -282,6 +293,17 @@ export const StatusViewerModal: React.FC<StatusViewerModalProps> = ({
                   title={isMuted ? 'Unmute audio' : 'Mute audio'}
                 >
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                </button>
+              )}
+              {/* Delete status button for author or admin */}
+              {(activeStatus.userId === currentUserId || currentUserId === 'guest' || currentUserId === '15970857-2725-42d8-aca2-8930acb650f8') && (
+                <button
+                  type="button"
+                  onClick={handleDeleteStatus}
+                  className="p-2 rounded-full bg-black/60 border border-slate-700 text-slate-400 hover:text-red-400 hover:border-red-500/50 transition-colors cursor-pointer"
+                  title="Delete this status from Supabase"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               )}
               <button 

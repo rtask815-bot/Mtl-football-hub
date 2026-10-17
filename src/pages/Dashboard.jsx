@@ -7,7 +7,6 @@ import { StorageCache, DEFAULT_MATCHES_BACKUP, DEFAULT_FIXTURES_BACKUP, DEFAULT_
 import { openGoogleScout } from '../utils/googleScout.ts';
 import GoogleSearchModal from '../components/GoogleSearchModal.tsx';
 import FuturisticLoader from '../components/FuturisticLoader.tsx';
-import AdContainer from '../components/AdContainer.tsx';
 import AlertBanner from '../components/AlertBanner.tsx';
 import DashboardFAB from '../components/DashboardFAB.tsx';
 import { PerformanceAnalyticsChart } from '../components/PerformanceAnalyticsChart.tsx';
@@ -21,7 +20,6 @@ import {
   PhysicalOptionGrid,
   MaterialPanel 
 } from '../components/physical/index.ts';
-import heroPhysicalShowcase from '../assets/images/hero_physical_showcase_1791684418843.jpg';
 import { getTeamVisual, getFixtureTeamsVisuals, getMatchCardBg, getFixtureCardBg } from '../assets/visualsRegistry.ts';
 
 export default function Dashboard() {
@@ -1109,82 +1107,64 @@ export default function Dashboard() {
         {/* 3D PHYSICAL MATCH INTELLIGENCE SHOWCASE DECK */}
         <section className="mb-6">
           <PhysicalCard variant="carbon" withBolts={true} className="p-5 sm:p-6">
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+            <div className="w-full">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981]" />
+                <span className="text-[11px] font-black tracking-widest text-emerald-300 uppercase">
+                  MTL FOOTBALL INTELLIGENCE CHASSIS
+                </span>
+              </div>
               
-              {/* Left Column: Engraved Title & Operational Specs */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]" />
-                  <span className="text-[11px] font-black tracking-widest text-amber-300 uppercase">
-                    MTL FOOTBALL INTELLIGENCE CHASSIS
-                  </span>
-                </div>
-                
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">
-                  Match Intelligence Command
-                </h1>
-                
-                <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed mb-4">
-                  Precision manufactured odds calculations, real-time match fixtures, verified neural score predictions, and encrypted community fan rooms.
-                </p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">
+                Match Intelligence Command
+              </h1>
+              
+              <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed mb-4">
+                Precision manufactured odds calculations, real-time match fixtures, verified neural score predictions, and encrypted community fan rooms.
+              </p>
 
-                {/* Tactile Hardware Metric Badges */}
-                <div className="grid grid-cols-3 gap-2 max-w-md mb-4">
-                  <div className="p-2.5 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
-                    <div className="text-[10px] text-slate-400 uppercase font-semibold">Active Matches</div>
-                    <div className="text-sm sm:text-base font-extrabold text-white tabular-nums mt-0.5">
-                      {matchesData.length} LIVE/FIX
-                    </div>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
-                    <div className="text-[10px] text-slate-400 uppercase font-semibold">Accuracy Ratio</div>
-                    <div className="text-sm sm:text-base font-extrabold text-amber-400 tabular-nums mt-0.5">
-                      87.4%
-                    </div>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
-                    <div className="text-[10px] text-slate-400 uppercase font-semibold">Status Broadcast</div>
-                    <div className="text-sm sm:text-base font-extrabold text-emerald-400 tabular-nums mt-0.5">
-                      24H REEL
-                    </div>
+              {/* Tactile Hardware Metric Badges Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+                <div className="p-3 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
+                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Active Matches</div>
+                  <div className="text-sm sm:text-base font-extrabold text-white tabular-nums mt-0.5">
+                    {matchesData.length} LIVE/FIX
                   </div>
                 </div>
-
-                {/* Admin Physical Triggers */}
-                {isAdmin && (
-                  <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#1e293b]">
-                    <TactileButton variant="emerald" size="sm" onClick={() => setAdminModalState({ open: true, section: 'matches', item: null })}>
-                      + Create Match
-                    </TactileButton>
-                    <TactileButton variant="gold" size="sm" onClick={() => setAdminModalState({ open: true, section: 'fixtures', item: null })}>
-                      + Add Fixture
-                    </TactileButton>
-                    <TactileButton variant="obsidian" size="sm" onClick={() => setAdminModalState({ open: true, section: 'trending', item: null })}>
-                      + Post Story
-                    </TactileButton>
+                <div className="p-3 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
+                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Accuracy Ratio</div>
+                  <div className="text-sm sm:text-base font-extrabold text-amber-400 tabular-nums mt-0.5">
+                    87.4%
                   </div>
-                )}
-              </div>
-
-              {/* Right Column: Physical Manufactured Emblem Plaque Showcase */}
-              <div className="shrink-0 flex items-center justify-center">
-                <div className="relative rounded-2xl p-1 bg-gradient-to-b from-[#2a1d08] via-[#1a1205] to-[#070502] border-2 border-amber-500/50 shadow-[0_1px_1px_rgba(251,191,36,0.4)_inset,0_16px_40px_rgba(0,0,0,0.95)] max-w-[280px] sm:max-w-[320px] overflow-hidden group">
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-300/40 to-transparent z-10" />
-                  
-                  <img 
-                    src={heroPhysicalShowcase} 
-                    alt="MTL Football Hub Physical Emblem" 
-                    className="w-full h-auto rounded-xl object-cover shadow-2xl transition-transform duration-500 group-hover:scale-[1.03]"
-                    referrerPolicy="no-referrer"
-                  />
-                  
-                  <div className="absolute bottom-2 inset-x-2 px-3 py-1.5 rounded-lg bg-[#070b14]/85 backdrop-blur-md border border-[#334155]/60 flex items-center justify-between text-[11px] font-bold text-amber-200">
-                    <span className="tracking-wider uppercase">MTL PHYSICAL CREST</span>
-                    <span className="text-[10px] text-amber-400 font-mono">EST. 2026</span>
+                </div>
+                <div className="p-3 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
+                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Status Broadcast</div>
+                  <div className="text-sm sm:text-base font-extrabold text-emerald-400 tabular-nums mt-0.5">
+                    24H REEL
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
+                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Community Feed</div>
+                  <div className="text-sm sm:text-base font-extrabold text-cyan-400 tabular-nums mt-0.5">
+                    {dashboardStatuses.length} ACTIVE
                   </div>
                 </div>
               </div>
 
+              {/* Admin Physical Triggers */}
+              {isAdmin && (
+                <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[#1e293b]">
+                  <TactileButton variant="emerald" size="sm" onClick={() => setAdminModalState({ open: true, section: 'matches', item: null })}>
+                    + Create Match
+                  </TactileButton>
+                  <TactileButton variant="gold" size="sm" onClick={() => setAdminModalState({ open: true, section: 'fixtures', item: null })}>
+                    + Add Fixture
+                  </TactileButton>
+                  <TactileButton variant="obsidian" size="sm" onClick={() => setAdminModalState({ open: true, section: 'trending', item: null })}>
+                    + Post Story
+                  </TactileButton>
+                </div>
+              )}
             </div>
           </PhysicalCard>
         </section>
@@ -1201,12 +1181,6 @@ export default function Dashboard() {
             }}
           />
         </div>
-
-        {/* DYNAMIC SOURCED ADMOB BANNER CONTAINER */}
-        <AdContainer
-          adUnitId="ca-app-pub-8492019482018471/dashboard_banner"
-          onAction={() => navigateTo('tv')}
-        />
 
         {/* ALL AVAILABLE PAGES NAVIGATION HUB GRID - PHYSICAL TACTILE TILES */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-8">
@@ -1522,17 +1496,54 @@ export default function Dashboard() {
                       </div>
 
                       {/* Card Actions - Tactile Triggers */}
-                      <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#1e293b]">
-                        <div className="flex gap-2">
-                          <button className="btn-secondary !text-xs !py-1.5 !px-2.5" onClick={() => reactToMatch(match.id, 'fire')}>🔥 {match.reactions?.fire || 0}</button>
-                          <button className="btn-secondary !text-xs !py-1.5 !px-2.5" onClick={() => reactToMatch(match.id, 'heart')}>❤️ {match.reactions?.heart || 0}</button>
+                      <div className="flex flex-wrap justify-between items-center gap-2 mt-3 pt-3 border-t border-[#1e293b]">
+                        <div className="flex items-center gap-2">
+                          <TactileButton 
+                            variant="obsidian" 
+                            size="sm" 
+                            active={Boolean(matchReactionsMap[String(match.id)]?.some(r => r.user_id === (currentUser?.id || 'guest') && r.reaction === 'fire'))}
+                            onClick={() => reactToMatch(match.id, 'fire')}
+                            className="!text-xs !py-1.5 !px-2.5 min-h-[34px] hover:!border-amber-400/60"
+                          >
+                            🔥 <span className="font-mono tabular-nums font-bold ml-1">{match.reactions?.fire || 0}</span>
+                          </TactileButton>
+                          <TactileButton 
+                            variant="obsidian" 
+                            size="sm" 
+                            active={Boolean(matchReactionsMap[String(match.id)]?.some(r => r.user_id === (currentUser?.id || 'guest') && r.reaction === 'heart'))}
+                            onClick={() => reactToMatch(match.id, 'heart')}
+                            className="!text-xs !py-1.5 !px-2.5 min-h-[34px] hover:!border-rose-400/60"
+                          >
+                            ❤️ <span className="font-mono tabular-nums font-bold ml-1">{match.reactions?.heart || 0}</span>
+                          </TactileButton>
                         </div>
 
-                        <div className="flex gap-2">
-                          <button className="btn-secondary !text-xs !py-1.5 !px-2.5" onClick={() => setActiveCommentMatch(match)}>💬 Comments ({(matchCommentsStore[match.id] || []).length})</button>
-                          <TactileButton variant="emerald" size="sm" onClick={() => setActiveMatchDetail(match)}>Details</TactileButton>
+                        <div className="flex items-center gap-2">
+                          <TactileButton 
+                            variant="obsidian" 
+                            size="sm" 
+                            onClick={() => setActiveCommentMatch(match)}
+                            className="!text-xs !py-1.5 !px-2.5 min-h-[34px]"
+                          >
+                            💬 <span className="hidden sm:inline">Comments</span> ({(matchCommentsStore[match.id] || []).length})
+                          </TactileButton>
+                          <TactileButton 
+                            variant="emerald" 
+                            size="sm" 
+                            onClick={() => setActiveMatchDetail(match)}
+                            className="!text-xs !py-1.5 !px-3 min-h-[34px] font-bold"
+                          >
+                            Details
+                          </TactileButton>
                           {isAdmin && (
-                            <button className="btn-secondary !text-xs !py-1.5 !px-2.5 !text-red-400 hover:!border-red-500" onClick={() => deleteRecord('matches', match.id)}>Delete</button>
+                            <TactileButton 
+                              variant="obsidian" 
+                              size="sm" 
+                              onClick={() => deleteRecord('matches', match.id)}
+                              className="!text-xs !py-1.5 !px-2.5 min-h-[34px] !text-red-400 hover:!border-red-500 hover:!bg-red-950/40"
+                            >
+                              Delete
+                            </TactileButton>
                           )}
                         </div>
                       </div>
@@ -1542,7 +1553,7 @@ export default function Dashboard() {
               </div>
 
               {/* CLEAR PROMINENT SEE MORE BUTTON */}
-              <button className="see-more-btn" onClick={() => navigateTo('predictions')}>
+              <button type="button" className="see-more-btn" onClick={() => navigateTo('predictions')}>
                 View All Predictions Page →
               </button>
             </MaterialPanel>
@@ -1599,7 +1610,7 @@ export default function Dashboard() {
               </div>
 
               {/* CLEAR PROMINENT SEE MORE BUTTON */}
-              <button className="see-more-btn" onClick={() => navigateTo('fixtures')}>
+              <button type="button" className="see-more-btn" onClick={() => navigateTo('fixtures')}>
                 See More Fixtures →
               </button>
             </MaterialPanel>
@@ -1643,7 +1654,7 @@ export default function Dashboard() {
               </div>
 
               {/* CLEAR PROMINENT SEE MORE BUTTON */}
-              <button className="see-more-btn" onClick={() => navigateTo('news')}>
+              <button type="button" className="see-more-btn" onClick={() => navigateTo('news')}>
                 See More News →
               </button>
             </MaterialPanel>

@@ -1087,10 +1087,18 @@ function writeJsonFile<T>(filename: string, data: T) {
 app.get('/api/statuses', (_req: Request, res: Response) => {
   const list = readJsonFile<any[]>('statuses.json', []);
   const nowMs = Date.now();
-  const valid = list.filter(s => {
+  let valid = list.filter(s => {
     if (!s.expiresAt) return true;
     return new Date(s.expiresAt).getTime() > nowMs - 2 * 3600 * 1000;
   });
+  if (valid.length === 0 && list.length > 0) {
+    valid = list.map((s, idx) => ({
+      ...s,
+      createdAt: new Date(nowMs - (idx + 1) * 3600 * 1000).toISOString(),
+      expiresAt: new Date(nowMs + (24 - idx) * 3600 * 1000).toISOString()
+    }));
+    writeJsonFile('statuses.json', valid);
+  }
   return res.json({ success: true, statuses: valid });
 });
 
@@ -1158,6 +1166,18 @@ app.post('/api/statuses/:id/like', (req: Request, res: Response) => {
     writeJsonFile('statuses.json', list);
   }
   return res.json({ success: true, liked, likesCount: target?.likesCount || 0 });
+});
+
+app.delete('/api/statuses/:id', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const list = readJsonFile<any[]>('statuses.json', []);
+    const updated = list.filter(s => s.id !== id);
+    writeJsonFile('statuses.json', updated);
+    return res.json({ success: true, id });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to delete status' });
+  }
 });
 
 // 2. Profile Details Central Database Endpoint

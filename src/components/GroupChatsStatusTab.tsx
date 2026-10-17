@@ -26,8 +26,14 @@ export const GroupChatsStatusTab: React.FC<GroupChatsStatusTabProps> = ({
     return unsub;
   }, []);
 
-  const myStatus = statuses.find((s) => s.userId === currentUser?.id);
-  const otherStatuses = statuses.filter((s) => s.userId !== currentUser?.id);
+  const effectiveUserName = userProfile?.username || userProfile?.full_name || currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || '';
+  const myStatus = statuses.find(s => {
+    if (currentUser?.id && s.userId === currentUser.id) return true;
+    if (effectiveUserName && s.userName && s.userName.toLowerCase() === effectiveUserName.toLowerCase()) return true;
+    if (s.userId === 'guest' && (!currentUser?.id || currentUser.id === 'guest')) return true;
+    return false;
+  });
+  const otherStatuses = statuses.filter((s) => s.id !== myStatus?.id);
 
   const handleStatusCreated = (newStatus: MatchCardStatus) => {
     setStatuses((prev) => [newStatus, ...prev.filter((s) => s.id !== newStatus.id)]);
