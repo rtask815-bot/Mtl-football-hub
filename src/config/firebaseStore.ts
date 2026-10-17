@@ -1,6 +1,10 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
   getFirestore, 
+  initializeFirestore,
+  disableNetwork,
+  setLogLevel,
+  getDocFromServer,
   collection, 
   doc, 
   setDoc, 
@@ -24,9 +28,51 @@ import firebaseConfig from '../../firebase-applet-config.json';
 import { supabase } from './supabase.ts';
 import { StorageCache } from './storageCache.ts';
 
+// Suppress internal 10-second backend connection warning when Cloud Firestore API is offline or unreachable
+try {
+  setLogLevel('silent');
+} catch {}
+
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-export const db = (firebaseConfig as any).firestoreDatabaseId ? getFirestore(app, (firebaseConfig as any).firestoreDatabaseId) : getFirestore(app);
+
+export const db = (() => {
+  try {
+    return (firebaseConfig as any).firestoreDatabaseId
+      ? initializeFirestore(app, {
+          experimentalForceLongPolling: true,
+          experimentalAutoDetectLongPolling: true,
+        }, (firebaseConfig as any).firestoreDatabaseId)
+      : initializeFirestore(app, {
+          experimentalForceLongPolling: true,
+          experimentalAutoDetectLongPolling: true,
+        });
+  } catch {
+    return (firebaseConfig as any).firestoreDatabaseId
+      ? getFirestore(app, (firebaseConfig as any).firestoreDatabaseId)
+      : getFirestore(app);
+  }
+})();
+
+// Proactively test Firestore connectivity
+// If the backend cannot be reached or the Firestore API has not been enabled on the project,
+// gracefully switch to offline mode to prevent 10s connection timeout warnings.
+if (typeof window !== 'undefined') {
+  (async () => {
+    try {
+      const testTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500));
+      await Promise.race([
+        getDocFromServer(doc(db, 'test', 'connection')),
+        testTimeout
+      ]);
+    } catch {
+      try {
+        await disableNetwork(db);
+      } catch {}
+    }
+  })();
+}
+
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
