@@ -10,9 +10,7 @@ import FuturisticLoader from '../components/FuturisticLoader.tsx';
 import AlertBanner from '../components/AlertBanner.tsx';
 import DashboardFAB from '../components/DashboardFAB.tsx';
 import { PerformanceAnalyticsChart } from '../components/PerformanceAnalyticsChart.tsx';
-import StatusReel from '../components/StatusReel.tsx';
-import CreateStatusModal from '../components/CreateStatusModal.tsx';
-import { fetchUserStatuses, subscribeUserStatuses, INITIAL_COMMUNITY_STATUSES, saveMatchReaction } from '../config/firebaseStore.ts';
+import { saveMatchReaction } from '../config/firebaseStore.ts';
 import { 
   PhysicalCard, 
   TactileButton, 
@@ -35,8 +33,6 @@ export default function Dashboard() {
 
   // User & Profile States
   const [currentUser, setCurrentUser] = useState(null);
-  const [dashboardStatuses, setDashboardStatuses] = useState(INITIAL_COMMUNITY_STATUSES);
-  const [isCreateStatusOpen, setIsCreateStatusOpen] = useState(false);
   const [userProfile, setUserProfile] = useState(() => {
     const cached = StorageCache.get('profile');
     return {
@@ -121,8 +117,7 @@ export default function Dashboard() {
         loadMatchesFromDB(),
         loadFixturesFromDB(),
         loadTrendingFromDB(),
-        loadDatabaseComments(),
-        fetchUserStatuses().then(st => { if (isMounted && Array.isArray(st)) setDashboardStatuses(st); })
+        loadDatabaseComments()
       ]);
 
       if (!isMounted) return;
@@ -158,14 +153,9 @@ export default function Dashboard() {
       updateLiveMatches();
     }, 1000);
 
-    const unsubStatuses = subscribeUserStatuses((st) => {
-      if (isMounted && Array.isArray(st)) setDashboardStatuses(st);
-    });
-
     return () => {
       clearInterval(clockInterval);
       clearInterval(liveTimer);
-      unsubStatuses();
       window.removeEventListener('mtl_data_synced', handleGlobalSync);
       authSubscription?.unsubscribe();
       if (activeChannels && activeChannels.length > 0) {
@@ -252,19 +242,7 @@ export default function Dashboard() {
     }, 3500);
   }
 
-  function handleStatusCreated(newStatus) {
-    setDashboardStatuses(prev => [newStatus, ...prev.filter(s => s.id !== newStatus.id)]);
-    showToast("Status published live across all registered users!", false);
-    fetchUserStatuses().then(list => {
-      if (Array.isArray(list)) setDashboardStatuses(list);
-    });
-  }
 
-  const myStatus = dashboardStatuses.find(s => {
-    if (currentUser?.id && s.userId === currentUser.id) return true;
-    if (userProfile?.username && s.userName && s.userName.toLowerCase() === userProfile.username.toLowerCase()) return true;
-    return false;
-  });
 
   function triggerFloatingLoader(text, progress) {
     setLoader({ active: true, text, progress });
@@ -1154,15 +1132,15 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
-                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Status Broadcast</div>
+                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Upcoming Fixtures</div>
                   <div className="text-sm sm:text-base font-extrabold text-emerald-400 tabular-nums mt-0.5">
-                    24H REEL
+                    {fixturesData.length} FIXTURES
                   </div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#070b14] border border-[#1e293b] shadow-[inset_0_2px_4px_rgba(0,0,0,0.85)]">
-                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Community Feed</div>
+                  <div className="text-[10px] text-slate-400 uppercase font-semibold">Trending Topics</div>
                   <div className="text-sm sm:text-base font-extrabold text-cyan-400 tabular-nums mt-0.5">
-                    {dashboardStatuses.length} ACTIVE
+                    {trendingData.length} ACTIVE
                   </div>
                 </div>
               </div>
@@ -1185,197 +1163,11 @@ export default function Dashboard() {
           </PhysicalCard>
         </section>
 
-        {/* ==================================================================== */}
-        {/* REAL MATCH STATUS CARDS & COMMUNITY STORIES (MATCHES PROFILE CONTAINER) */}
-        {/* ==================================================================== */}
-        <section className="mb-8 space-y-6 animate-in fade-in duration-150">
-          <div className="bg-[#0b1322] border border-slate-800/90 rounded-3xl p-6 sm:p-7 shadow-xl space-y-6 relative overflow-hidden">
-            {/* Precision Milled Top Chamfer */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" aria-hidden="true" />
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-base sm:text-lg font-black text-white font-['Orbitron'] flex items-center gap-2.5 uppercase tracking-wider">
-                  <Sparkles className="w-5 h-5 text-emerald-400" />
-                  REAL MATCH STATUS CARDS (STORED IN FIREBASE)
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Every status is a verified match prediction card stored in Firestore and viewable like WhatsApp Stories for 24 hours.
-                </p>
-              </div>
-
-              <button
-                onClick={() => setIsCreateStatusOpen(true)}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs font-['Orbitron'] tracking-wider shadow-lg shadow-emerald-950/40 transition-all cursor-pointer active:scale-95 shrink-0"
-              >
-                <Plus className="w-4 h-4 stroke-[3]" />
-                <span>ADD MATCH STATUS</span>
-              </button>
-            </div>
-
-            {/* Circular Reel Bar */}
-            <StatusReel
-              statuses={dashboardStatuses}
-              currentUser={currentUser}
-              userProfile={userProfile}
-              disableViewerModal={true}
-              onStatusClick={() => navigate('/profile')}
-              onRefreshStatuses={async () => {
-                const list = await fetchUserStatuses();
-                if (Array.isArray(list)) setDashboardStatuses(list);
-              }}
-            />
-
-            {/* My Status Spotlight */}
-            {myStatus ? (
-              <div className="p-6 rounded-3xl bg-gradient-to-br from-cyan-950/40 via-slate-900 to-black border border-cyan-500/40 shadow-xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                    <span className="text-xs font-['Orbitron'] font-bold text-cyan-400 uppercase tracking-wider">
-                      YOUR PUBLISHED STATUS IS LIVE IN FIREBASE
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-                    <Clock className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Expires in 24 hours</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2 space-y-2">
-                    <span className="text-[10px] text-slate-400 uppercase font-mono">{myStatus.league}</span>
-                    <h3 className="text-lg sm:text-xl font-black text-white font-['Orbitron']">{myStatus.matchFixture}</h3>
-                    <div className="text-sm font-bold text-emerald-400 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4" />
-                      <span>{myStatus.predictionPick}</span>
-                    </div>
-                    {myStatus.caption && (
-                      <p className="text-xs text-slate-300 italic pt-1">"{myStatus.caption}"</p>
-                    )}
-                  </div>
-
-                  {myStatus.predictedScore && (
-                    <div className="bg-black/50 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">PREDICTED SCORE</span>
-                      <div className="text-3xl font-black font-['Orbitron'] text-cyan-300 my-1">{myStatus.predictedScore}</div>
-                      <span className="text-[10px] text-slate-400 font-mono">{myStatus.decimalOdds ? Number(myStatus.decimalOdds).toFixed(2) : '2.00'}x Odds</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-slate-800/80">
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span className="flex items-center gap-1 text-cyan-300 font-semibold">
-                      <Eye className="w-4 h-4 text-cyan-400" />
-                      {myStatus.viewsCount || 1} Views
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1 text-rose-300 font-semibold">
-                      <Heart className="w-4 h-4 text-rose-400 fill-rose-400" />
-                      {myStatus.likesCount || 0} Likes
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => navigate('/profile')}
-                    className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs font-['Orbitron'] transition-colors cursor-pointer"
-                  >
-                    VIEW ON PROFILE
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-10 px-4 rounded-3xl bg-slate-900/50 border border-dashed border-slate-800 space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto">
-                  <Sparkles className="w-6 h-6" />
-                </div>
-                <h3 className="text-sm font-bold text-white uppercase font-['Orbitron']">
-                  NO ACTIVE STATUS CARD PUBLISHED
-                </h3>
-                <p className="text-xs text-slate-400 max-w-md mx-auto">
-                  Post your prediction for upcoming fixtures! It will be stored in Firebase and rendered across the community WhatsApp status reels.
-                </p>
-                <button
-                  onClick={() => setIsCreateStatusOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs cursor-pointer hover:bg-emerald-400 transition-colors"
-                >
-                  Post Match Status Now
-                </button>
-              </div>
-            )}
-
-            {/* Real Status Cards List */}
-            <div className="space-y-4 pt-4">
-              <h3 className="text-xs font-black text-slate-300 font-['Orbitron'] uppercase tracking-wider flex items-center gap-2">
-                <span>ACTIVE COMMUNITY STATUSES</span>
-                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 font-mono text-[10px]">
-                  {dashboardStatuses.length}
-                </span>
-              </h3>
-
-              {dashboardStatuses.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {dashboardStatuses.map((st, i) => (
-                    <div
-                      key={st.id || i}
-                      onClick={() => navigate('/profile')}
-                      className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-lg space-y-3 group"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                          <img
-                            src={st.userAvatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${st.userId}`}
-                            alt={st.userName}
-                            className="w-8 h-8 rounded-full object-cover bg-slate-800 border border-slate-700"
-                          />
-                          <span className="text-xs font-bold text-white truncate max-w-[120px]">{st.userName}</span>
-                        </div>
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-800 text-cyan-400 font-mono">
-                          {st.predictedScore || (st.statusType === 'reel' ? 'REEL' : st.statusType === 'image' ? 'IMAGE' : 'PICK')}
-                        </span>
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="text-[10px] text-slate-400 font-mono block">{st.league}</span>
-                        <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors line-clamp-1">
-                          {st.matchFixture}
-                        </h4>
-                        <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
-                          <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{st.predictionPick}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/80">
-                        <div className="flex items-center gap-2">
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-3 h-3 text-cyan-400" />
-                            {st.viewsCount || 1}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Heart className="w-3 h-3 text-rose-400" />
-                            {st.likesCount || 0}
-                          </span>
-                        </div>
-                        <span className="font-mono text-emerald-400 font-bold">{st.decimalOdds ? Number(st.decimalOdds).toFixed(2) : '2.00'}x</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-slate-500 text-xs bg-slate-900/30 rounded-2xl border border-dashed border-slate-800">
-                  No active community match statuses in the database. Be the first to publish one!
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
 
         {/* ALL AVAILABLE PAGES NAVIGATION HUB GRID - PHYSICAL TACTILE TILES */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-8">
-          {/* User Profile & Status */}
+          {/* User Profile */}
           <PhysicalCard variant="obsidian" interactive={true} onClick={() => navigate('/profile')} className="p-3.5 flex flex-col justify-between">
             <div className="flex items-center justify-between w-full mb-3">
               <EmbossedIcon mount="badge" size="sm" icon={
@@ -1388,8 +1180,8 @@ export default function Dashboard() {
               </span>
             </div>
             <div>
-              <div className="text-xs font-bold text-white">Profile & Status</div>
-              <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">Bio & match reels</div>
+              <div className="text-xs font-bold text-white">User Profile</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">Account & preferences</div>
             </div>
           </PhysicalCard>
 
@@ -2032,16 +1824,7 @@ export default function Dashboard() {
         isAdmin={isAdmin}
       />
 
-      {/* CREATE STATUS MODAL */}
-      {isCreateStatusOpen && (
-        <CreateStatusModal
-          isOpen={isCreateStatusOpen}
-          onClose={() => setIsCreateStatusOpen(false)}
-          currentUser={currentUser}
-          userProfile={userProfile}
-          onStatusCreated={handleStatusCreated}
-        />
-      )}
+
 
     </div>
   );
