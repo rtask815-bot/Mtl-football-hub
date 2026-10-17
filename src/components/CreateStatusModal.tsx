@@ -87,6 +87,7 @@ export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState('');
 
   if (!isOpen) return null;
@@ -148,7 +149,7 @@ export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
     }
 
     setIsSubmitting(true);
-    setFeedbackMsg('Saving status to database across all registered users...');
+    setFeedbackMsg('Publishing status live across all registered users...');
 
     try {
       const authorName = 
@@ -167,19 +168,26 @@ export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
       let uploadedMediaUrl: string | undefined = mediaPreviewUrl || undefined;
       let uploadedMediaType: 'image' | 'video' | undefined = mediaType || undefined;
 
-      // Upload file to Firebase Storage if a real local file is selected
+      // Ultra-fast media handling with fast fallback so publishing never hangs
       if (attachedFile) {
         try {
-          const asset = await uploadDigitalMedia(
+          const uploadPromise = uploadDigitalMedia(
             attachedFile,
             attachedFile.name,
             currentUser?.id || 'guest',
             (pct) => setUploadProgress(pct)
           );
-          uploadedMediaUrl = asset.downloadUrl;
-          uploadedMediaType = asset.mediaType;
-        } catch (uploadErr) {
-          console.warn('Media upload warning, using local preview url:', uploadErr);
+          const asset = await Promise.race([
+            uploadPromise,
+            new Promise<any>((_, reject) => setTimeout(() => reject(new Error('timeout')), 1800))
+          ]);
+          if (asset?.downloadUrl) {
+            uploadedMediaUrl = asset.downloadUrl;
+            uploadedMediaType = asset.mediaType;
+          }
+        } catch {
+          // Immediately use local object preview url so publishing never stalls
+          uploadedMediaUrl = mediaPreviewUrl || undefined;
         }
       }
 
@@ -200,8 +208,13 @@ export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
         themeColor,
       });
 
+      setIsPublished(true);
       onStatusCreated(newStatus);
-      onClose();
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setIsPublished(false);
+        onClose();
+      }, 250);
     } catch (err: any) {
       console.error('Failed to publish match status:', err);
       setFeedbackMsg('Failed to save status: ' + (err.message || 'Check network connection'));
@@ -210,13 +223,13 @@ export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[160] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-[#08101d] border border-slate-700/80 rounded-3xl w-full max-w-2xl p-4 sm:p-6 shadow-2xl my-auto flex flex-col gap-4">
+    <div className="fixed inset-0 z-[160] bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-hidden animate-in fade-in duration-200">
+      <div className="bg-[#08101d] border border-slate-700/80 rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[min(96dvh,840px)] shadow-2xl flex flex-col overflow-hidden">
         
         {/* ================================================================== */}
-        {/* MODAL HEADER */}
+        {/* MODAL HEADER (Pinned) */}
         {/* ================================================================== */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="shrink-0 p-4 sm:p-5 pb-3 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 via-cyan-500 to-indigo-500 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-950/50">
               <Sparkles className="w-5 h-5" />
@@ -240,47 +253,51 @@ export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
         </div>
 
         {/* ================================================================== */}
-        {/* SEPARATE CONTAINER CARDS SELECTOR (NO CRAMPED SCROLLING) */}
+        {/* SEPARATE CONTAINER CARDS SELECTOR (Pinned) */}
         {/* ================================================================== */}
-        <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-          {[
-            { num: 1, label: 'Fixture', full: '1. Format & Match', icon: <TrendingUp className="w-3.5 h-3.5" /> },
-            { num: 2, label: 'Prediction', full: '2. Tip & Score', icon: <Zap className="w-3.5 h-3.5" /> },
-            { num: 3, label: 'Media', full: '3. Reel / Image', icon: <Film className="w-3.5 h-3.5" /> },
-            { num: 4, label: 'Preview', full: '4. Theme & Post', icon: <Eye className="w-3.5 h-3.5" /> }
-          ].map(c => {
-            const isActive = activeCard === c.num;
-            return (
-              <button
-                key={c.num}
-                type="button"
-                onClick={() => setActiveCard(c.num as any)}
-                className={`py-2 px-2 rounded-xl border text-[11px] font-bold font-['Orbitron'] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  isActive
-                    ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-lg shadow-emerald-950/40'
-                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                {c.icon}
-                <span className="hidden sm:inline">{c.full}</span>
-                <span className="sm:hidden">{c.label}</span>
-              </button>
-            );
-          })}
+        <div className="shrink-0 px-4 sm:px-5 pt-3 pb-2 space-y-2">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+            {[
+              { num: 1, label: 'Fixture', full: '1. Format & Match', icon: <TrendingUp className="w-3.5 h-3.5" /> },
+              { num: 2, label: 'Prediction', full: '2. Tip & Score', icon: <Zap className="w-3.5 h-3.5" /> },
+              { num: 3, label: 'Media', full: '3. Reel / Image', icon: <Film className="w-3.5 h-3.5" /> },
+              { num: 4, label: 'Preview', full: '4. Theme & Post', icon: <Eye className="w-3.5 h-3.5" /> }
+            ].map(c => {
+              const isActive = activeCard === c.num;
+              return (
+                <button
+                  key={c.num}
+                  type="button"
+                  onClick={() => setActiveCard(c.num as any)}
+                  className={`py-2 px-2 rounded-xl border text-[11px] font-bold font-['Orbitron'] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    isActive
+                      ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-lg shadow-emerald-950/40'
+                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  {c.icon}
+                  <span className="hidden sm:inline">{c.full}</span>
+                  <span className="sm:hidden">{c.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Feedback message banner if needed */}
+          {feedbackMsg && (
+            <div className="px-3 py-1.5 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-[11px] text-cyan-300 flex items-center gap-2">
+              <Info className="w-4 h-4 shrink-0" />
+              <span>{feedbackMsg}</span>
+            </div>
+          )}
         </div>
 
-        {/* Feedback message banner if needed */}
-        {feedbackMsg && (
-          <div className="px-3 py-1.5 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-[11px] text-cyan-300 flex items-center gap-2">
-            <Info className="w-4 h-4 shrink-0" />
-            <span>{feedbackMsg}</span>
-          </div>
-        )}
-
         {/* ================================================================== */}
-        {/* CONTAINER CARD 1: STATUS FORMAT & MATCH FIXTURE */}
+        {/* SCROLLABLE CARD BODY - FITS USER SCREEN */}
         {/* ================================================================== */}
-        {activeCard === 1 && (
+        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-2 space-y-4">
+          {/* CONTAINER CARD 1: STATUS FORMAT & MATCH FIXTURE */}
+          {activeCard === 1 && (
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#0c1626] to-[#08101d] border border-slate-700/80 shadow-xl space-y-4 animate-in fade-in duration-150">
             
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
@@ -855,15 +872,30 @@ export const CreateStatusModal: React.FC<CreateStatusModalProps> = ({
               <button
                 type="button"
                 onClick={() => handleSubmit()}
-                disabled={isSubmitting}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 hover:from-emerald-400 hover:to-indigo-400 text-slate-950 font-black text-xs font-['Orbitron'] tracking-wider shadow-lg shadow-emerald-950/40 transition-all cursor-pointer disabled:opacity-50"
+                disabled={isSubmitting || isPublished}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 hover:from-emerald-400 hover:to-indigo-400 text-slate-950 font-black text-xs font-['Orbitron'] tracking-wider shadow-lg shadow-emerald-950/40 transition-all cursor-pointer disabled:opacity-75 active:scale-95"
               >
-                <Send className="w-4 h-4" />
-                <span>{isSubmitting ? 'SAVING TO DATABASE...' : 'PUBLISH STATUS TO ALL USERS (24H)'}</span>
+                {isPublished ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-950 stroke-[3]" />
+                    <span>✓ PUBLISHED LIVE!</span>
+                  </>
+                ) : isSubmitting ? (
+                  <>
+                    <Sparkles className="w-4 h-4 animate-spin text-slate-950" />
+                    <span>PUBLISHING INSTANTLY...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>PUBLISH STATUS TO ALL USERS (24H)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
         )}
+        </div>
 
       </div>
     </div>

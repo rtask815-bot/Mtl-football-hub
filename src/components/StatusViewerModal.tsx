@@ -214,7 +214,7 @@ export const StatusViewerModal: React.FC<StatusViewerModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex items-center justify-center select-none"
+      className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex items-center justify-center select-none overflow-hidden p-0 sm:p-4"
       onMouseDown={() => setIsPaused(true)}
       onMouseUp={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
@@ -229,8 +229,8 @@ export const StatusViewerModal: React.FC<StatusViewerModalProps> = ({
         )}
       </div>
 
-      {/* MAIN STORY CONTAINER */}
-      <div className="relative w-full max-w-md h-[92vh] sm:h-[86vh] max-h-[840px] bg-[#070c16] rounded-3xl overflow-hidden border border-slate-700/80 shadow-2xl flex flex-col justify-between">
+      {/* MAIN STORY CONTAINER - FITS USER SCREEN */}
+      <div className="relative w-full max-w-md h-[100dvh] sm:h-[min(90vh,820px)] max-h-[100dvh] sm:max-h-[820px] bg-[#070c16] sm:rounded-3xl rounded-none overflow-hidden border-0 sm:border sm:border-slate-700/80 shadow-2xl flex flex-col justify-between">
         
         {/* TOP STORY HEADER & PROGRESS BARS */}
         <div className="absolute top-0 left-0 right-0 z-30 p-4 bg-gradient-to-b from-black/90 via-black/60 to-transparent space-y-3">
@@ -422,8 +422,8 @@ export const StatusViewerModal: React.FC<StatusViewerModalProps> = ({
           </div>
         ) : (
           /* 3. FUTURISTIC NEON MATCH PREDICTION CARD */
-          <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-6 pt-24 pb-20 overflow-y-auto">
-            <div className={`p-6 rounded-3xl bg-gradient-to-br ${getThemeGradient(activeStatus.themeColor)} border shadow-2xl relative overflow-hidden transition-all duration-300 space-y-4`}>
+          <div className="relative z-10 flex-1 flex flex-col justify-center px-3 sm:px-6 pt-20 pb-16 overflow-y-auto max-h-full">
+            <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${getThemeGradient(activeStatus.themeColor)} border shadow-2xl relative overflow-hidden transition-all duration-300 space-y-3 sm:space-y-4 my-auto`}>
               
               {/* Header Badge */}
               <div className="flex items-center justify-between">
